@@ -1,0 +1,20 @@
+openapi: 3.0.0
+info:
+  title: Voice2Claim API
+  version: 1.0.0
+paths:
+  /api/v1/claims:
+    post:
+      summary: Create claim from audio
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                audio:
+                  type: string
+                  format: binary
+                type:
+                  type: string
+                  enum: [vehicle, medical, fire, injury]
