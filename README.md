@@ -12,7 +12,8 @@
 [![Status](https://img.shields.io/badge/status-Hackathon-orange?style=for-the-badge)]()
 
 **🏆 Vietnam AI Innovation Challenge 2026 — Innovation Track**
-
+### 🚀 Live Demo
+# 👉 https://dathoc.net/v2c 👈
 </div>
 
 ---
