@@ -143,6 +143,18 @@
             background: linear-gradient(135deg, #eef0ff 0%, #ffeef3 100%);
         }
 
+        .processing-spinner {
+            display: inline-block;
+            margin-left: 8px;
+            font-size: 12px;
+            color: #667eea;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
         .audio-header {
             display: flex;
             align-items: center;
@@ -1234,6 +1246,8 @@
                             :title="isRecording ? $t('record.stop') : $t('record.start')">
                             <i class="fas" :class="isRecording ? 'fa-stop' : 'fa-microphone'"></i>
                         </button>
+                        <span x-show="isProcessing" class="processing-spinner"
+                              x-text="$t(processingStatus)"></span>
                         <div class="record-info"
                             x-text="isProcessing
                                 ? $t('processing.transcribing')
@@ -1460,11 +1474,6 @@
                                     <span x-text="rec.status"></span>
                                 </div>
                             </div>
-                            <template x-if="images.length > 0">
-                                <img :src="'/api/audio/' + images[0].id"
-                                    style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px;"
-                                    alt="thumb">
-                            </template>
                         </div>
                     </template>
                     <div x-show="recordings.length === 0" style="color: #a0aec0; padding: 12px;"
