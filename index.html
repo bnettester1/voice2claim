@@ -1525,7 +1525,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/alpinejs-i18n@2.5.3/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mqtt@5.0.5/dist/mqtt.min.js"></script>
     <script>
         const I18N_MESSAGES = {
             vi: {
@@ -1855,7 +1854,6 @@
                 toasts: [],
                 isProcessing: false,
                 processingStatus: '',
-                mqttClient: null,
 
                 pushToast(code) {
                     const msg = this.t(`errors.${code}`) || this.t('errors.UNKNOWN');
@@ -2401,74 +2399,6 @@
                         }
                     }
                     event.target.value = '';
-                },
-                initMQTT() {
-                    const wsUrl = `wss://dathoc.net:443/mq`;
-                    this.mqttClient = mqtt.connect(wsUrl, {
-                        protocol: 'wss',
-                        path: '/mq',
-                    });
-                    this.mqttClient.on('connect', () => {
-                        this.mqttClient.subscribe('claimflow/result/#');
-                    });
-                    this.mqttClient.on('message', (topic, message) => {
-                        try {
-                            const data = JSON.parse(message.toString());
-                            if (topic === 'claimflow/result/transcript') this.handleTranscript(data);
-                            else if (topic === 'claimflow/result/failed') this.handleFailed(data);
-                            else if (topic === 'claimflow/result/annotations') this.handleAnnotations(data);
-                            console.log(`MQTT/RECEIVE(${new Date().toLocaleTimeString()}):`, data);
-
-                            // tODO. Do something with the receiving information, maybe extract buffered image/audio
-
-                        } catch (e) {
-                            console.error('MQTT message parse failed:', e);
-                        }
-                    });
-                },
-                handleTranscript(data) {
-                    const rec = this.recordings.find(r => r.id === data.recording_id);
-                    if (rec) {
-                        const qualityScore = data.quality_score;
-                        if (qualityScore !== undefined && qualityScore < 5) {
-                            rec.status = 'needs_review';
-                        } else {
-                            rec.status = 'done';
-                        }
-                        rec.template_type = data.template_type || null;
-                        rec.transcript = {
-                            raw_text: data.raw_text,
-                            structured: data.structured,
-                            suggested_actions: data.suggested_actions,
-                            confidence: data.confidence,
-                            quality_score: qualityScore,
-                        };
-                        if (this.selectedRecordingId === rec.id) {
-                            this.refreshReport();
-                        }
-                        const now = new Date();
-                        const ts = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
-                        const prefix = window.AlpineI18n ? AlpineI18n.t('actions_done.done_prefix') : 'Đã thực hiện: ';
-                        const newDone = (data.suggested_actions || []).map(a => {
-                            const text = typeof a === 'string' ? a : a.text;
-                            return { text: prefix + text, completed_at: ts };
-                        });
-                        this.completedActions = [...newDone, ...this.completedActions];
-                    }
-                },
-                handleFailed(data) {
-                    const rec = this.recordings.find(r => r.id === data.recording_id);
-                    if (rec) {
-                        rec.status = 'failed';
-                        rec.error = data.error;
-                    }
-                },
-                handleAnnotations(data) {
-                    const img = this.images.find(i => i.id === data.image_id);
-                    if (img) {
-                        img.status = 'done';
-                        img.annotations = data.annotations || [];
-                    }
                 },
             };
         }
