@@ -4,7 +4,7 @@
 # Voice2Claim - API Test Script (Robust Version with Cookie Jar)
 # ==========================================
 
-BASE_URL="https://dathoc.net/v2c/api"
+BASE_URL="https://dathoc.net/voice2claim/v1/api"
 AUDIO_FILE="giamdinh_01.wav" # Đảm bảo file này tồn tại ở thư mục bạn chạy script
 COOKIE_JAR="/tmp/v2c_cookies.txt" # File lưu cookie giữa các request
 
