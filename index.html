@@ -1312,7 +1312,7 @@
                             </label>
                             <label class="upload-btn">
                                 <i class="fas fa-music"></i> <span x-text="$t('record.upload_audio')"></span>
-                                <input type="file" accept="audio/*" hidden @change="uploadAudioFile($event)">
+                                <input type="file" accept=".wav,.mp3,.m4a,.ogg,.flac,.webm" hidden @change="uploadAudioFile($event)">
                             </label>
                         </div>
                     </div>
@@ -2434,26 +2434,38 @@
                         return;
                     }
                     const blob = new Blob(chunks, { type: 'audio/webm' });
-                    console.log('Uploading audio blob:', blob.size, 'bytes');
                     const formData = new FormData();
-                    formData.append('file', blob, `recording_${Date.now()}.webm`);
-                    const resp = await fetch(
-                        `/api/cases/${this.currentCaseId}/upload`,
-                        { method: 'POST', body: formData }
-                    );
-                    if (resp.ok) {
-                        const data = await resp.json();
-                        this.recordings.unshift({
-                            id: data.recording_id,
-                            file_path: `recording_${Date.now()}.webm`,
-                            duration_sec: this.recordingSeconds,
-                            status: 'transcribing',
-                            template_type: null,
-                            transcript: null,
+                    formData.append('audio', blob, `recording_${Date.now()}.webm`);
+                    formData.append('template_type', this.selectedTemplate);
+                    this.isProcessing = true;
+                    this.processingStatus = 'processing.transcribing';
+                    try {
+                        const data = await api.claims.processVoice(formData);
+                        this.currentCaseId = data.id;
+                        this.recordings = (data.recordings || []).map(r => ({
+                            id: r.id,
+                            file_path: r.file_path,
+                            duration_sec: r.duration_sec,
+                            status: r.status,
+                            template_type: r.template_type,
+                            transcript: r.transcript,
                             image_id: null,
-                        });
-                        this.selectRecording(data.recording_id);
+                        }));
+                        this.images = (data.images || []).map(img => ({
+                            id: img.id,
+                            file_path: img.file_path,
+                            status: img.status,
+                            annotations: img.annotations || [],
+                        }));
+                        if (this.recordings.length) {
+                            this.selectRecording(this.recordings[0].id);
+                        }
                         await this.loadIncidents();
+                    } catch (e) {
+                        this.pushToast(e.code || 'UNKNOWN');
+                    } finally {
+                        this.isProcessing = false;
+                        this.processingStatus = '';
                     }
                 },
 
@@ -2487,57 +2499,44 @@
                 },
 
                 async uploadAudioFile(event) {
-
-                    // === SENDING FILE BLOB HERE ===
-
-                    if (this.mqttClient) {
-                        console.log(`MQTT/SEND(${new Date().toLocaleTimeString()}):`, event.target.files);
-
-                        const files = event.target.files;
-                        for (const file of files) {
-                            const arrayBuffer = await blob.arrayBuffer()
-                            const buffer = new Uint8Array(arrayBuffer)
-
-                            // do something with the file format
-                            // file.mime (like image/jpeg)
-                            // file.name (like abc123.webm or abc123.wav)
-
-                            // this.mqttClient.publish("event", buffer);
-                        }
-                    }
-
                     const files = event.target.files;
                     for (const file of files) {
-                        if (!this.currentCaseId) {
-                            const resp = await fetch('/api/cases', { method: 'POST' });
-                            const caseData = await resp.json();
-                            this.currentCaseId = caseData.id;
-                        }
+                        if (!this.validateAudioFile(file)) continue;
                         const formData = new FormData();
-                        formData.append('file', file);
-                        const resp = await fetch(
-                            `/api/cases/${this.currentCaseId}/upload`,
-                            { method: 'POST', body: formData }
-                        );
-                        if (resp.ok) {
-                            const data = await resp.json();
-                            this.recordings.unshift({
-                                id: data.recording_id,
-                                file_path: file.name,
-                                duration_sec: 0,
-                                status: 'transcribing',
-                                template_type: null,
-                                transcript: null,
+                        formData.append('audio', file);
+                        formData.append('template_type', this.selectedTemplate);
+                        this.isProcessing = true;
+                        this.processingStatus = 'processing.transcribing';
+                        try {
+                            const data = await api.claims.processVoice(formData);
+                            this.currentCaseId = data.id;
+                            this.recordings = (data.recordings || []).map(r => ({
+                                id: r.id,
+                                file_path: r.file_path,
+                                duration_sec: r.duration_sec,
+                                status: r.status,
+                                template_type: r.template_type,
+                                transcript: r.transcript,
                                 image_id: null,
-                            });
-                            this.selectRecording(data.recording_id);
+                            }));
+                            this.images = (data.images || []).map(img => ({
+                                id: img.id,
+                                file_path: img.file_path,
+                                status: img.status,
+                                annotations: img.annotations || [],
+                            }));
+                            if (this.recordings.length) {
+                                this.selectRecording(this.recordings[0].id);
+                            }
                             await this.loadIncidents();
+                        } catch (e) {
+                            this.pushToast(e.code || 'UNKNOWN');
+                        } finally {
+                            this.isProcessing = false;
+                            this.processingStatus = '';
                         }
                     }
                     event.target.value = '';
-
-                    // === SENDING FILE BLOB END ===
-
                 },
                 initMQTT() {
                     const wsUrl = `wss://dathoc.net:443/mq`;
