@@ -2158,13 +2158,7 @@
                         ? AlpineI18n.t('report.generating') : 'Generating…';
                     try {
                         const payload = this.buildClaimPayload();
-                        const resp = await fetch('/api/claim/pdf', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload),
-                        });
-                        if (!resp.ok) throw new Error('PDF request failed: ' + resp.status);
-                        const blob = await resp.blob();
+                        const blob = await api.claim.pdf(payload);
                         const url = URL.createObjectURL(blob);
                         const a = document.createElement('a');
                         a.href = url;
@@ -2176,9 +2170,9 @@
                         this.claimGenerationStatus = window.AlpineI18n
                             ? AlpineI18n.t('report.pdf_ready') : 'PDF ready';
                     } catch (e) {
-                        console.error('downloadClaimPdf failed:', e);
-                        this.claimGenerationStatus = (window.AlpineI18n
-                            ? AlpineI18n.t('report.pdf_error') : 'PDF error') + ': ' + e.message;
+                        this.pushToast(e.code || 'UNKNOWN');
+                        this.claimGenerationStatus = window.AlpineI18n
+                            ? AlpineI18n.t('report.pdf_error') : 'PDF error';
                     } finally {
                         this.claimPdfBusy = false;
                     }
@@ -2190,20 +2184,14 @@
                         ? AlpineI18n.t('report.sharing') : 'Sharing…';
                     try {
                         const payload = this.buildClaimPayload();
-                        const resp = await fetch('/api/claim/share', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload),
-                        });
-                        if (!resp.ok) throw new Error('Share request failed: ' + resp.status);
-                        const data = await resp.json().catch(() => ({}));
+                        const data = await api.claim.share(payload);
                         this.claimGenerationStatus = (window.AlpineI18n
                             ? AlpineI18n.t('report.shared') : 'Shared')
                             + (data && data.recipient ? ' → ' + data.recipient : '');
                     } catch (e) {
-                        console.error('shareClaimPdf failed:', e);
-                        this.claimGenerationStatus = (window.AlpineI18n
-                            ? AlpineI18n.t('report.share_error') : 'Share error') + ': ' + e.message;
+                        this.pushToast(e.code || 'UNKNOWN');
+                        this.claimGenerationStatus = window.AlpineI18n
+                            ? AlpineI18n.t('report.share_error') : 'Share error';
                     } finally {
                         this.claimPdfBusy = false;
                     }
