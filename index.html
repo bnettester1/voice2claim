@@ -2135,14 +2135,10 @@
                     }
                     this.wavesurfer = this.initWaveSurfer(container);
                     try {
-                        const url = `/api/audio/${id}`;
-                        const resp = await fetch(url);
-                        if (!resp.ok) {
-                            console.error('Audio fetch failed:', resp.status);
-                            return;
-                        }
-                        const blob = await resp.blob();
-                        console.log('Audio blob:', blob.size, 'bytes, type:', blob.type);
+                        const rec = this.recordings.find(r => r.id === id);
+                        if (!rec || !rec.file_path) return;
+                        const relative = rec.file_path.replace(/^\.\//, '');
+                        const blob = await request('/' + relative);
                         if (blob.size < 100) {
                             console.warn('Audio blob too small, likely empty recording');
                         }
