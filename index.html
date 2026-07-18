@@ -2248,11 +2248,6 @@
                 },
 
                 async startRecording() {
-                    if (!this.currentCaseId) {
-                        const resp = await fetch('/api/cases', { method: 'POST' });
-                        const caseData = await resp.json();
-                        this.currentCaseId = caseData.id;
-                    }
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                     const chunks = [];
                     this.audioChunks = chunks;
@@ -2322,20 +2317,19 @@
                 async uploadImages(event) {
                     const files = event.target.files;
                     for (const file of files) {
-                        if (!this.currentCaseId) {
-                            const resp = await fetch('/api/cases', { method: 'POST' });
-                            const caseData = await resp.json();
-                            this.currentCaseId = caseData.id;
-                        }
-                        const formData = new FormData();
-                        formData.append('file', file);
-                        const resp = await fetch(
-                            `/api/cases/${this.currentCaseId}/upload`,
-                            { method: 'POST', body: formData }
-                        );
-                        if (resp.ok) {
-                            const data = await resp.json();
-                            const imgUrl = `/api/audio/${data.recording_id}`;
+                        try {
+                            if (!this.currentCaseId) {
+                                const caseData = await request('/cases', { method: 'POST' });
+                                this.currentCaseId = caseData.id;
+                            }
+                            const formData = new FormData();
+                            formData.append('file', file);
+                            const data = await request(`/cases/${this.currentCaseId}/upload`, {
+                                method: 'POST',
+                                body: formData,
+                                isForm: true,
+                            });
+                            const imgUrl = `${BASE_URL}/audio/${data.recording_id}`;
                             this.images.unshift({
                                 id: data.recording_id,
                                 file_path: file.name,
@@ -2343,6 +2337,8 @@
                                 annotations: [],
                             });
                             this.currentImage = imgUrl;
+                        } catch (e) {
+                            this.pushToast(e.code || 'UNKNOWN');
                         }
                     }
                     event.target.value = '';
