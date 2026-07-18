@@ -17,7 +17,7 @@ load_dotenv()
 # --- 1. CẤU HÌNH DATABASE TỪ .ENV ---
 DB_HOST = os.getenv("DB_POSTGRES_HOST", "127.0.0.1")
 DB_PORT = os.getenv("DB_POSTGRES_PORT", "5432")
-DB_NAME = os.getenv("DB_POSTGRES_NAME", "education_db")
+DB_NAME = os.getenv("DB_POSTGRES_NAME", "voice2claim_db")
 DB_USER = os.getenv("DB_POSTGRES_USER", "admin")
 DB_PASSWORD = os.getenv("DB_POSTGRES_PASS", "admin123xxx")
 

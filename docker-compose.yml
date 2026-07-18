@@ -124,10 +124,10 @@ services:
     build:
         context: .
         dockerfile: llm-proxy/Dockerfile
-    container_name: llm-proxy
+    container_name: llmprox-service
     restart: unless-stopped
     ports:
-      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:8085:8000"
     networks:
       - bookwormnet
 volumes:
