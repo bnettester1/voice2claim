@@ -2013,7 +2013,6 @@
 
                 async bootstrap() {
                     await this.$nextTick();
-                    this.initMQTT();
                     await this.loadIncidents();
                     this.hydrateClaimForm();
                 },
@@ -2058,22 +2057,24 @@
 
                 async loadIncidents() {
                     try {
-                        const resp = await fetch('/api/cases');
-                        const cases = await resp.json();
-                        this.incidents = cases.map(c => ({
-                            id: c.id,
-                            title: c.title,
-                            created_at: c.created_at,
-                            recording_count: (c.recordings || []).length,
-                            snippet: (c.recordings && c.recordings[0] && c.recordings[0].transcript)
-                                ? (c.recordings[0].transcript.raw_text || '').slice(0, 80) + '...'
-                                : '',
-                        }));
-                        if (this.incidents.length > 0 && !this.selectedIncidentId) {
+                        const cases = await api.cases.list();
+                        this.incidents = cases.map(c => {
+                            const raw = (c.recordings && c.recordings[0] && c.recordings[0].transcript)
+                                ? (c.recordings[0].transcript.raw_text || '')
+                                : '';
+                            return {
+                                id: c.id,
+                                title: c.title,
+                                created_at: c.created_at,
+                                recording_count: (c.recordings || []).length,
+                                snippet: raw ? raw.slice(0, 80) + '…' : '',
+                            };
+                        });
+                        if (this.incidents.length && !this.selectedIncidentId) {
                             this.selectIncident(this.incidents[0].id);
                         }
                     } catch (e) {
-                        console.error('Failed to load incidents:', e);
+                        this.pushToast(e.code || 'UNKNOWN');
                     }
                 },
 
@@ -2084,15 +2085,13 @@
 
                 async loadCaseDetail(caseId) {
                     try {
-                        const resp = await fetch(`/api/cases/${caseId}`);
-                        const data = await resp.json();
+                        const data = await api.cases.get(caseId);
                         this.recordings = (data.recordings || []).map(r => ({
                             id: r.id,
                             file_path: r.file_path,
                             duration_sec: r.duration_sec,
                             status: r.status,
                             template_type: r.template_type,
-                            error: r.error,
                             transcript: r.transcript,
                             image_id: null,
                         }));
@@ -2102,13 +2101,13 @@
                             status: img.status,
                             annotations: img.annotations || [],
                         }));
-                        if (this.recordings.length > 0) {
+                        if (this.recordings.length) {
                             this.selectRecording(this.recordings[0].id);
                         } else {
                             this.selectedRecordingId = null;
                         }
                     } catch (e) {
-                        console.error('Failed to load case detail:', e);
+                        this.pushToast(e.code || 'UNKNOWN');
                     }
                 },
                 selectRecording(id) {
