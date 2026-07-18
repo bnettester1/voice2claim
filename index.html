@@ -143,6 +143,18 @@
             background: linear-gradient(135deg, #eef0ff 0%, #ffeef3 100%);
         }
 
+        .processing-spinner {
+            display: inline-block;
+            margin-left: 8px;
+            font-size: 12px;
+            color: #667eea;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
         .audio-header {
             display: flex;
             align-items: center;
@@ -1211,75 +1223,6 @@
                     <div class="audio-transcript" x-text="incident.snippet || $t('sidebar.no_transcript')"></div>
                 </div>
             </template>
-            <div class="audio-item">
-                <div class="audio-header">
-                    <button class="play-btn"
-                        onclick="if (!window.__cfRLUnblockHandlers) return false; togglePlay(this)">
-                        <i class="fas fa-play"></i>
-                    </button>
-                    <div class="audio-meta">
-                        <div class="audio-title">Giám định thương tật chị Lan</div>
-                        <div class="audio-time">Hôm nay • 11:15 • 5:12</div>
-                    </div>
-                </div>
-                <div class="audio-transcript">Gãy kín xương cẳng chân phải tỷ lệ thương tật 22 phần trăm...</div>
-            </div>
-
-            <div class="audio-item">
-                <div class="audio-header">
-                    <button class="play-btn"
-                        onclick="if (!window.__cfRLUnblockHandlers) return false; togglePlay(this)">
-                        <i class="fas fa-play"></i>
-                    </button>
-                    <div class="audio-meta">
-                        <div class="audio-title">Hỏa hoạn nhà anh Khoa</div>
-                        <div class="audio-time">Hôm qua • 16:48 • 4:05</div>
-                    </div>
-                </div>
-                <div class="audio-transcript">Bão số 5 tốc mái tôn 30 mét vuông chập cháy tivi...</div>
-            </div>
-
-            <div class="audio-item">
-                <div class="audio-header">
-                    <button class="play-btn"
-                        onclick="if (!window.__cfRLUnblockHandlers) return false; togglePlay(this)">
-                        <i class="fas fa-play"></i>
-                    </button>
-                    <div class="audio-meta">
-                        <div class="audio-title">Khám tiêu hóa anh Nam</div>
-                        <div class="audio-time">Hôm qua • 09:20 • 6:30</div>
-                    </div>
-                </div>
-                <div class="audio-transcript">Viêm loét tá tràng HP dương tính kê Esomeprazole...</div>
-            </div>
-
-            <div class="audio-item">
-                <div class="audio-header">
-                    <button class="play-btn"
-                        onclick="if (!window.__cfRLUnblockHandlers) return false; togglePlay(this)">
-                        <i class="fas fa-play"></i>
-                    </button>
-                    <div class="audio-meta">
-                        <div class="audio-title">Va chạm liên hoàn cầu Sài Gòn</div>
-                        <div class="audio-time">17/07 • 15:40 • 7:18</div>
-                    </div>
-                </div>
-                <div class="audio-transcript">Ford Ranger bị xe SH tông từ phía sau đẩy vào xe buýt...</div>
-            </div>
-
-            <div class="audio-item">
-                <div class="audio-header">
-                    <button class="play-btn"
-                        onclick="if (!window.__cfRLUnblockHandlers) return false; togglePlay(this)">
-                        <i class="fas fa-play"></i>
-                    </button>
-                    <div class="audio-meta">
-                        <div class="audio-title">Tai nạn xe máy đường Cộng Hòa</div>
-                        <div class="audio-time">17/07 • 10:05 • 2:45</div>
-                    </div>
-                </div>
-                <div class="audio-transcript">Wave Alpha bị Toyota Vios 59A đâm vỡ yếm xe gãy gương...</div>
-            </div>
             <div x-show="incidents.length === 0" class="audio-item">
                 <div class="audio-transcript" x-text="$t('sidebar.no_incidents')"></div>
             </div>
@@ -1299,11 +1242,18 @@
                     <div class="record-controls">
                         <button class="record-btn" id="recordBtn" @click="toggleRecording()"
                             :class="{ 'recording': isRecording }"
+                            :disabled="isProcessing"
                             :title="isRecording ? $t('record.stop') : $t('record.start')">
                             <i class="fas" :class="isRecording ? 'fa-stop' : 'fa-microphone'"></i>
                         </button>
+                        <span x-show="isProcessing" class="processing-spinner"
+                              x-text="$t(processingStatus)"></span>
                         <div class="record-info"
-                            x-text="isRecording ? $t('record.recording_info', { sec: recordingSeconds }) : $t('record.start_info')">
+                            x-text="isProcessing
+                                ? $t('processing.transcribing')
+                                : (isRecording
+                                    ? $t('record.recording_info', { sec: recordingSeconds })
+                                    : $t('record.start_info'))">
                         </div>
                         <div class="upload-row">
                             <label class="upload-btn">
@@ -1312,7 +1262,7 @@
                             </label>
                             <label class="upload-btn">
                                 <i class="fas fa-music"></i> <span x-text="$t('record.upload_audio')"></span>
-                                <input type="file" accept="audio/*" hidden @change="uploadAudioFile($event)">
+                                <input type="file" accept=".wav,.mp3,.m4a,.ogg,.flac,.webm" hidden @change="uploadAudioFile($event)">
                             </label>
                         </div>
                     </div>
@@ -1378,10 +1328,8 @@
                             <span x-text="$t('report.edit_btn')"></span>
                         </button>
                         <select class="template-select" x-model="selectedTemplate">
-                            <option value="vehicle" x-text="$t('report.template_vehicle')"></option>
-                            <option value="medical" x-text="$t('report.template_medical')"></option>
-                            <option value="fire" x-text="$t('report.template_fire')"></option>
-                            <option value="injury" x-text="$t('report.template_injury')"></option>
+                            <option value="auto_claim" x-text="$t('report.template_auto')"></option>
+                            <option value="medical_claim" x-text="$t('report.template_medical')"></option>
                         </select>
                     </div>
                 </div>
@@ -1501,13 +1449,6 @@
                         <i class="fas fa-file-alt"></i>
                         <span x-text="$t('report.current')"></span>
                     </div>
-                    <template x-for="d in ['17/07','16/07','15/07','14/07']" :key="d">
-                        <div class="quick-access-item" :class="{ 'active': activeQuickAccess === d }"
-                            @click="selectQuickAccess(d)">
-                            <i class="fas fa-history"></i>
-                            <span x-text="$t('report.report_date', { date: d })"></span>
-                        </div>
-                    </template>
                 </div>
             </section>
 
@@ -1533,11 +1474,6 @@
                                     <span x-text="rec.status"></span>
                                 </div>
                             </div>
-                            <template x-if="images.length > 0">
-                                <img :src="'/api/audio/' + images[0].id"
-                                    style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px;"
-                                    alt="thumb">
-                            </template>
                         </div>
                     </template>
                     <div x-show="recordings.length === 0" style="color: #a0aec0; padding: 12px;"
@@ -1587,9 +1523,17 @@
 
     </div>
 
+    <div class="toast-container" x-show="toasts.length > 0"
+         style="position:fixed;top:16px;right:16px;z-index:1000;display:flex;flex-direction:column;gap:8px;">
+        <template x-for="toast in toasts" :key="toast.id">
+            <div class="toast" x-text="toast.message"
+                 style="background:#f5576c;color:white;padding:12px 16px;border-radius:8px;
+                        box-shadow:0 4px 12px rgba(0,0,0,0.15);font-size:13px;max-width:320px;"></div>
+        </template>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/alpinejs-i18n@2.5.3/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mqtt@5.0.5/dist/mqtt.min.js"></script>
     <script>
         const I18N_MESSAGES = {
             vi: {
@@ -1609,10 +1553,8 @@
                     title: 'Dự thảo hồ sơ bồi thường',
                     ai_draft: 'AI DRAFT',
                     intro: 'Thông tin được trích xuất từ bản chép lời và có thể chỉnh sửa. Các trường còn thiếu phải được đối chiếu với giấy chứng nhận bảo hiểm, giấy tờ xe, ảnh hiện trường và biên bản liên quan trước khi ký.',
-                    template_vehicle: '🚗 Giám định tai nạn xe ô tô',
-                    template_medical: '🏥 Đơn bệnh / Giám định y tế',
-                    template_fire: '🔥 Giám định hỏa hoạn, bão lũ',
-                    template_injury: '🩹 Giám định thương tật',
+                    template_auto: '🚗 Giám định xe / tài sản',
+                    template_medical: '🏥 Giám định y tế',
                     actions_title: 'Hành động cần thực hiện',
                     auto: 'TỰ ĐỘNG', no_actions: 'Chưa có hành động đề xuất.',
                     current: 'Báo cáo hiện tại', report_date: 'Báo cáo {date}',
@@ -1659,6 +1601,23 @@
                     f_repair_recommendation: 'Phương án khắc phục / sửa chữa',
                     f_immediate_actions: 'Hành động đã thực hiện / cần theo dõi (mỗi mục một dòng)',
                 },
+                processing: {
+                    transcribing: 'Đang xử lý giọng nói…',
+                    extracting: 'Đang trích xuất thông tin…',
+                    saving: 'Đang lưu hồ sơ…',
+                },
+                errors: {
+                    UNAUTHORIZED: 'Vui lòng đăng nhập lại.',
+                    SESSION_EXPIRED: 'Phiên đã hết hạn, đang tự động kết nối lại…',
+                    INVALID_INPUT: 'Dữ liệu không hợp lệ, vui lòng kiểm tra lại.',
+                    ASR_FAILED: 'Không thể nhận dạng giọng nói, vui lòng thử lại.',
+                    LLM_FAILED: 'Hệ thống trích xuất thông tin gặp lỗi, vui lòng thử lại.',
+                    DB_ERROR: 'Lỗi lưu trữ dữ liệu, vui lòng thử lại.',
+                    BOT_DETECTED: 'Truy cập bị từ chối.',
+                    INVALID_FILE_TYPE: 'Định dạng file không được hỗ trợ. Hỗ trợ: .wav, .mp3, .m4a, .ogg, .flac, .webm',
+                    NOT_FOUND: 'Không tìm thấy hồ sơ.',
+                    UNKNOWN: 'Đã xảy ra lỗi, vui lòng thử lại.',
+                },
                 recordings: { title: 'Bản ghi âm trong vụ này', empty: 'Chưa có bản ghi âm nào trong vụ này.' },
                 actions_done: {
                     title: 'Trạng thái hành động đã thực hiện',
@@ -1684,10 +1643,8 @@
                     title: 'Claim File Draft',
                     ai_draft: 'AI DRAFT',
                     intro: 'Information is extracted from the transcript and can be edited. Missing fields must be cross-checked against the insurance certificate, vehicle documents, field photos and related records before signing.',
-                    template_vehicle: '🚗 Vehicle Accident Assessment',
-                    template_medical: '🏥 Medical Assessment',
-                    template_fire: '🔥 Fire / Storm Assessment',
-                    template_injury: '🩹 Injury Assessment',
+                    template_auto: '🚗 Vehicle / Property Claim',
+                    template_medical: '🏥 Medical Claim',
                     actions_title: 'Actions to perform',
                     auto: 'AUTO', no_actions: 'No suggested actions.',
                     current: 'Current report', report_date: 'Report {date}',
@@ -1734,6 +1691,23 @@
                     f_repair_recommendation: 'Repair / mitigation plan',
                     f_immediate_actions: 'Actions done / to follow up (one item per line)',
                 },
+                processing: {
+                    transcribing: 'Processing voice…',
+                    extracting: 'Extracting information…',
+                    saving: 'Saving case…',
+                },
+                errors: {
+                    UNAUTHORIZED: 'Please sign in again.',
+                    SESSION_EXPIRED: 'Session expired, reconnecting…',
+                    INVALID_INPUT: 'Invalid input, please check and try again.',
+                    ASR_FAILED: 'Could not transcribe the audio, please try again.',
+                    LLM_FAILED: 'Information extraction failed, please try again.',
+                    DB_ERROR: 'Storage error, please try again.',
+                    BOT_DETECTED: 'Access denied.',
+                    INVALID_FILE_TYPE: 'Unsupported file format. Supported: .wav, .mp3, .m4a, .ogg, .flac, .webm',
+                    NOT_FOUND: 'Case not found.',
+                    UNKNOWN: 'Something went wrong, please try again.',
+                },
                 recordings: { title: 'Recordings in this case', empty: 'No recordings in this case.' },
                 actions_done: {
                     title: 'Completed Actions',
@@ -1757,6 +1731,104 @@
             localStorage.setItem('v2c_locale', loc);
         });
     </script>
+    <script>
+        const BASE_URL = 'https://api.dathoc.net/api';
+        const STORAGE_KEY = 'v2c_session_id';
+
+        const session = {
+            get() { return localStorage.getItem(STORAGE_KEY); },
+            set(id) { localStorage.setItem(STORAGE_KEY, id); },
+            clear() { localStorage.removeItem(STORAGE_KEY); },
+        };
+
+        class ApiError extends Error {
+            constructor(code, message, status) {
+                super(message);
+                this.code = code;
+                this.status = status;
+                this.name = 'ApiError';
+            }
+        }
+
+        async function request(path, { method = 'GET', body, isForm = false, retries = 0 } = {}) {
+            const headers = {
+                'Authorization': `Bearer ${session.get() || ''}`,
+                'Accept-Language': window.AlpineI18n ? AlpineI18n.locale : 'vi',
+            };
+            if (!isForm) headers['Content-Type'] = 'application/json';
+
+            const resp = await fetch(BASE_URL + path, { method, headers, body });
+
+            if (resp.status === 401 && retries < 1) {
+                await api.activate();
+                return request(path, { method, body, isForm, retries: retries + 1 });
+            }
+
+            if (!resp.ok) {
+                let code = 'UNKNOWN', message = '';
+                try {
+                    const data = await resp.json();
+                    code = data.error?.code || 'UNKNOWN';
+                    message = data.error?.message || '';
+                } catch (_) { /* keep defaults */ }
+                throw new ApiError(code, message, resp.status);
+            }
+
+            const ct = resp.headers.get('Content-Type') || '';
+            if (ct.includes('application/json')) return resp.json();
+            return resp.blob();
+        }
+
+        const api = {
+            async activate() {
+                const fingerprint = 'fp_' + Math.random().toString(36).slice(2);
+                const data = await request('/activate', {
+                    method: 'POST',
+                    body: JSON.stringify({ fingerprint }),
+                });
+                session.set(data.session_id);
+                return data.session_id;
+            },
+
+            cases: {
+                async list() {
+                    const data = await request('/cases');
+                    return data.data;
+                },
+                async get(id) {
+                    return request(`/cases/${id}`);
+                },
+                async create(body) {
+                    return request('/cases', { method: 'POST', body: JSON.stringify(body) });
+                },
+            },
+
+            claims: {
+                async processVoice(formData) {
+                    return request('/claims/process-voice', {
+                        method: 'POST',
+                        body: formData,
+                        isForm: true,
+                    });
+                },
+            },
+
+            claim: {
+                async pdf(payload) {
+                    return request('/claim/pdf', {
+                        method: 'POST',
+                        body: JSON.stringify(payload),
+                    });
+                },
+                async share(payload) {
+                    return request('/claim/share', {
+                        method: 'POST',
+                        body: JSON.stringify(payload),
+                    });
+                },
+            },
+        };
+    </script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
     <script>
         function claimFlow() {
@@ -1778,7 +1850,7 @@
                 recordTimer: null,
                 currentImage: null,
                 selectedAnnotation: null,
-                selectedTemplate: 'vehicle',
+                selectedTemplate: 'auto_claim',
                 activeQuickAccess: 'current',
                 claimForm: {},
                 claimFormBound: null,
@@ -1786,76 +1858,41 @@
                 claimGenerationStatus: '',
                 claimEditMode: false,
                 claimFormSnapshot: null,
-                sampleTemplates: {
-                    '17/07': {
-                        values: {
-                            claimReference: 'CL-2026-0717-001',
-                            adjusterName: 'Nguyễn Văn A',
-                            insuredName: 'Anh Hùng',
-                            insuredPhone: '0901 234 567',
-                            vehicleMakeModel: 'Mazda CX-5',
-                            vehiclePlate: '51H-123.45',
-                            accidentTime: '14:32 ngày 18/07/2026',
-                            accidentLocation: 'Ngã tư Nguyễn Văn Linh - Hoàng Diệu, TP.HCM',
-                            accidentDescription: 'Xe ô tô Mazda CX-5 đi hướng Bắc - Nam, khi qua ngã tư bị xe từ hướng tay phải leo lên làn đường.',
-                            vehicleDamage: 'Vỡ đèn pha bên phải\nMóp cản trước 30cm\nRỉ dầu carter\nTrầy xước nắp capô 40cm',
-                            estimatedAmount: '28.500.000 VNĐ',
-                            repairRecommendation: 'Thay đèn pha phải, nắn cản trước, kiểm tra carter, sơn tu bổ nắp capô.',
-                            immediateActions: 'Chụp ảnh hiện trường\nLiên hệ garage\nBáo cáo công an',
-                        }
-                    },
-                    '16/07': {
-                        values: {
-                            claimReference: 'CL-2026-0716-002',
-                            adjusterName: 'Nguyễn Văn A',
-                            insuredName: 'Chị Lan',
-                            insuredPhone: '0902 345 678',
-                            policyNumber: 'BA-987654',
-                            accidentTime: '10:00 ngày 16/07/2026',
-                            accidentLocation: 'Bệnh viện Chợ Rẫy',
-                            accidentDescription: 'Bệnh nhân nhập viện do tai nạn giao thông gây gãy cẳng chân phải.',
-                            injuries: 'Gãy kín 1/3 giữa xương cẳng chân phải, đứt dây chằng chéo trước độ 2.',
-                            repairRecommendation: 'Bó bột đùi bàn 6 tuần, thuốc Celecoxib 200mg, Alpha Choay.',
-                            estimatedAmount: 'Tỷ lệ thương tật tạm tính 22%',
-                        }
-                    },
-                    '15/07': {
-                        values: {
-                            claimReference: 'CL-2026-0715-003',
-                            adjusterName: 'Nguyễn Văn A',
-                            insuredName: 'Anh Khoa',
-                            insuredAddress: 'Số 15 Nguyễn Kiệm, P.3, Gò Vấp',
-                            accidentTime: '16:48 ngày 15/07/2026',
-                            accidentLocation: 'Số 15 Nguyễn Kiệm, P.3, Gò Vấp',
-                            accidentCause: 'Bão số 5 gây tốc mái tôn 30m², mưa tạt gây chập điện.',
-                            vehicleDamage: 'Chập cháy tivi Sony 65 inch\nHư hỏng bộ bàn ghế gỗ do mưa tạt',
-                            estimatedAmount: '45.000.000 VNĐ',
-                            immediateActions: 'Cắt điện tổng\nBáo cơ quan điện lực\nDi chuyển tài sản',
-                        }
-                    },
-                    '14/07': {
-                        values: {
-                            claimReference: 'CL-2026-0714-004',
-                            adjusterName: 'Nguyễn Văn A',
-                            insuredName: 'Anh Tuấn',
-                            vehicleMakeModel: 'Wave Alpha',
-                            vehiclePlate: '—',
-                            accidentTime: '10:05 ngày 14/07/2026',
-                            accidentLocation: 'Đường Cộng Hòa',
-                            accidentDescription: 'Xe Wave Alpha bị xe Toyota Vios 59A-987.65 đâm từ phía sau.',
-                            injuries: 'Trầy xước tay, đau nhẹ đầu gối.',
-                            vehicleDamage: 'Vỡ yếm xe\nGãy gương chiếu hậu bên trái',
-                            immediateActions: 'Khám cấp cứu\nChụp ảnh thiệt hại\nLiên hệ bảo hiểm',
-                        }
-                    },
-                },
                 selectedActions: [],
                 completedActions: [],
-                mqttClient: null,
+                toasts: [],
+                isProcessing: false,
+                processingStatus: '',
+
+                pushToast(code) {
+                    const msg = this.t(`errors.${code}`) || this.t('errors.UNKNOWN');
+                    const id = Date.now() + Math.random();
+                    this.toasts.push({ id, code, message: msg });
+                    setTimeout(() => {
+                        this.toasts = this.toasts.filter(t => t.id !== id);
+                    }, 5000);
+                },
+
+                t(key) {
+                    return window.AlpineI18n ? AlpineI18n.t(key) : key;
+                },
+
+                formatVND(n) {
+                    return new Intl.NumberFormat('vi-VN').format(n) + ' ₫';
+                },
+
+                validateAudioFile(file) {
+                    const ALLOWED_AUDIO = ['wav', 'mp3', 'm4a', 'ogg', 'flac', 'webm'];
+                    const ext = (file.name.split('.').pop() || '').toLowerCase();
+                    if (!ALLOWED_AUDIO.includes(ext)) {
+                        this.pushToast('INVALID_FILE_TYPE');
+                        return false;
+                    }
+                    return true;
+                },
 
                 async bootstrap() {
                     await this.$nextTick();
-                    this.initMQTT();
                     await this.loadIncidents();
                     this.hydrateClaimForm();
                 },
@@ -1900,22 +1937,24 @@
 
                 async loadIncidents() {
                     try {
-                        const resp = await fetch('/api/cases');
-                        const cases = await resp.json();
-                        this.incidents = cases.map(c => ({
-                            id: c.id,
-                            title: c.title,
-                            created_at: c.created_at,
-                            recording_count: (c.recordings || []).length,
-                            snippet: (c.recordings && c.recordings[0] && c.recordings[0].transcript)
-                                ? (c.recordings[0].transcript.raw_text || '').slice(0, 80) + '...'
-                                : '',
-                        }));
-                        if (this.incidents.length > 0 && !this.selectedIncidentId) {
+                        const cases = await api.cases.list();
+                        this.incidents = cases.map(c => {
+                            const raw = (c.recordings && c.recordings[0] && c.recordings[0].transcript)
+                                ? (c.recordings[0].transcript.raw_text || '')
+                                : '';
+                            return {
+                                id: c.id,
+                                title: c.title,
+                                created_at: c.created_at,
+                                recording_count: (c.recordings || []).length,
+                                snippet: raw ? raw.slice(0, 80) + '…' : '',
+                            };
+                        });
+                        if (this.incidents.length && !this.selectedIncidentId) {
                             this.selectIncident(this.incidents[0].id);
                         }
                     } catch (e) {
-                        console.error('Failed to load incidents:', e);
+                        this.pushToast(e.code || 'UNKNOWN');
                     }
                 },
 
@@ -1926,15 +1965,13 @@
 
                 async loadCaseDetail(caseId) {
                     try {
-                        const resp = await fetch(`/api/cases/${caseId}`);
-                        const data = await resp.json();
+                        const data = await api.cases.get(caseId);
                         this.recordings = (data.recordings || []).map(r => ({
                             id: r.id,
                             file_path: r.file_path,
                             duration_sec: r.duration_sec,
                             status: r.status,
                             template_type: r.template_type,
-                            error: r.error,
                             transcript: r.transcript,
                             image_id: null,
                         }));
@@ -1944,13 +1981,13 @@
                             status: img.status,
                             annotations: img.annotations || [],
                         }));
-                        if (this.recordings.length > 0) {
+                        if (this.recordings.length) {
                             this.selectRecording(this.recordings[0].id);
                         } else {
                             this.selectedRecordingId = null;
                         }
                     } catch (e) {
-                        console.error('Failed to load case detail:', e);
+                        this.pushToast(e.code || 'UNKNOWN');
                     }
                 },
                 selectRecording(id) {
@@ -1978,14 +2015,10 @@
                     }
                     this.wavesurfer = this.initWaveSurfer(container);
                     try {
-                        const url = `/api/audio/${id}`;
-                        const resp = await fetch(url);
-                        if (!resp.ok) {
-                            console.error('Audio fetch failed:', resp.status);
-                            return;
-                        }
-                        const blob = await resp.blob();
-                        console.log('Audio blob:', blob.size, 'bytes, type:', blob.type);
+                        const rec = this.recordings.find(r => r.id === id);
+                        if (!rec || !rec.file_path) return;
+                        const relative = rec.file_path.replace(/^\.\//, '');
+                        const blob = await request('/' + relative);
                         if (blob.size < 100) {
                             console.warn('Audio blob too small, likely empty recording');
                         }
@@ -2102,20 +2135,15 @@
                 },
 
                 currentClaimSourceValues() {
-                    if (this.activeQuickAccess !== 'current' && this.sampleTemplates[this.activeQuickAccess]) {
-                        return this.sampleTemplates[this.activeQuickAccess].values || {};
-                    }
+                    if (this.activeQuickAccess !== 'current') return {};
                     const rec = this.recordings.find(r => r.id === this.selectedRecordingId);
                     if (!rec || !rec.transcript) return {};
                     const s = rec.transcript.structured || {};
                     const txt = rec.transcript.raw_text || '';
                     const values = {};
                     if (s.vehicle_plate) values.vehiclePlate = s.vehicle_plate;
-                    if (s.location) values.accidentLocation = s.location;
-                    if (s.damage_description) values.vehicleDamage = s.damage_description;
-                    if (s.estimate_amount) values.estimatedAmount = s.estimate_amount;
-                    if (s.diagnosis) values.injuries = s.diagnosis;
-                    if (s.patient_name) values.insuredName = s.patient_name;
+                    if (Array.isArray(s.damage_items)) values.vehicleDamage = s.damage_items.join('\n');
+                    if (s.estimated_cost) values.estimatedAmount = this.formatVND(s.estimated_cost);
                     if (txt && Object.keys(values).length === 0) values.accidentDescription = txt;
                     return values;
                 },
@@ -2139,13 +2167,7 @@
                         ? AlpineI18n.t('report.generating') : 'Generating…';
                     try {
                         const payload = this.buildClaimPayload();
-                        const resp = await fetch('/api/claim/pdf', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload),
-                        });
-                        if (!resp.ok) throw new Error('PDF request failed: ' + resp.status);
-                        const blob = await resp.blob();
+                        const blob = await api.claim.pdf(payload);
                         const url = URL.createObjectURL(blob);
                         const a = document.createElement('a');
                         a.href = url;
@@ -2157,9 +2179,9 @@
                         this.claimGenerationStatus = window.AlpineI18n
                             ? AlpineI18n.t('report.pdf_ready') : 'PDF ready';
                     } catch (e) {
-                        console.error('downloadClaimPdf failed:', e);
-                        this.claimGenerationStatus = (window.AlpineI18n
-                            ? AlpineI18n.t('report.pdf_error') : 'PDF error') + ': ' + e.message;
+                        this.pushToast(e.code || 'UNKNOWN');
+                        this.claimGenerationStatus = window.AlpineI18n
+                            ? AlpineI18n.t('report.pdf_error') : 'PDF error';
                     } finally {
                         this.claimPdfBusy = false;
                     }
@@ -2171,20 +2193,14 @@
                         ? AlpineI18n.t('report.sharing') : 'Sharing…';
                     try {
                         const payload = this.buildClaimPayload();
-                        const resp = await fetch('/api/claim/share', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload),
-                        });
-                        if (!resp.ok) throw new Error('Share request failed: ' + resp.status);
-                        const data = await resp.json().catch(() => ({}));
+                        const data = await api.claim.share(payload);
                         this.claimGenerationStatus = (window.AlpineI18n
                             ? AlpineI18n.t('report.shared') : 'Shared')
                             + (data && data.recipient ? ' → ' + data.recipient : '');
                     } catch (e) {
-                        console.error('shareClaimPdf failed:', e);
-                        this.claimGenerationStatus = (window.AlpineI18n
-                            ? AlpineI18n.t('report.share_error') : 'Share error') + ': ' + e.message;
+                        this.pushToast(e.code || 'UNKNOWN');
+                        this.claimGenerationStatus = window.AlpineI18n
+                            ? AlpineI18n.t('report.share_error') : 'Share error';
                     } finally {
                         this.claimPdfBusy = false;
                     }
@@ -2241,11 +2257,6 @@
                 },
 
                 async startRecording() {
-                    if (!this.currentCaseId) {
-                        const resp = await fetch('/api/cases', { method: 'POST' });
-                        const caseData = await resp.json();
-                        this.currentCaseId = caseData.id;
-                    }
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                     const chunks = [];
                     this.audioChunks = chunks;
@@ -2277,46 +2288,57 @@
                         return;
                     }
                     const blob = new Blob(chunks, { type: 'audio/webm' });
-                    console.log('Uploading audio blob:', blob.size, 'bytes');
                     const formData = new FormData();
-                    formData.append('file', blob, `recording_${Date.now()}.webm`);
-                    const resp = await fetch(
-                        `/api/cases/${this.currentCaseId}/upload`,
-                        { method: 'POST', body: formData }
-                    );
-                    if (resp.ok) {
-                        const data = await resp.json();
-                        this.recordings.unshift({
-                            id: data.recording_id,
-                            file_path: `recording_${Date.now()}.webm`,
-                            duration_sec: this.recordingSeconds,
-                            status: 'transcribing',
-                            template_type: null,
-                            transcript: null,
+                    formData.append('audio', blob, `recording_${Date.now()}.webm`);
+                    formData.append('template_type', this.selectedTemplate);
+                    this.isProcessing = true;
+                    this.processingStatus = 'processing.transcribing';
+                    try {
+                        const data = await api.claims.processVoice(formData);
+                        this.currentCaseId = data.id;
+                        this.recordings = (data.recordings || []).map(r => ({
+                            id: r.id,
+                            file_path: r.file_path,
+                            duration_sec: r.duration_sec,
+                            status: r.status,
+                            template_type: r.template_type,
+                            transcript: r.transcript,
                             image_id: null,
-                        });
-                        this.selectRecording(data.recording_id);
+                        }));
+                        this.images = (data.images || []).map(img => ({
+                            id: img.id,
+                            file_path: img.file_path,
+                            status: img.status,
+                            annotations: img.annotations || [],
+                        }));
+                        if (this.recordings.length) {
+                            this.selectRecording(this.recordings[0].id);
+                        }
                         await this.loadIncidents();
+                    } catch (e) {
+                        this.pushToast(e.code || 'UNKNOWN');
+                    } finally {
+                        this.isProcessing = false;
+                        this.processingStatus = '';
                     }
                 },
 
                 async uploadImages(event) {
                     const files = event.target.files;
                     for (const file of files) {
-                        if (!this.currentCaseId) {
-                            const resp = await fetch('/api/cases', { method: 'POST' });
-                            const caseData = await resp.json();
-                            this.currentCaseId = caseData.id;
-                        }
-                        const formData = new FormData();
-                        formData.append('file', file);
-                        const resp = await fetch(
-                            `/api/cases/${this.currentCaseId}/upload`,
-                            { method: 'POST', body: formData }
-                        );
-                        if (resp.ok) {
-                            const data = await resp.json();
-                            const imgUrl = `/api/audio/${data.recording_id}`;
+                        try {
+                            if (!this.currentCaseId) {
+                                const caseData = await request('/cases', { method: 'POST' });
+                                this.currentCaseId = caseData.id;
+                            }
+                            const formData = new FormData();
+                            formData.append('file', file);
+                            const data = await request(`/cases/${this.currentCaseId}/upload`, {
+                                method: 'POST',
+                                body: formData,
+                                isForm: true,
+                            });
+                            const imgUrl = `${BASE_URL}/audio/${data.recording_id}`;
                             this.images.unshift({
                                 id: data.recording_id,
                                 file_path: file.name,
@@ -2324,131 +2346,52 @@
                                 annotations: [],
                             });
                             this.currentImage = imgUrl;
+                        } catch (e) {
+                            this.pushToast(e.code || 'UNKNOWN');
                         }
                     }
                     event.target.value = '';
                 },
 
                 async uploadAudioFile(event) {
-
-                    // === SENDING FILE BLOB HERE ===
-
-                    if (this.mqttClient) {
-                        console.log(`MQTT/SEND(${new Date().toLocaleTimeString()}):`, event.target.files);
-
-                        const files = event.target.files;
-                        for (const file of files) {
-                            const arrayBuffer = await blob.arrayBuffer()
-                            const buffer = new Uint8Array(arrayBuffer)
-
-                            // do something with the file format
-                            // file.mime (like image/jpeg)
-                            // file.name (like abc123.webm or abc123.wav)
-
-                            // this.mqttClient.publish("event", buffer);
-                        }
-                    }
-
                     const files = event.target.files;
                     for (const file of files) {
-                        if (!this.currentCaseId) {
-                            const resp = await fetch('/api/cases', { method: 'POST' });
-                            const caseData = await resp.json();
-                            this.currentCaseId = caseData.id;
-                        }
+                        if (!this.validateAudioFile(file)) continue;
                         const formData = new FormData();
-                        formData.append('file', file);
-                        const resp = await fetch(
-                            `/api/cases/${this.currentCaseId}/upload`,
-                            { method: 'POST', body: formData }
-                        );
-                        if (resp.ok) {
-                            const data = await resp.json();
-                            this.recordings.unshift({
-                                id: data.recording_id,
-                                file_path: file.name,
-                                duration_sec: 0,
-                                status: 'transcribing',
-                                template_type: null,
-                                transcript: null,
+                        formData.append('audio', file);
+                        formData.append('template_type', this.selectedTemplate);
+                        this.isProcessing = true;
+                        this.processingStatus = 'processing.transcribing';
+                        try {
+                            const data = await api.claims.processVoice(formData);
+                            this.currentCaseId = data.id;
+                            this.recordings = (data.recordings || []).map(r => ({
+                                id: r.id,
+                                file_path: r.file_path,
+                                duration_sec: r.duration_sec,
+                                status: r.status,
+                                template_type: r.template_type,
+                                transcript: r.transcript,
                                 image_id: null,
-                            });
-                            this.selectRecording(data.recording_id);
+                            }));
+                            this.images = (data.images || []).map(img => ({
+                                id: img.id,
+                                file_path: img.file_path,
+                                status: img.status,
+                                annotations: img.annotations || [],
+                            }));
+                            if (this.recordings.length) {
+                                this.selectRecording(this.recordings[0].id);
+                            }
                             await this.loadIncidents();
+                        } catch (e) {
+                            this.pushToast(e.code || 'UNKNOWN');
+                        } finally {
+                            this.isProcessing = false;
+                            this.processingStatus = '';
                         }
                     }
                     event.target.value = '';
-
-                    // === SENDING FILE BLOB END ===
-
-                },
-                initMQTT() {
-                    const wsUrl = `wss://dathoc.net:443/mq`;
-                    this.mqttClient = mqtt.connect(wsUrl, {
-                        protocol: 'wss',
-                        path: '/mq',
-                    });
-                    this.mqttClient.on('connect', () => {
-                        this.mqttClient.subscribe('claimflow/result/#');
-                    });
-                    this.mqttClient.on('message', (topic, message) => {
-                        try {
-                            const data = JSON.parse(message.toString());
-                            if (topic === 'claimflow/result/transcript') this.handleTranscript(data);
-                            else if (topic === 'claimflow/result/failed') this.handleFailed(data);
-                            else if (topic === 'claimflow/result/annotations') this.handleAnnotations(data);
-                            console.log(`MQTT/RECEIVE(${new Date().toLocaleTimeString()}):`, data);
-
-                            // tODO. Do something with the receiving information, maybe extract buffered image/audio
-
-                        } catch (e) {
-                            console.error('MQTT message parse failed:', e);
-                        }
-                    });
-                },
-                handleTranscript(data) {
-                    const rec = this.recordings.find(r => r.id === data.recording_id);
-                    if (rec) {
-                        const qualityScore = data.quality_score;
-                        if (qualityScore !== undefined && qualityScore < 5) {
-                            rec.status = 'needs_review';
-                        } else {
-                            rec.status = 'done';
-                        }
-                        rec.template_type = data.template_type || null;
-                        rec.transcript = {
-                            raw_text: data.raw_text,
-                            structured: data.structured,
-                            suggested_actions: data.suggested_actions,
-                            confidence: data.confidence,
-                            quality_score: qualityScore,
-                        };
-                        if (this.selectedRecordingId === rec.id) {
-                            this.refreshReport();
-                        }
-                        const now = new Date();
-                        const ts = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
-                        const prefix = window.AlpineI18n ? AlpineI18n.t('actions_done.done_prefix') : 'Đã thực hiện: ';
-                        const newDone = (data.suggested_actions || []).map(a => {
-                            const text = typeof a === 'string' ? a : a.text;
-                            return { text: prefix + text, completed_at: ts };
-                        });
-                        this.completedActions = [...newDone, ...this.completedActions];
-                    }
-                },
-                handleFailed(data) {
-                    const rec = this.recordings.find(r => r.id === data.recording_id);
-                    if (rec) {
-                        rec.status = 'failed';
-                        rec.error = data.error;
-                    }
-                },
-                handleAnnotations(data) {
-                    const img = this.images.find(i => i.id === data.image_id);
-                    if (img) {
-                        img.status = 'done';
-                        img.annotations = data.annotations || [];
-                    }
                 },
             };
         }
