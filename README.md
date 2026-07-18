@@ -97,33 +97,71 @@ Tắc nghẽn quy trình bồi thường
 ## 💡 Giải Pháp
 
 ### Chuyển đổi từ "Voice → Manual Typing → Form" sang "Voice → Structured JSON → Auto-fill Form & Trigger Next Step"
-┌─────────────────────────────────────────────────────────┐
-│ 🎤 Audio hiện trường (ồn, code-switch, accent) │
-└────────────────────┬────────────────────────────────────┘
-↓
-┌─────────────────────────────────────────────────────────┐
-│ Layer 1: VALSEA ASR (BẮT BUỘC) │
-│ → Raw transcript, giữ nguyên accent + tiếng Anh │
-└────────────────────┬────────────────────────────────────┘
-↓
-┌─────────────────────────────────────────────────────────┐
-│ Layer 2: VALSEA Semantic API + LLM │
-│ → Extract entities: biển số, hư hỏng, vị trí, % thương tật│
-│ → Detect intent: "gửi báo cáo", "gọi xe cứu hộ" │
-└────────────────────┬────────────────────────────────────┘
-↓
-┌─────────────────────────────────────────────────────────┐
-│ Layer 3: Workflow Engine │
-│ → Map vào form fields (JSON có cấu trúc) │
-│ → Đề xuất action items (TO DO list) │
-└────────────────────┬────────────────────────────────────┘
-↓
-┌─────────────────────────────────────────────────────────┐
-│ Layer 4: UI Auto-fill + Action Trigger │
-│ → Form tự điền, nút action sáng lên │
-│ → Giải phóng giám định viên khỏi việc gõ phím │
-└─────────────────────────────────────────────────────────┘
-
+                 🎤 Audio hiện trường
+      (ồn, giọng vùng miền, code-switching)
+                         │
+                         ▼
+┌──────────────────────────────────────────────────────────┐
+│ Layer 1: VALSEA ASR (Mandatory)                          │
+│ • Chuyển speech → transcript                            │
+│ • Giữ nguyên ngữ cảnh, từ địa phương, tiếng Anh         │
+└─────────────────────────┬────────────────────────────────┘
+                          │
+                          ▼
+┌──────────────────────────────────────────────────────────┐
+│ Layer 2: Speech Understanding                           │
+│ (VALSEA Semantic API + LLM)                             │
+│                                                          │
+│ • Intent Detection                                      │
+│ • Entity Extraction                                     │
+│ • Context Understanding                                 │
+│ • Confidence Score                                      │
+└─────────────────────────┬────────────────────────────────┘
+                          │
+                          ▼
+                 Structured Claim JSON
+                          │
+                          ▼
+┌──────────────────────────────────────────────────────────┐
+│ Layer 3: AI Workflow Planner                            │
+│                                                          │
+│ AI Reasoning:                                            │
+│ • Thiếu thông tin gì?                                   │
+│ • Mức độ ưu tiên?                                       │
+│ • Action nào thực hiện trước?                           │
+│ • Action nào cần người xác nhận?                        │
+│                                                          │
+│ Output: Workflow Plan                                   │
+└─────────────────────────┬────────────────────────────────┘
+                          │
+          ┌───────────────┼────────────────┐
+          │               │                │
+          ▼               ▼                ▼
+   Auto-fill Form     Send Email      Dispatch Surveyor
+          │               │                │
+          └───────────────┼────────────────┘
+                          ▼
+┌──────────────────────────────────────────────────────────┐
+│ Layer 4: MCP Action Executor                            │
+│                                                          │
+│ • Mail MCP                                               │
+│ • Phone MCP                                              │
+│ • CRM MCP                                                │
+│ • Report MCP                                             │
+│ • Notification MCP                                       │
+│                                                          │
+│ Execute → Update Status → Audit Log                     │
+└─────────────────────────┬────────────────────────────────┘
+                          │
+                          ▼
+┌──────────────────────────────────────────────────────────┐
+│ Layer 5: Voice2Claim Dashboard                          │
+│                                                          │
+│ ✓ Báo cáo đã điền tự động                               │
+│ ✓ Timeline các Action                                   │
+│ ✓ Pending / Running / Done                              │
+│ ✓ Người dùng chỉ cần Review & Approve                   │
+└──────────────────────────────────────────────────────────┘
 
 ---
 
