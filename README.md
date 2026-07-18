@@ -171,7 +171,11 @@ graph TD
 
 // Cần có ghcr.io/huggingface/text-embeddings-inference:cuda-latest, có model đặt tại: /models--intfloat--multilingual-e5-base/snapshots/835193815a3936a24a0ee7dc9e3d48c1fbb19c55
 
+// Cần có key của  Valsea - xem https://valsea.ai/docs, và llm Qwen - xem  https://www.alibabacloud.com/en/campaign/qwen-ai-landing-page
+
 // Setup các modules
 docker compose up -d
+
+// Xem kết quả: http://localhost:80
 ```
-View: localhost:80
+
