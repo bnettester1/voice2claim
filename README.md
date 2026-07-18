@@ -158,3 +158,9 @@ graph TD
     
     style B fill:#667eea,stroke:#764ba2,stroke-width:3px
     style D fill:#f093fb,stroke:#f5576c,stroke-width:3px
+```
+## Cài Đặt & Chạy Demo
+```
+docker compose up -d
+```
+View: localhost:80
