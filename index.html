@@ -1211,75 +1211,6 @@
                     <div class="audio-transcript" x-text="incident.snippet || $t('sidebar.no_transcript')"></div>
                 </div>
             </template>
-            <div class="audio-item">
-                <div class="audio-header">
-                    <button class="play-btn"
-                        onclick="if (!window.__cfRLUnblockHandlers) return false; togglePlay(this)">
-                        <i class="fas fa-play"></i>
-                    </button>
-                    <div class="audio-meta">
-                        <div class="audio-title">Giám định thương tật chị Lan</div>
-                        <div class="audio-time">Hôm nay • 11:15 • 5:12</div>
-                    </div>
-                </div>
-                <div class="audio-transcript">Gãy kín xương cẳng chân phải tỷ lệ thương tật 22 phần trăm...</div>
-            </div>
-
-            <div class="audio-item">
-                <div class="audio-header">
-                    <button class="play-btn"
-                        onclick="if (!window.__cfRLUnblockHandlers) return false; togglePlay(this)">
-                        <i class="fas fa-play"></i>
-                    </button>
-                    <div class="audio-meta">
-                        <div class="audio-title">Hỏa hoạn nhà anh Khoa</div>
-                        <div class="audio-time">Hôm qua • 16:48 • 4:05</div>
-                    </div>
-                </div>
-                <div class="audio-transcript">Bão số 5 tốc mái tôn 30 mét vuông chập cháy tivi...</div>
-            </div>
-
-            <div class="audio-item">
-                <div class="audio-header">
-                    <button class="play-btn"
-                        onclick="if (!window.__cfRLUnblockHandlers) return false; togglePlay(this)">
-                        <i class="fas fa-play"></i>
-                    </button>
-                    <div class="audio-meta">
-                        <div class="audio-title">Khám tiêu hóa anh Nam</div>
-                        <div class="audio-time">Hôm qua • 09:20 • 6:30</div>
-                    </div>
-                </div>
-                <div class="audio-transcript">Viêm loét tá tràng HP dương tính kê Esomeprazole...</div>
-            </div>
-
-            <div class="audio-item">
-                <div class="audio-header">
-                    <button class="play-btn"
-                        onclick="if (!window.__cfRLUnblockHandlers) return false; togglePlay(this)">
-                        <i class="fas fa-play"></i>
-                    </button>
-                    <div class="audio-meta">
-                        <div class="audio-title">Va chạm liên hoàn cầu Sài Gòn</div>
-                        <div class="audio-time">17/07 • 15:40 • 7:18</div>
-                    </div>
-                </div>
-                <div class="audio-transcript">Ford Ranger bị xe SH tông từ phía sau đẩy vào xe buýt...</div>
-            </div>
-
-            <div class="audio-item">
-                <div class="audio-header">
-                    <button class="play-btn"
-                        onclick="if (!window.__cfRLUnblockHandlers) return false; togglePlay(this)">
-                        <i class="fas fa-play"></i>
-                    </button>
-                    <div class="audio-meta">
-                        <div class="audio-title">Tai nạn xe máy đường Cộng Hòa</div>
-                        <div class="audio-time">17/07 • 10:05 • 2:45</div>
-                    </div>
-                </div>
-                <div class="audio-transcript">Wave Alpha bị Toyota Vios 59A đâm vỡ yếm xe gãy gương...</div>
-            </div>
             <div x-show="incidents.length === 0" class="audio-item">
                 <div class="audio-transcript" x-text="$t('sidebar.no_incidents')"></div>
             </div>
@@ -1299,11 +1230,16 @@
                     <div class="record-controls">
                         <button class="record-btn" id="recordBtn" @click="toggleRecording()"
                             :class="{ 'recording': isRecording }"
+                            :disabled="isProcessing"
                             :title="isRecording ? $t('record.stop') : $t('record.start')">
                             <i class="fas" :class="isRecording ? 'fa-stop' : 'fa-microphone'"></i>
                         </button>
                         <div class="record-info"
-                            x-text="isRecording ? $t('record.recording_info', { sec: recordingSeconds }) : $t('record.start_info')">
+                            x-text="isProcessing
+                                ? $t('processing.transcribing')
+                                : (isRecording
+                                    ? $t('record.recording_info', { sec: recordingSeconds })
+                                    : $t('record.start_info'))">
                         </div>
                         <div class="upload-row">
                             <label class="upload-btn">
@@ -1378,10 +1314,8 @@
                             <span x-text="$t('report.edit_btn')"></span>
                         </button>
                         <select class="template-select" x-model="selectedTemplate">
-                            <option value="vehicle" x-text="$t('report.template_vehicle')"></option>
-                            <option value="medical" x-text="$t('report.template_medical')"></option>
-                            <option value="fire" x-text="$t('report.template_fire')"></option>
-                            <option value="injury" x-text="$t('report.template_injury')"></option>
+                            <option value="auto_claim" x-text="$t('report.template_auto')"></option>
+                            <option value="medical_claim" x-text="$t('report.template_medical')"></option>
                         </select>
                     </div>
                 </div>
@@ -1501,13 +1435,6 @@
                         <i class="fas fa-file-alt"></i>
                         <span x-text="$t('report.current')"></span>
                     </div>
-                    <template x-for="d in ['17/07','16/07','15/07','14/07']" :key="d">
-                        <div class="quick-access-item" :class="{ 'active': activeQuickAccess === d }"
-                            @click="selectQuickAccess(d)">
-                            <i class="fas fa-history"></i>
-                            <span x-text="$t('report.report_date', { date: d })"></span>
-                        </div>
-                    </template>
                 </div>
             </section>
 
@@ -1585,6 +1512,15 @@
             </footer>
         </main>
 
+    </div>
+
+    <div class="toast-container" x-show="toasts.length > 0"
+         style="position:fixed;top:16px;right:16px;z-index:1000;display:flex;flex-direction:column;gap:8px;">
+        <template x-for="toast in toasts" :key="toast.id">
+            <div class="toast" x-text="toast.message"
+                 style="background:#f5576c;color:white;padding:12px 16px;border-radius:8px;
+                        box-shadow:0 4px 12px rgba(0,0,0,0.15);font-size:13px;max-width:320px;"></div>
+        </template>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/alpinejs-i18n@2.5.3/dist/cdn.min.js"></script>
