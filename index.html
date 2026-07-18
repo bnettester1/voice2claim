@@ -1824,8 +1824,6 @@
                 async get(id) {
                     return request(`/cases/${id}`);
                 },
-                // create() is documented (§4.5) but unused in our flow (we dropped pre-create).
-                // Kept for completeness and future manual-case-creation UI.
                 async create(body) {
                     return request('/cases', { method: 'POST', body: JSON.stringify(body) });
                 },
