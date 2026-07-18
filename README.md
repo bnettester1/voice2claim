@@ -97,71 +97,44 @@ Tắc nghẽn quy trình bồi thường
 ## 💡 Giải Pháp
 
 ### Chuyển đổi từ "Voice → Manual Typing → Form" sang "Voice → Structured JSON → Auto-fill Form & Trigger Next Step"
-                 🎤 Audio hiện trường
-      (ồn, giọng vùng miền, code-switching)
-                         │
-                         ▼
-┌──────────────────────────────────────────────────────────┐
-│ Layer 1: VALSEA ASR (Mandatory)                          │
-│ • Chuyển speech → transcript                            │
-│ • Giữ nguyên ngữ cảnh, từ địa phương, tiếng Anh         │
-└─────────────────────────┬────────────────────────────────┘
-                          │
-                          ▼
-┌──────────────────────────────────────────────────────────┐
-│ Layer 2: Speech Understanding                           │
-│ (VALSEA Semantic API + LLM)                             │
-│                                                          │
-│ • Intent Detection                                      │
-│ • Entity Extraction                                     │
-│ • Context Understanding                                 │
-│ • Confidence Score                                      │
-└─────────────────────────┬────────────────────────────────┘
-                          │
-                          ▼
-                 Structured Claim JSON
-                          │
-                          ▼
-┌──────────────────────────────────────────────────────────┐
-│ Layer 3: AI Workflow Planner                            │
-│                                                          │
-│ AI Reasoning:                                            │
-│ • Thiếu thông tin gì?                                   │
-│ • Mức độ ưu tiên?                                       │
-│ • Action nào thực hiện trước?                           │
-│ • Action nào cần người xác nhận?                        │
-│                                                          │
-│ Output: Workflow Plan                                   │
-└─────────────────────────┬────────────────────────────────┘
-                          │
-          ┌───────────────┼────────────────┐
-          │               │                │
-          ▼               ▼                ▼
-   Auto-fill Form     Send Email      Dispatch Surveyor
-          │               │                │
-          └───────────────┼────────────────┘
-                          ▼
-┌──────────────────────────────────────────────────────────┐
-│ Layer 4: MCP Action Executor                            │
-│                                                          │
-│ • Mail MCP                                               │
-│ • Phone MCP                                              │
-│ • CRM MCP                                                │
-│ • Report MCP                                             │
-│ • Notification MCP                                       │
-│                                                          │
-│ Execute → Update Status → Audit Log                     │
-└─────────────────────────┬────────────────────────────────┘
-                          │
-                          ▼
-┌──────────────────────────────────────────────────────────┐
-│ Layer 5: Voice2Claim Dashboard                          │
-│                                                          │
-│ ✓ Báo cáo đã điền tự động                               │
-│ ✓ Timeline các Action                                   │
-│ ✓ Pending / Running / Done                              │
-│ ✓ Người dùng chỉ cần Review & Approve                   │
-└──────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+
+A["🎤 Audio hiện trường<br/>Ồn • Accent • Code-switching"]
+
+B["Layer 1<br/>VALSEA ASR"]
+
+C["Layer 2<br/>Speech Understanding<br/>Semantic API + LLM"]
+
+D["Structured Claim JSON"]
+
+E["Layer 3<br/>AI Workflow Planner"]
+
+F["Auto-fill Form"]
+
+G["Send Email"]
+
+H["Dispatch Surveyor"]
+
+I["Layer 4<br/>MCP Action Executor"]
+
+J["Voice2Claim Dashboard"]
+
+A --> B
+B --> C
+C --> D
+D --> E
+
+E --> F
+E --> G
+E --> H
+
+F --> I
+G --> I
+H --> I
+
+I --> J
+```
 
 ---
 
