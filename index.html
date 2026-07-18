@@ -1914,69 +1914,6 @@
                 claimGenerationStatus: '',
                 claimEditMode: false,
                 claimFormSnapshot: null,
-                sampleTemplates: {
-                    '17/07': {
-                        values: {
-                            claimReference: 'CL-2026-0717-001',
-                            adjusterName: 'Nguyễn Văn A',
-                            insuredName: 'Anh Hùng',
-                            insuredPhone: '0901 234 567',
-                            vehicleMakeModel: 'Mazda CX-5',
-                            vehiclePlate: '51H-123.45',
-                            accidentTime: '14:32 ngày 18/07/2026',
-                            accidentLocation: 'Ngã tư Nguyễn Văn Linh - Hoàng Diệu, TP.HCM',
-                            accidentDescription: 'Xe ô tô Mazda CX-5 đi hướng Bắc - Nam, khi qua ngã tư bị xe từ hướng tay phải leo lên làn đường.',
-                            vehicleDamage: 'Vỡ đèn pha bên phải\nMóp cản trước 30cm\nRỉ dầu carter\nTrầy xước nắp capô 40cm',
-                            estimatedAmount: '28.500.000 VNĐ',
-                            repairRecommendation: 'Thay đèn pha phải, nắn cản trước, kiểm tra carter, sơn tu bổ nắp capô.',
-                            immediateActions: 'Chụp ảnh hiện trường\nLiên hệ garage\nBáo cáo công an',
-                        }
-                    },
-                    '16/07': {
-                        values: {
-                            claimReference: 'CL-2026-0716-002',
-                            adjusterName: 'Nguyễn Văn A',
-                            insuredName: 'Chị Lan',
-                            insuredPhone: '0902 345 678',
-                            policyNumber: 'BA-987654',
-                            accidentTime: '10:00 ngày 16/07/2026',
-                            accidentLocation: 'Bệnh viện Chợ Rẫy',
-                            accidentDescription: 'Bệnh nhân nhập viện do tai nạn giao thông gây gãy cẳng chân phải.',
-                            injuries: 'Gãy kín 1/3 giữa xương cẳng chân phải, đứt dây chằng chéo trước độ 2.',
-                            repairRecommendation: 'Bó bột đùi bàn 6 tuần, thuốc Celecoxib 200mg, Alpha Choay.',
-                            estimatedAmount: 'Tỷ lệ thương tật tạm tính 22%',
-                        }
-                    },
-                    '15/07': {
-                        values: {
-                            claimReference: 'CL-2026-0715-003',
-                            adjusterName: 'Nguyễn Văn A',
-                            insuredName: 'Anh Khoa',
-                            insuredAddress: 'Số 15 Nguyễn Kiệm, P.3, Gò Vấp',
-                            accidentTime: '16:48 ngày 15/07/2026',
-                            accidentLocation: 'Số 15 Nguyễn Kiệm, P.3, Gò Vấp',
-                            accidentCause: 'Bão số 5 gây tốc mái tôn 30m², mưa tạt gây chập điện.',
-                            vehicleDamage: 'Chập cháy tivi Sony 65 inch\nHư hỏng bộ bàn ghế gỗ do mưa tạt',
-                            estimatedAmount: '45.000.000 VNĐ',
-                            immediateActions: 'Cắt điện tổng\nBáo cơ quan điện lực\nDi chuyển tài sản',
-                        }
-                    },
-                    '14/07': {
-                        values: {
-                            claimReference: 'CL-2026-0714-004',
-                            adjusterName: 'Nguyễn Văn A',
-                            insuredName: 'Anh Tuấn',
-                            vehicleMakeModel: 'Wave Alpha',
-                            vehiclePlate: '—',
-                            accidentTime: '10:05 ngày 14/07/2026',
-                            accidentLocation: 'Đường Cộng Hòa',
-                            accidentDescription: 'Xe Wave Alpha bị xe Toyota Vios 59A-987.65 đâm từ phía sau.',
-                            injuries: 'Trầy xước tay, đau nhẹ đầu gối.',
-                            vehicleDamage: 'Vỡ yếm xe\nGãy gương chiếu hậu bên trái',
-                            immediateActions: 'Khám cấp cứu\nChụp ảnh thiệt hại\nLiên hệ bảo hiểm',
-                        }
-                    },
-                },
                 selectedActions: [],
                 completedActions: [],
                 toasts: [],
@@ -2255,20 +2192,15 @@
                 },
 
                 currentClaimSourceValues() {
-                    if (this.activeQuickAccess !== 'current' && this.sampleTemplates[this.activeQuickAccess]) {
-                        return this.sampleTemplates[this.activeQuickAccess].values || {};
-                    }
+                    if (this.activeQuickAccess !== 'current') return {};
                     const rec = this.recordings.find(r => r.id === this.selectedRecordingId);
                     if (!rec || !rec.transcript) return {};
                     const s = rec.transcript.structured || {};
                     const txt = rec.transcript.raw_text || '';
                     const values = {};
                     if (s.vehicle_plate) values.vehiclePlate = s.vehicle_plate;
-                    if (s.location) values.accidentLocation = s.location;
-                    if (s.damage_description) values.vehicleDamage = s.damage_description;
-                    if (s.estimate_amount) values.estimatedAmount = s.estimate_amount;
-                    if (s.diagnosis) values.injuries = s.diagnosis;
-                    if (s.patient_name) values.insuredName = s.patient_name;
+                    if (Array.isArray(s.damage_items)) values.vehicleDamage = s.damage_items.join('\n');
+                    if (s.estimated_cost) values.estimatedAmount = this.formatVND(s.estimated_cost);
                     if (txt && Object.keys(values).length === 0) values.accidentDescription = txt;
                     return values;
                 },
