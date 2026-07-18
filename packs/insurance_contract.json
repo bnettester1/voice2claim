@@ -1,0 +1,178 @@
+{
+  "id": "insurance_contract",
+  "name": "Bảo hiểm — Bổ sung thông tin hợp đồng",
+  "icon": "📞",
+  "form": {
+    "title": "Phiếu bổ sung thông tin hợp đồng bảo hiểm",
+    "sections": [
+      {
+        "title": "Hợp đồng hiện có (hồ sơ gốc)",
+        "fields": [
+          {
+            "name": "so_gcn",
+            "label": "Số GCN / hợp đồng",
+            "type": "text",
+            "required": false,
+            "synonyms": ["số hợp đồng", "giấy chứng nhận"]
+          },
+          {
+            "name": "ten_khach_hang",
+            "label": "Tên khách hàng",
+            "type": "text",
+            "required": false,
+            "synonyms": ["chủ hợp đồng", "người mua bảo hiểm"]
+          },
+          {
+            "name": "san_pham",
+            "label": "Sản phẩm bảo hiểm",
+            "type": "text",
+            "required": false
+          },
+          {
+            "name": "xe_khach",
+            "label": "Xe được bảo hiểm",
+            "type": "text",
+            "required": false,
+            "synonyms": ["phương tiện", "xe của anh"]
+          }
+        ]
+      },
+      {
+        "title": "Thông tin cần bổ sung",
+        "fields": [
+          {
+            "name": "ngay_sinh",
+            "label": "Ngày sinh chủ hợp đồng",
+            "type": "date",
+            "required": true,
+            "itn": true,
+            "synonyms": ["sinh ngày", "sinh năm", "ngày tháng năm sinh"]
+          },
+          {
+            "name": "so_cccd",
+            "label": "Số CCCD (12 số)",
+            "type": "text",
+            "required": true,
+            "itn": true,
+            "synonyms": ["căn cước công dân", "căn cước", "số định danh", "CMND"]
+          },
+          {
+            "name": "bien_so_xe",
+            "label": "Biển số xe",
+            "type": "text",
+            "required": true,
+            "itn": true,
+            "synonyms": ["biển kiểm soát", "biển số"]
+          },
+          {
+            "name": "dia_chi_lien_he",
+            "label": "Địa chỉ liên hệ",
+            "type": "text",
+            "required": true,
+            "synonyms": ["địa chỉ", "chỗ ở hiện tại", "địa chỉ nhận hồ sơ"]
+          }
+        ]
+      }
+    ]
+  },
+  "actions": [
+    {
+      "id": "SUBMIT_CONTRACT_UPDATE",
+      "label": "Gửi ticket bổ sung hợp đồng",
+      "triggers": [
+        "bấm nút gửi ticket bổ sung hợp đồng",
+        "gửi ticket bổ sung hợp đồng",
+        "gửi phiếu bổ sung hợp đồng"
+      ],
+      "confirm": "click",
+      "required_fields": ["ngay_sinh", "so_cccd", "bien_so_xe", "dia_chi_lien_he"],
+      "tts_confirm": "",
+      "template": "contract_update"
+    }
+  ],
+  "prefill": {
+    "so_gcn": "GCN-2025-104729",
+    "ten_khach_hang": "Trần Văn Hùng",
+    "san_pham": "Bảo hiểm vật chất ô tô",
+    "xe_khach": "Toyota Vios 2023"
+  },
+  "call_script": {
+    "greeting": "Dạ em chào anh Hùng ạ. Em là Mai, gọi từ tổng đài chăm sóc khách hàng Bảo hiểm VALSEA. Hợp đồng bảo hiểm vật chất ô tô của anh còn thiếu một vài thông tin để hoàn tất thẩm định, em xin phép hỏi nhanh khoảng hai phút ạ.",
+    "closing": "Dạ em cảm ơn anh. Hồ sơ của anh đã được bổ sung đầy đủ, em gửi phiếu cập nhật về bộ phận thẩm định ngay bây giờ ạ. Em chào anh, chúc anh một ngày tốt lành ạ.",
+    "closing_partial": "Dạ em cảm ơn anh. Phần thông tin còn lại em sẽ xin bổ sung sau qua tin nhắn ạ. Em chào anh ạ.",
+    "reask_after_secs": 6,
+    "steps": [
+      {
+        "field": "ngay_sinh",
+        "ask": "Đầu tiên, anh cho em xin ngày tháng năm sinh của mình để đối chiếu hồ sơ ạ.",
+        "reask": "Dạ em chưa nghe rõ ạ. Anh đọc giúp em ngày sinh, ví dụ mười lăm tháng ba năm một chín chín hai ạ.",
+        "confirm_tpl": ""
+      },
+      {
+        "field": "so_cccd",
+        "ask": "Dạ tiếp theo, anh cho em xin số căn cước công dân mười hai số ạ.",
+        "reask": "Dạ anh đọc chậm giúp em từng số của căn cước công dân ạ.",
+        "confirm_tpl": "Em xin xác nhận số căn cước của anh là {value}, đúng không ạ?"
+      },
+      {
+        "field": "bien_so_xe",
+        "ask": "Dạ anh cho em xin biển số của xe Toyota Vios mình đang tham gia bảo hiểm ạ.",
+        "reask": "Dạ anh đọc lại giúp em biển số xe, gồm phần chữ và phần số ạ.",
+        "confirm_tpl": "Dạ biển số xe của anh là {value}, đúng không ạ?"
+      },
+      {
+        "field": "dia_chi_lien_he",
+        "ask": "Cuối cùng, anh cho em xin địa chỉ liên hệ hiện tại để công ty gửi hồ sơ về ạ.",
+        "reask": "Dạ anh cho em xin địa chỉ gồm số nhà, tên đường, phường và thành phố ạ.",
+        "confirm_tpl": ""
+      }
+    ]
+  },
+  "hint_terms": [
+    "căn cước công dân",
+    "số định danh cá nhân",
+    "ngày tháng năm sinh",
+    "biển số xe",
+    "biển kiểm soát",
+    "địa chỉ thường trú",
+    "hợp đồng bảo hiểm",
+    "giấy chứng nhận bảo hiểm",
+    "thẩm định hồ sơ",
+    "Toyota Vios",
+    "51K-123.45",
+    "59A-987.65",
+    "quận Bình Thạnh",
+    "thành phố Hồ Chí Minh",
+    "không bảy chín",
+    "một chín chín hai"
+  ],
+  "itn_rules": [
+    { "pattern": "năm mốt ca", "replace": "51K" },
+    { "pattern": "năm chín a", "replace": "59A" },
+    { "pattern": "năm mốt hát", "replace": "51H" }
+  ],
+  "few_shots": [
+    {
+      "transcript": "Tổng đài viên: Anh cho em xin số căn cước công dân mười hai số ạ. Khách: Số căn cước của anh là không bảy chín, không tám ba, không không một, hai ba bốn. Tổng đài viên: Dạ anh cho em xin biển số xe ạ. Khách: Biển số năm mốt ca một hai ba chấm bốn lăm em nhé, còn anh sinh ngày hai mươi tháng tư năm một chín tám sáu.",
+      "expected": {
+        "so_cccd": "079083001234",
+        "bien_so_xe": "51K-123.45",
+        "ngay_sinh": "20/04/1986",
+        "dia_chi_lien_he": null
+      }
+    }
+  ],
+  "extraction_instructions": "Đây là CUỘC GỌI RA của tổng đài viên bảo hiểm xin bổ sung thông tin hợp đồng. Transcript gồm lượt 'Tổng đài viên:' và 'Khách:'. CHỈ điền giá trị lấy từ lời KHÁCH — tuyệt đối không lấy ví dụ trong câu hỏi của tổng đài viên. Số đọc bằng chữ phải chuyển thành chữ số liền nhau (ví dụ 'không bảy chín' → '079'). so_cccd: đúng 12 chữ số, bỏ khoảng trắng. ngay_sinh: chuẩn hoá dd/mm/yyyy. bien_so_xe: dạng chuẩn '51K-123.45'. dia_chi_lien_he: ghi nguyên văn địa chỉ khách đọc, viết hoa tên riêng. Không suy diễn thông tin không được nói.",
+  "scoring": {
+    "submit_threshold": 85,
+    "validators": [
+      { "field": "so_cccd", "rule": "regex", "value": "^\\d{12}$" },
+      { "field": "ngay_sinh", "rule": "regex", "value": "^\\d{1,2}/\\d{1,2}/\\d{4}$" },
+      {
+        "field": "bien_so_xe",
+        "rule": "regex",
+        "value": "^\\d{2}[A-Z]{1,2}\\d?\\s?-?\\s?\\d{3}\\.?\\d{2}$|^\\d{2}-?[A-Z]\\d\\s?\\d{3}\\.?\\d{2}$"
+      }
+    ]
+  }
+}

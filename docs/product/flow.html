@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flow hệ thống — Speech-to-Meaning Pilot (as-built)</title>
+<style>
+  :root{
+    --bg:#0b1020; --bg2:#111831; --panel:#151d3a; --panel2:#1a2347;
+    --line:#27305c; --txt:#e8ecff; --dim:#8a94c8; --dim2:#5d679e;
+    --acc:#4f7cff; --acc2:#7aa2ff; --ok:#2fd27d; --warn:#ffc24d;
+    --danger:#ff6b6b; --armed:#ffd34d; --purple:#b48bff; --teal:#4dd6c2;
+    --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;padding:28px 16px 80px}
+  .wrap{max-width:1100px;margin:0 auto}
+  h1{font-size:22px;margin-bottom:4px}
+  .sub{color:var(--dim);font-size:13px;margin-bottom:14px}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px}
+  .chip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:5px 12px;font-size:11.5px;font-weight:700;color:var(--dim)}
+  .chip b{color:var(--ok);font-family:var(--mono)}
+  h2{font-size:13px;letter-spacing:1.4px;text-transform:uppercase;color:var(--acc2);margin:34px 0 14px;display:flex;align-items:center;gap:10px}
+  h2::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  /* ===== pipeline ===== */
+  .lane{display:grid;grid-template-columns:210px 1fr 210px;gap:14px;align-items:stretch}
+  @media(max-width:900px){.lane{grid-template-columns:1fr}.side{flex-direction:row!important;overflow-x:auto}}
+  .side{display:flex;flex-direction:column;gap:10px}
+  .rail{border:1px dashed var(--line);border-radius:13px;padding:12px;background:rgba(21,29,58,.5)}
+  .rail h4{font-size:10.5px;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+  .rail.pack h4{color:var(--armed)} .rail.ml h4{color:var(--purple)}
+  .rail p{font-size:11.5px;color:var(--dim);margin-bottom:7px}
+  .rail p b{color:var(--txt)}
+  .rail .tag{display:inline-block;border:1px solid var(--line);border-radius:6px;padding:1px 7px;font-size:10px;font-family:var(--mono);color:var(--acc2);margin:2px 2px 0 0;background:var(--bg2)}
+
+  .flow{display:flex;flex-direction:column;align-items:stretch}
+  .stage{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:13px 16px;position:relative}
+  .stage .head{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+  .stage .ic{width:30px;height:30px;border-radius:8px;background:#222c55;display:grid;place-items:center;font-size:15px;flex:none}
+  .stage b{font-size:14px}
+  .stage .m{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--ok);white-space:nowrap;font-weight:700}
+  .stage p{font-size:12.5px;color:var(--dim)}
+  .stage p b{color:var(--txt)}
+  .stage .code{font-family:var(--mono);font-size:10.5px;color:var(--acc2)}
+  .arrow{align-self:center;color:var(--dim2);font-size:16px;line-height:1;padding:5px 0}
+  .arrow span{font-size:10.5px;color:var(--dim2);font-family:var(--mono);margin-left:8px}
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:640px){.split{grid-template-columns:1fr}}
+  .stage.src{border-left:3px solid var(--acc)}
+  .stage.asr{border-left:3px solid var(--teal)}
+  .stage.sem{border-left:3px solid var(--purple)}
+  .stage.form{border-left:3px solid var(--ok)}
+  .stage.gate{border-left:3px solid var(--armed)}
+  .stage.act{border-left:3px solid var(--danger)}
+  .srcrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .srcrow .s{border:1px solid var(--line);background:var(--bg2);border-radius:9px;padding:6px 10px;font-size:11.5px}
+  .srcrow .s b{display:block;font-size:11.5px}
+  .srcrow .s small{color:var(--dim2);font-size:10px}
+
+  /* ===== two-branch actions ===== */
+  .branch{border:1px solid var(--line);border-radius:13px;background:var(--panel);padding:13px 15px}
+  .branch h5{font-size:12px;margin-bottom:6px;display:flex;gap:8px;align-items:center}
+  .branch.autob h5{color:var(--danger)} .branch.gateb h5{color:var(--armed)}
+  .branch p{font-size:12px;color:var(--dim)}
+  .branch .code{font-family:var(--mono);font-size:10.5px;color:var(--acc2)}
+
+  /* ===== pack anatomy ===== */
+  .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .card h5{font-size:12.5px;margin-bottom:5px;display:flex;gap:7px;align-items:center}
+  .card p{font-size:11.8px;color:var(--dim)}
+  .card p code,.mono{font-family:var(--mono);font-size:10.5px;color:var(--acc2)}
+
+  /* ===== degrade ladder ===== */
+  .ladder{display:flex;gap:10px;flex-wrap:wrap}
+  .rung{flex:1;min-width:200px;border:1px solid var(--line);border-radius:12px;padding:11px 13px;background:var(--panel)}
+  .rung h6{font-size:11px;letter-spacing:.6px;margin-bottom:4px}
+  .rung.ok h6{color:var(--ok)} .rung.warn h6{color:var(--warn)} .rung.last h6{color:var(--danger)}
+  .rung p{font-size:11.5px;color:var(--dim)}
+  .ladder .larrow{align-self:center;color:var(--dim2)}
+
+  /* ===== metrics ===== */
+  table{width:100%;border-collapse:collapse;font-size:12.5px;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  th{font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--dim);text-align:left;padding:9px 13px;border-bottom:1px solid var(--line);background:var(--bg2)}
+  td{padding:8px 13px;border-bottom:1px solid var(--line)}
+  td:first-child{color:var(--dim)}
+  td .v{font-family:var(--mono);color:var(--ok);font-weight:700}
+  tr:last-child td{border-bottom:0}
+  .note{margin-top:26px;color:var(--dim2);font-size:11.5px;text-align:center}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--dim);margin-top:8px}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>🎙️ Speech-to-Meaning Pilot — Flow hệ thống (as-built)</h1>
+  <div class="sub">Từ giọng nói tiếng Việt lộn xộn → Action Form đúng chuẩn ngành + Action Call thực thi thật · VALSEA Hackathon 2026 · số đo bên dưới đều đo trên máy thật</div>
+  <div class="chips">
+    <span class="chip">RTT ready <b>1.1–1.4s</b></span>
+    <span class="chip">Trigger arm <b>0.2–0.3ms</b> (đích 500ms)</span>
+    <span class="chip">Form điền từ <b>giây ~9</b> khi đang nói</span>
+    <span class="chip">Eval text <b>10/10 PASS</b></span>
+    <span class="chip">Demo A score <b>96/100</b></span>
+    <span class="chip">2 Domain Pack · <b>11 action</b></span>
+  </div>
+
+  <!-- ================================================== 1. LUỒNG CHÍNH -->
+  <h2>① Luồng chính</h2>
+  <div class="lane">
+
+    <!-- rail trái: Domain Pack -->
+    <div class="side">
+      <div class="rail pack">
+        <h4>📚 Domain Pack — kho từ điển nghiệp vụ (JSON, cắm-rút)</h4>
+        <p><b>Nuôi cả pipeline</b> — doanh nghiệp tích hợp chỉ cần soạn file này, không sửa code:</p>
+        <p>→ <b>hint_text</b> (950 ký tự thuật ngữ) bơm vào VALSEA RTT<br>
+           → <b>itn_rules</b> sửa lỗi ASR (EF↔IF, AST/ALT, tên thuốc, 5 mg→5mg)<br>
+           → <b>schema form</b> render UI + khuôn extraction<br>
+           → <b>triggers</b> cho action call<br>
+           → <b>validators</b> chấm định dạng (biển số, đơn vị liều)</p>
+        <span class="tag">insurance_motor</span><span class="tag">healthcare_exam</span><span class="tag">specialties: tiêu hóa · chỉnh hình · tim mạch</span>
+      </div>
+    </div>
+
+    <!-- pipeline giữa -->
+    <div class="flow">
+      <div class="stage src">
+        <div class="head"><div class="ic">🎧</div><b>1 · Nguồn âm thanh</b></div>
+        <div class="srcrow">
+          <div class="s"><b>📁 Upload / kéo thả</b><small>WAV·MP3·M4A·OGG·WEBM ≤10MB</small></div>
+          <div class="s"><b>▶ Chip audio mẫu A–J</b><small>bấm là chạy, khỏi upload</small></div>
+          <div class="s"><b>🎙️ Ghi âm browser</b><small>MediaRecorder webm</small></div>
+          <div class="s"><b>📞 Live Call mic</b><small>AudioWorklet → PCM16 16kHz, frame 100ms</small></div>
+          <div class="s"><b>⏪ Replay bản ghi</b><small>offline, 0 call API</small></div>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+
+      <div class="stage asr">
+        <div class="head"><div class="ic">🌊</div><b>2 · VALSEA ASR</b><span class="m">RTT ready 1.1–1.4s · batch warm 10–14s</span></div>
+        <p><b>Live:</b> <span class="code">wss /v1/realtime</span> — relay FastAPI 5 task asyncio, gửi <span class="code">session.start + hint_text</span>, nhận <b>partial</b> (chữ chạy) / <b>final</b> (chốt câu), reconnect 2 lần.<br>
+        <b>Batch:</b> <span class="code">POST /v1/audio/transcriptions</span> verbose_json (kèm raw_transcript, detected_languages). Key chỉ ở server.</p>
+      </div>
+      <div class="arrow">↓ <span>transcript giữ code-switch + dấu tiếng Việt</span></div>
+
+      <div class="stage sem">
+        <div class="head"><div class="ic">🧠</div><b>3 · Lớp ngữ nghĩa (3 việc chạy song song)</b><span class="m">extract 1.4–6s/lượt</span></div>
+        <p>① <b>Chuẩn hóa ITN theo từ điển</b> — <span class="code">normalize.py</span> áp itn_rules pack lên transcript (sửa đúng lỗi ASR đã quan sát).<br>
+        ② <b>Trigger spotting</b> — rapidfuzz trên MỌI partial, cửa sổ đuôi + <b>dominance filter</b> (hết nhầm "cứu hộ ô tô" vs "xe máy"); final quét cả câu.<br>
+        ③ <b>Extraction</b> — Groq <span class="code">llama-3.3-70b JSON mode</span> theo schema pack, mỗi field kèm <b>confidence + evidence quote</b>; retry 4 tầng (429/mạng/parse rỗng) → fallback 8b-instant.<br>
+        ④ <b>NER local PyTorch</b> đối chiếu độc lập (PERSON/LOCATION/MISC) → agreement.</p>
+      </div>
+      <div class="arrow">↓ <span>state.patch — chỉ field mới/đổi</span></div>
+
+      <div class="stage form">
+        <div class="head"><div class="ic">📋</div><b>4 · FormStore — form điền dần real-time</b><span class="m">patch đầu từ giây ~9</span></div>
+        <p>Merge rules: field <b>user đã sửa là bất khả xâm phạm</b> · không bao giờ regress về rỗng · re-extract toàn transcript tích lũy nên nói thêm là form tự sửa. UI tô màu confidence (xanh ≥0.8 / vàng / xám) + tooltip evidence + 🔒 khi user sửa.</p>
+      </div>
+      <div class="arrow">↓</div>
+
+      <div class="stage gate">
+        <div class="head"><div class="ic">🎯</div><b>5 · FormScorer + Màn Duyệt — máy điền, người quyết</b><span class="m">score demo A: 96</span></div>
+        <p>Điểm = <span class="code">0.40 độ phủ bắt buộc + 0.35 confidence + 0.15 NER agreement + 0.10 validator</span> (thiếu field bắt buộc cap 79; tắt ML tự phân bổ lại). Gate: <b>≥85 gửi thẳng</b> · 60–84 tick "đã đọc lại" · &lt;60 phải sửa/override có lý do. Validator regex <b>tự bắt biển số ASR nghe thiếu số</b> → cảnh báo đỏ, người duyệt sửa 3 giây. Audit trail: điểm, người duyệt, thời gian đọc, evidence.</p>
+      </div>
+      <div class="arrow">↓ <span>📤 GỬI FORM ĐI (hoặc action khẩn auto-fire)</span></div>
+
+      <div class="stage act">
+        <div class="head"><div class="ic">⚡</div><b>6 · Action Executor — chạy thật, không mockup</b><span class="m">TTS pre-cache → phát tức thì</span></div>
+        <p><b>DocumentComposer</b>: bảng field đã duyệt + đoạn tường thuật (VALSEA <span class="code">/v1/formatting</span> meeting_minutes tiếng Việt; service_log đính ticket; fallback Groq giữ đúng danh xưng) → <b>PDF chuẩn ngành</b> (fpdf2, font Việt đủ dấu) + <b>Ticket</b> vào Core System Console (priority từ thương tích + frustration_level) + <b>webhook log</b> + <b>TTS VALSEA</b> đáp bằng giọng nói.</p>
+      </div>
+    </div>
+
+    <!-- rail phải: PyTorch + hạ tầng -->
+    <div class="side">
+      <div class="rail ml">
+        <h4>🔥 PyTorch layer (local, CPU)</h4>
+        <p><b>silero-VAD</b> nghe stream PCM — người nói ngừng 0.8s → tự <span class="tag">audio.commit</span> cho RTT → final về sớm, form điền sớm.</p>
+        <p><b>NER tiếng Việt</b> (NlpHUST electra) đối chiếu độc lập với LLM → tăng/giảm điểm + cờ "NER không xác nhận".</p>
+        <p>Thiếu deps → <b>degrade sạch</b>, pipeline vẫn chạy.</p>
+      </div>
+      <div class="rail">
+        <h4 style="color:var(--teal)">🧪 Bộ kiểm chứng</h4>
+        <p><b>10 kịch bản</b> (6 KB + 4 tự soạn G–J) × clean/noisy/telephony — audio sinh bằng ElevenLabs <span class="tag">flash_v2_5 + vi</span> 2 giọng + nhiễu thật (còi cứu thương, trẻ khóc, mưa hầm xe).</p>
+        <p><span class="tag">eval.py</span> → scorecard.md · <span class="tag">test_live.py</span> E2E qua RTT + ghi replay · <span class="tag">probe.py</span> health 3 API.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================== 2. HAI NHÁNH ACTION -->
+  <h2>② Action Call — 2 chính sách</h2>
+  <div class="split">
+    <div class="branch autob">
+      <h5>🚨 AUTO — khẩn cấp, bắn ngay khi nói</h5>
+      <p>Nghe <i>"bấm nút gửi yêu cầu cứu hộ xe máy"</i> → nút <b>ARMED sáng trong 0.3ms</b> ngay trên partial → final xác nhận → tự fire: ticket + PDF + TTS <i>"Đã ghi nhận, xe cứu hộ sẽ đến trong 20 phút"</i>.<br>
+      <span class="code">REQUEST_MOTORBIKE_TOWING · REQUEST_CAR_TOWING · CONFIRM_PERSONAL_INJURY</span></p>
+    </div>
+    <div class="branch gateb">
+      <h5>🖐️ CLICK — hồ sơ/y lệnh, chờ người xác nhận</h5>
+      <p>Armed sáng chờ giám định viên/bác sĩ bấm, hoặc đi qua Màn Duyệt & chấm điểm rồi GỬI — đúng chuẩn compliance ngành.<br>
+      <span class="code">ISSUE_ELECTRONIC_PRESCRIPTION · ORDER_LAB_TESTS · SCHEDULE_FOLLOW_UP · SUBMIT_*_REPORT · SCHEDULE_SURVEYOR_VISIT…</span></p>
+    </div>
+  </div>
+
+  <!-- ================================================== 3. DOMAIN PACK -->
+  <h2>③ Bên trong một Domain Pack — "một engine, mọi nghiệp vụ"</h2>
+  <div class="grid3">
+    <div class="card"><h5>📋 form.sections[]</h5><p>Schema field (text/list/enum/number + synonyms + item_hint) → UI render động <b>và</b> khuôn JSON cho LLM. Đổi pack = đổi form, 0 dòng code.</p></div>
+    <div class="card"><h5>⚡ actions[]</h5><p>id + label + <code>triggers[]</code> (2–4 biến thể) + policy <code>auto|click</code> + <code>required_fields</code> + câu TTS xác nhận + template PDF.</p></div>
+    <div class="card"><h5>🗣️ hint_terms + specialties</h5><p>Thuật ngữ code-switch phải giữ nguyên (EF, HP, LDL-C, tên thuốc, biển số mẫu) → build thành <b>hint_text</b> bơm vào VALSEA RTT. Y tế: 3 module chuyên khoa đúng phạm vi test.</p></div>
+    <div class="card"><h5>🔧 itn_rules[]</h5><p>Từ điển sửa ASR hậu kỳ: <code>"mèn gần"→"men gan"</code>, <code>IF 60%→EF 60%</code>, <code>alpha-chloine→Alpha Choay</code>… — chính là chỗ doanh nghiệp "dạy" hệ thống ngôn ngữ ngành mình.</p></div>
+    <div class="card"><h5>🎯 scoring.validators</h5><p>Regex biển số VN, đơn vị liều… → FormScorer chấm + attention list. ASR nuốt số là <b>máy tự thú</b> chứ không im lặng sai.</p></div>
+    <div class="card"><h5>📝 few_shots + instructions</h5><p>1 ví dụ vàng + luật nghiệp vụ (phân biệt thuốc mới/duy trì/chỉnh liều; không lấy câu trấn an làm chẩn đoán; không suy diễn danh xưng).</p></div>
+  </div>
+
+  <!-- ================================================== 4. DEGRADE -->
+  <h2>④ Bậc thang chịu lỗi — demo không được phép chết</h2>
+  <div class="ladder">
+    <div class="rung ok"><h6>✅ LIVE — VALSEA RTT</h6><p>wss streaming + hint_text, partial &lt;1s, reconnect 2 lần khi rớt.</p></div>
+    <div class="larrow">→</div>
+    <div class="rung ok"><h6>📁 BATCH — transcriptions</h6><p>Upload/chip mẫu; warm 10–14s (cold 122s → runbook có bước warm-up trước giờ demo).</p></div>
+    <div class="larrow">→</div>
+    <div class="rung warn"><h6>⏪ REPLAY — offline</h6><p>Phát lại bản ghi thật (A, J): transcript chạy chữ, form điền, armed, score — <b>0 call API</b>. Mất mạng/hết credits vẫn demo trọn.</p></div>
+    <div class="larrow">→</div>
+    <div class="rung last"><h6>🧠 LLM degrade</h6><p>Groq 429/timeout → retry Retry-After → llama-8b → NER local PyTorch giữ field cốt lõi. Extraction rỗng thì form giữ nguyên, không phá dữ liệu cũ.</p></div>
+  </div>
+  <div class="legend">
+    <span><i style="background:var(--acc)"></i>đầu vào</span>
+    <span><i style="background:var(--teal)"></i>VALSEA speech</span>
+    <span><i style="background:var(--purple)"></i>ngữ nghĩa (Groq + PyTorch)</span>
+    <span><i style="background:var(--ok)"></i>form</span>
+    <span><i style="background:var(--armed)"></i>human gate</span>
+    <span><i style="background:var(--danger)"></i>thực thi</span>
+  </div>
+
+  <!-- ================================================== 5. SỐ ĐO -->
+  <h2>⑤ Số đo đã kiểm chứng (chạy thật trên máy)</h2>
+  <table>
+    <thead><tr><th>Chỉ số</th><th>Kết quả</th><th>Ghi chú</th></tr></thead>
+    <tbody>
+      <tr><td>VALSEA RTT session.ready</td><td><span class="v">1.1 – 1.4s</span></td><td>kèm hint_text 950 ký tự từ điển</td></tr>
+      <tr><td>Trigger arm latency (trên partial)</td><td><span class="v">0.2 – 0.3ms</span></td><td>đề bài yêu cầu &lt;500ms — nhanh hơn ~1500 lần</td></tr>
+      <tr><td>Field đầu tiên điền vào form (live)</td><td><span class="v">~9s</span></td><td>trong khi người nói vẫn đang nói tiếp</td></tr>
+      <tr><td>Eval text-mode (10 kịch bản, gold KB)</td><td><span class="v">10/10 PASS</span></td><td>51+ field checks, 0 false-positive action</td></tr>
+      <tr><td>Eval audio sau lớp ITN từ điển</td><td><span class="v">F, G: 100% cả bản nhiễu</span></td><td>SNR 12dB; run chính thức full 22 lượt đang chờ chạy lại (nghẽn quota Groq)</td></tr>
+      <tr><td>Demo A end-to-end qua UI</td><td><span class="v">score 96 — SẴN SÀNG GỬI</span></td><td>ASR 10.6s + extract 1.5s, stopwatch 16.7s</td></tr>
+      <tr><td>VALSEA batch latency</td><td><span class="v">warm 10–14s</span></td><td>cold 122s → runbook: warm-up trước demo; sân khấu ưu tiên Live/Replay</td></tr>
+      <tr><td>So sánh hard-case (đối chứng)</td><td><span class="v">VALSEA ≫ whisper generic</span></td><td>whisper nát biển số + thuật ngữ ("Biến xuân âm chín á…")</td></tr>
+    </tbody>
+  </table>
+
+  <p class="note">File: docs/product/flow.html · Chi tiết kỹ thuật: architecture.md · Kịch bản sân khấu + runbook: demo.md · Điểm số: scorecard.md · Roadmap: pilot-roadmap.md</p>
+</div>
+</body>
+</html>

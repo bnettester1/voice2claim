@@ -1,0 +1,109 @@
+{
+  "cases": [
+    {
+      "id": "G",
+      "pack_id": "insurance_motor",
+      "title": "Ô tô ngập nước chết máy trong hầm",
+      "noise": "heavy rain and echo in underground parking garage",
+      "transcript": "Giám định viên: Alo, em chào chị Hằng. Em là giám định viên bảo hiểm. Em nhận được báo xe của chị gặp sự cố ngập nước ở hầm chung cư bên quận 7 đúng không ạ?\nChủ xe: Đúng rồi em ơi. Mưa lớn quá, nước tràn vô hầm B2, chiếc Mazda CX-5 của chị biển số 51H-368.24 bị ngập tới nửa bánh xe luôn. Giờ đề máy không nổ nữa, chị sợ thủy kích lắm.\nGiám định viên: Dạ chị làm đúng đó, tuyệt đối đừng cố đề lại máy nha chị, đề lại là dễ cong tay biên, thủy kích nặng thêm. Xe hiện tại vẫn đang đậu dưới hầm B2 phải không chị?\nChủ xe: Ừ xe vẫn nằm dưới hầm, nước rút rồi nhưng sàn xe còn ướt nhẹp. Chị có quay video lúc nước ngập làm bằng chứng rồi nè.\nGiám định viên: Dạ tốt quá. Em đã ghi nhận: Mazda CX-5, biển số 51H-368.24, ngập nước tại hầm B2 chung cư quận 7, chưa đề lại máy, có video hiện trường. Chị vui lòng bấm nút gửi yêu cầu cứu hộ ô tô trên ứng dụng giúp em, xe kéo sàn sẽ xuống hầm đưa xe về xưởng kiểm tra trong vòng một tiếng nữa ạ.\nChủ xe: Ok em, chị bấm liền đây.",
+      "gold_fields": {
+        "ten_khach_hang": "Hằng",
+        "vi_tri": "hầm B2 chung cư quận 7",
+        "nguyen_nhan": "ngập nước",
+        "xe_khach": "Mazda CX-5",
+        "bien_so_xe_khach": "51H-368.24",
+        "hu_hong_xe_khach": [
+          "ngập nước tới nửa bánh xe",
+          "đề máy"
+        ],
+        "bang_chung": [
+          "video"
+        ]
+      },
+      "gold_actions": [
+        "REQUEST_CAR_TOWING"
+      ]
+    },
+    {
+      "id": "H",
+      "pack_id": "insurance_motor",
+      "title": "Trộm gỡ gương + cạy cốp xe trong bãi đêm",
+      "noise": "quiet parking lot ambience at night with distant traffic",
+      "transcript": "Giám định viên: Alo, anh Phúc phải không ạ? Em là giám định viên bảo hiểm, em nhận được khai báo xe anh bị trộm phụ tùng ở bãi giữ xe đêm qua.\nChủ xe: Đúng rồi em. Sáng nay anh ra bãi xe gần chợ Bến Thành lấy xe đi làm thì phát hiện chiếc Toyota Camry biển số 30G-555.12 của anh bị gỡ mất cả hai cái gương chiếu hậu, xong tụi nó còn cạy cả nẹp cốp sau nữa, trầy hết cả mảng sơn.\nGiám định viên: Dạ em chia sẻ với anh. Vậy tổng cộng mất hai gương chiếu hậu, hỏng nẹp cốp sau và trầy sơn. Bãi xe đó có camera an ninh không anh?\nChủ xe: Có em, anh hỏi bảo vệ rồi, camera bãi xe có quay được lúc hai thằng lượn lờ cạnh xe anh khoảng ba giờ sáng. Bảo vệ hứa trích xuất cho anh trong hôm nay.\nGiám định viên: Dạ quá tốt. Anh giữ nguyên hiện trạng xe, đừng sửa gì vội nha anh. Bây giờ anh bấm nút gửi báo cáo mất cắp phụ tùng trên ứng dụng, kèm ảnh chụp hai bên hông xe và cốp sau giúp em. Xong rồi anh bấm luôn nút hẹn giám định viên tới hiện trường để em phân công anh em xuống bãi xe đối chiếu camera trong chiều nay ạ.\nChủ xe: Rồi, anh bấm cả hai nút luôn nè.",
+      "gold_fields": {
+        "ten_khach_hang": "Phúc",
+        "vi_tri": "bãi giữ xe gần chợ Bến Thành",
+        "nguyen_nhan": "trộm cắp bộ phận",
+        "xe_khach": "Toyota Camry",
+        "bien_so_xe_khach": "30G-555.12",
+        "hang_muc_mat_cap": [
+          "hai gương chiếu hậu",
+          "nẹp cốp sau"
+        ],
+        "bang_chung": [
+          "camera"
+        ]
+      },
+      "gold_actions": [
+        "SUBMIT_THEFT_PARTS_REPORT",
+        "SCHEDULE_SURVEYOR_VISIT"
+      ]
+    },
+    {
+      "id": "I",
+      "pack_id": "healthcare_exam",
+      "title": "Tiêu hóa — viêm hang vị, HP ÂM tính (bẫy so với case D)",
+      "noise": "quiet clinic room tone with soft background chatter",
+      "transcript": "Bác sĩ: Chào anh Dũng, anh 45 tuổi, đau thượng vị khoảng hai tuần nay kèm ợ chua đúng không? Tôi xem kết quả nội soi của anh đây rồi.\nBệnh nhân: Dạ đúng bác sĩ, em đau âm ỉ vùng trên rốn, đêm nằm hay bị ợ chua trào lên cổ khó chịu lắm.\nBác sĩ: Kết quả nội soi cho thấy anh bị viêm hang vị mức độ nhẹ, và tin tốt là test HP âm tính nhé, không phải diệt vi khuẩn như nhiều người khác.\nBệnh nhân: May quá. Vậy em uống thuốc gì bác sĩ?\nBác sĩ: Tôi kê cho anh Omeprazole 20mg, uống 1 viên buổi sáng lúc bụng đói, trước ăn sáng 30 phút, liệu trình 4 tuần. Anh kiêng đồ chua cay, cà phê, và đừng ăn khuya sát giờ ngủ. Sau 4 tuần anh quay lại tái khám xem đáp ứng thế nào.\nBệnh nhân: Dạ vâng, em cảm ơn bác sĩ.\nBác sĩ: Rồi, anh cầm sổ ra quầy, tôi nhấn nút kê đơn thuốc điện tử cho anh lấy thuốc luôn nhé.",
+      "gold_fields": {
+        "ten_benh_nhan": "Dũng",
+        "tuoi": 45,
+        "trieu_chung": [
+          "đau vùng trên rốn",
+          "ợ chua"
+        ],
+        "ket_qua_cls": [
+          "test HP âm tính"
+        ],
+        "chan_doan": "viêm hang vị mức độ nhẹ, HP âm tính",
+        "thuoc_moi": [
+          "Omeprazole 20mg — 1 viên buổi sáng lúc đói, trước ăn 30 phút"
+        ],
+        "lieu_trinh": "4 tuần",
+        "tai_kham": "sau 4 tuần",
+        "chuyen_khoa": "tiêu hóa"
+      },
+      "gold_actions": [
+        "ISSUE_ELECTRONIC_PRESCRIPTION"
+      ]
+    },
+    {
+      "id": "J",
+      "pack_id": "healthcare_exam",
+      "title": "Tim mạch — tăng huyết áp, chỉnh liều + Holter (2 action)",
+      "noise": "quiet clinic room tone with soft background chatter",
+      "transcript": "Bác sĩ: Chào cô Loan, cô 62 tuổi, tái khám tăng huyết áp định kỳ đúng không ạ? Sổ theo dõi huyết áp ở nhà của cô tuần rồi toàn 150 trên 95, vẫn cao hơn mục tiêu đó cô.\nBệnh nhân: Ờ, tôi đo sáng nào cũng cỡ đó bác sĩ ơi, có bữa lên 155 nữa. Là sao hả bác sĩ?\nBác sĩ: Liều thuốc hiện tại chưa đủ kiểm soát rồi cô. Mình sẽ tăng Amlodipine từ 5mg lên 10mg, cô uống 1 viên buổi sáng sau ăn như cũ nhé. Các thuốc khác giữ nguyên.\nBệnh nhân: Vậy tôi có phải làm thêm xét nghiệm gì không?\nBác sĩ: Có cô. Tôi sẽ cho cô đeo Holter huyết áp 24 giờ để xem huyết áp dao động cả ngày lẫn đêm thế nào, và làm thêm điện giải đồ để kiểm tra kali natri trước khi chỉnh thuốc lâu dài. Cô nhấn nút chỉ định xét nghiệm ở quầy giúp tôi nhé.\nBệnh nhân: Dạ được. Chừng nào tôi quay lại?\nBác sĩ: Hai tuần nữa cô quay lại, mang theo kết quả Holter, mình đánh giá lại liều. Tôi nhấn nút đặt lịch tái khám cho cô luôn, hệ thống sẽ nhắn tin nhắc cô trước một ngày.\nBệnh nhân: Dạ cảm ơn bác sĩ nhiều nha.",
+      "gold_fields": {
+        "ten_benh_nhan": "Loan",
+        "tuoi": 62,
+        "ly_do_kham": "tái khám tăng huyết áp",
+        "ket_qua_cls": [
+          "huyết áp tại nhà 150/95 mmHg"
+        ],
+        "thuoc_dieu_chinh": [
+          "Amlodipine 5mg → 10mg, 1 viên buổi sáng sau ăn"
+        ],
+        "chi_dinh_cls_moi": [
+          "Holter huyết áp 24 giờ",
+          "điện giải đồ"
+        ],
+        "tai_kham": "sau 2 tuần",
+        "chuyen_khoa": "tim mạch"
+      },
+      "gold_actions": [
+        "ORDER_LAB_TESTS",
+        "SCHEDULE_FOLLOW_UP"
+      ]
+    }
+  ]
+}

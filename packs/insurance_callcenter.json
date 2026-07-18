@@ -1,0 +1,176 @@
+{
+  "id": "insurance_callcenter",
+  "name": "Bảo hiểm — Tổng đài CSKH tự động",
+  "icon": "🤖",
+  "form": {
+    "title": "Phiếu tiếp nhận cuộc gọi CSKH",
+    "sections": [
+      {
+        "title": "Xác thực khách hàng",
+        "fields": [
+          {
+            "name": "ho_ten",
+            "label": "Họ tên khách hàng",
+            "type": "text",
+            "required": true,
+            "synonyms": ["tên", "họ tên", "tên đầy đủ"]
+          },
+          {
+            "name": "cccd_cuoi",
+            "label": "Số cuối CCCD (6–9 số)",
+            "type": "text",
+            "required": true,
+            "itn": true,
+            "synonyms": ["căn cước", "số cuối căn cước", "CMND"]
+          }
+        ]
+      },
+      {
+        "title": "Yêu cầu & sự cố",
+        "fields": [
+          {
+            "name": "yeu_cau",
+            "label": "Yêu cầu của khách",
+            "type": "textarea",
+            "required": true,
+            "synonyms": ["cần hỗ trợ", "vấn đề"]
+          },
+          {
+            "name": "vi_tri",
+            "label": "Vị trí sự cố",
+            "type": "text",
+            "required": false,
+            "synonyms": ["địa điểm", "hiện trường", "nơi xảy ra", "ở đâu"]
+          },
+          {
+            "name": "thoi_diem",
+            "label": "Thời điểm sự cố",
+            "type": "text",
+            "required": false,
+            "synonyms": ["lúc", "khi nào", "hồi nào"]
+          },
+          {
+            "name": "mo_ta_thiet_hai",
+            "label": "Mô tả thiệt hại",
+            "type": "textarea",
+            "required": false,
+            "synonyms": ["hư hỏng", "thiệt hại", "hỏng chỗ nào"]
+          },
+          {
+            "name": "thuong_tich",
+            "label": "Thương tích (nếu có)",
+            "type": "text",
+            "required": false,
+            "synonyms": ["bị thương", "sức khỏe", "có ai bị sao không"]
+          }
+        ]
+      }
+    ]
+  },
+  "actions": [
+    {
+      "id": "SUBMIT_CALLCENTER_CLAIM",
+      "label": "Lập hồ sơ sự cố + báo nhân sự xử lý",
+      "triggers": ["gửi hồ sơ tổng đài", "lập hồ sơ sự cố"],
+      "confirm": "click",
+      "required_fields": ["ho_ten", "yeu_cau"],
+      "tts_confirm": "",
+      "template": "callcenter_intake"
+    }
+  ],
+  "call_flows": {
+    "greeting": "Dạ em chào anh chị, em là Mai gọi từ tổng đài chăm sóc khách hàng Bảo hiểm VALSEA ạ.",
+    "identify": [
+      {
+        "field": "ho_ten",
+        "ask": "Để hỗ trợ chính xác, anh chị cho em xin họ tên đầy đủ ạ.",
+        "reask": "Dạ em chưa nghe rõ, anh chị đọc lại giúp em họ tên đầy đủ ạ.",
+        "confirm_tpl": ""
+      },
+      {
+        "field": "cccd_cuoi",
+        "ask": "Dạ anh chị cho em xin sáu số cuối của căn cước công dân để đối chiếu ạ.",
+        "reask": "Dạ anh chị đọc chậm giúp em sáu số cuối căn cước ạ.",
+        "confirm_tpl": ""
+      }
+    ],
+    "lookup_wait": "Em cảm ơn ạ. Em đang kiểm tra thông tin, anh chị vui lòng đợi giây lát ạ.",
+    "lookup_found_tpl": "Em kiểm tra xong rồi ạ. {summary}. Anh chị cần bên em hỗ trợ gì ạ?",
+    "lookup_miss": "Dạ em chưa tìm thấy hồ sơ khớp hoàn toàn, nhưng em vẫn tiếp nhận yêu cầu của mình được ạ. Anh chị cần hỗ trợ gì ạ?",
+    "menu_prompt": "Anh chị cần bên em hỗ trợ gì ạ?",
+    "unknown_intent": "Dạ em chưa rõ yêu cầu của mình, anh chị nói cụ thể hơn giúp em được không ạ?",
+    "ask_more": "Dạ anh chị cần em hỗ trợ thêm gì nữa không ạ?",
+    "closing": "Dạ em cảm ơn anh chị đã tin tưởng Bảo hiểm VALSEA. Em chào anh chị, chúc anh chị nhiều sức khoẻ ạ.",
+    "reask_after_secs": 7,
+    "intents": [
+      {
+        "id": "claim_status",
+        "label": "Tra cứu tiến độ hồ sơ",
+        "keywords": [
+          "đã gửi hợp đồng", "chưa thấy phản hồi", "chưa phản hồi", "đến đâu rồi",
+          "bao giờ xong", "trạng thái hồ sơ", "tiến độ", "sao chưa", "thanh toán cho anh",
+          "chưa được giải quyết", "kiểm tra hồ sơ", "hồ sơ của anh", "hồ sơ của chị"
+        ],
+        "empathy": "",
+        "steps": [],
+        "reply_tpl": "Dạ thưa {ten}, hồ sơ {claim_id} của mình hiện đang ở trạng thái {status}, do {handler} phụ trách ạ. {eta}",
+        "confirm_tpl": "",
+        "action": ""
+      },
+      {
+        "id": "new_claim",
+        "label": "Tiếp nhận sự cố mới",
+        "keywords": [
+          "bị đâm xe", "đâm xe", "tai nạn", "va chạm", "bị thương", "ngập nước",
+          "mất cắp", "bị trộm", "sự cố", "bồi thường", "claim", "hư hỏng",
+          "cháy", "giải quyết hợp đồng cho anh", "đến giải quyết"
+        ],
+        "empathy": "Ui em rất lấy làm tiếc ạ, hi vọng anh chị không bị ảnh hưởng nhiều đến sức khoẻ. Anh chị cho em xin thêm một vài thông tin để lập hồ sơ ngay ạ.",
+        "steps": [
+          {
+            "field": "vi_tri",
+            "ask": "Dạ sự cố xảy ra ở đâu ạ?",
+            "reask": "Dạ anh chị cho em xin địa điểm xảy ra sự cố ạ.",
+            "confirm_tpl": ""
+          },
+          {
+            "field": "thoi_diem",
+            "ask": "Dạ sự cố xảy ra lúc nào ạ?",
+            "reask": "Dạ khoảng mấy giờ, ngày nào ạ?",
+            "confirm_tpl": ""
+          },
+          {
+            "field": "mo_ta_thiet_hai",
+            "ask": "Dạ xe hoặc tài sản của mình bị hư hỏng những gì ạ?",
+            "reask": "Dạ anh chị mô tả giúp em thiệt hại cụ thể ạ.",
+            "confirm_tpl": ""
+          },
+          {
+            "field": "thuong_tich",
+            "ask": "Dạ có ai bị thương không ạ?",
+            "reask": "Dạ tình hình sức khoẻ mọi người thế nào ạ?",
+            "confirm_tpl": ""
+          }
+        ],
+        "reply_tpl": "",
+        "confirm_tpl": "Em xác nhận lại thông tin cuối ạ: {summary}. Em sẽ gửi thông báo đến bộ phận giám định xử lý ngay và email xác nhận cho mình ạ.",
+        "action": "SUBMIT_CALLCENTER_CLAIM"
+      }
+    ]
+  },
+  "hint_terms": [
+    "căn cước công dân", "sáu số cuối", "hợp đồng bảo hiểm", "bồi thường",
+    "giám định", "hồ sơ", "tai nạn", "va chạm", "đâm xe", "ngập nước",
+    "mất cắp", "thanh toán", "bảo hiểm nhân thọ", "trạng thái hồ sơ",
+    "Nguyễn Tiến Tuấn", "Trần Thị Mai", "đường Cộng Hòa", "quận Gò Vấp"
+  ],
+  "itn_rules": [],
+  "few_shots": [],
+  "extraction_instructions": "Cuộc gọi tổng đài CSKH bảo hiểm. Transcript gồm lượt 'Tổng đài viên:' và 'Khách:'. Chỉ điền từ lời KHÁCH. ho_ten: tên riêng đầy đủ viết hoa. cccd_cuoi: 6-9 chữ số liền nhau. yeu_cau: tóm yêu cầu khách nói. Không suy diễn.",
+  "scoring": {
+    "submit_threshold": 60,
+    "validators": [
+      { "field": "cccd_cuoi", "rule": "regex", "value": "^\\d{6,9}$" }
+    ]
+  }
+}

@@ -1,0 +1,44 @@
+Kịch bản D: Khám tiêu hóa - Viêm loét dạ dày do HP
+Ngữ cảnh: Bác sĩ tiêu hóa khám và kết luận cho bệnh nhân sau khi có kết quả nội soi và test hơi thở. Thư ký y khoa ghi âm để điền bệnh án điện tử.
+Đặc điểm ASR cần test: Thuật ngữ y khoa (nội soi, HP, tá tràng), tên thuốc + liều lượng, code-switching (MRI, HP dương tính), tốc độ nói nhanh của bác sĩ.
+Bác sĩ: Chào anh Nam, tôi đã xem kết quả nội soi dạ dày và test hơi thở của anh rồi. Anh bị viêm loét tá tràng, có một ổ loét kích thước khoảng 1cm ở mặt trước tá tràng, và test HP dương tính.
+Bệnh nhân: Dạ vậy là nặng không bác sĩ? Em nghe nói vi khuẩn này khó trị lắm.
+Bác sĩ: Chưa nặng đâu anh, nhưng mình phải điều trị tiệt trừ HP ngay theo phác đồ triple therapy. Tôi sẽ kê đơn cho anh: Esomeprazole 40mg uống sáng và tối trước ăn 30 phút, kết hợp với Clarithromycin 500mg và Amoxicillin 1g, cả hai uống sau ăn trưa và tối. Liệu trình 14 ngày.
+Bệnh nhân: Dạ vâng. Thế bao giờ em tái khám ạ?
+Bác sĩ: Uống hết thuốc thì nghỉ 1 tháng, sau đó quay lại làm test hơi thở kiểm tra xem đã tiệt trừ chưa. Trong thời gian uống thuốc, kiêng rượu bia và đồ cay nóng. Tôi sẽ in đơn, anh ra quầy lễ tân nhấn nút "Kê đơn thuốc điện tử" để lấy thuốc và đóng viện phí nhé.
+Bệnh nhân: Dạ em cảm ơn bác sĩ.
+🎯 Mục tiêu Validate:
+NER (Form): Tên BN (Nam), Chẩn đoán (viêm loét tá tràng, ổ loét 1cm mặt trước tá tràng), Kết quả CLS (test hơi thở HP dương tính), Thuốc (Esomeprazole 40mg, Clarithromycin 500mg, Amoxicillin 1g), Liệu trình (14 ngày), Tái khám (1 tháng sau khi hết thuốc).
+Action Call: ISSUE_ELECTRONIC_PRESCRIPTION (Kích hoạt: "nhấn nút Kê đơn thuốc điện tử").
+
+Kịch bản E: Khám chấn thương chỉnh hình - Gãy xương sau tai nạn
+Ngữ cảnh: Bác sĩ chỉnh hình khám cho bệnh nhân sau tai nạn giao thông, đã có kết quả X-quang.
+Đặc điểm ASR cần test: Thuật ngữ xương khớp (gãy kín, 1/3 giữa, xương cẳng chân), code-switching (X-ray, MRI, ORIF), số đo, chỉ định phẫu thuật.
+Bác sĩ: Chào chị Lan, tôi vừa xem phim X-quang và MRI của chị. Chị bị gãy kín 1/3 giữa xương cẳng chân phải, không di lệch nhiều, nhưng có kèm theo rách dây chằng chéo trước độ 2.
+Bệnh nhân: Dạ vậy em có phải mổ không bác sĩ? Em sợ mổ lắm.
+Bác sĩ: Với mức độ này, mình chưa cần mổ xương ngay. Chị sẽ được bó bột đùi bàn trong 6 tuần, kết hợp vật lý trị liệu. Riêng dây chằng, mình sẽ theo dõi thêm 3 tháng, nếu khớp gối còn lỏng thì mới chỉ định phẫu thuật nội soi tái tạo DCCT.
+Bệnh nhân: Dạ vậy bây giờ em cần làm gì ạ?
+Bác sĩ: Tôi sẽ chỉ định cho chị: bó bột, thuốc giảm đau Celecoxib 200mg uống 1 viên sau ăn tối, thuốc chống phù nề Alpha Choay uống 2 viên sáng chiều. Chị tái khám sau 1 tuần để kiểm tra bột và 6 tuần để chụp X-quang kiểm tra liền xương. Chị nhấn nút "Chỉ định điều trị ngoại trú" để y tá chuẩn bị phòng bó bột nhé.
+Bệnh nhân: Dạ em cảm ơn bác sĩ.
+🎯 Mục tiêu Validate:
+NER (Form): Tên BN (Lan), Chẩn đoán (gãy kín 1/3 giữa xương cẳng chân phải, rách dây chằng chéo trước độ 2), Chỉ định (bó bột đùi bàn 6 tuần, theo dõi 3 tháng), Thuốc (Celecoxib 200mg, Alpha Choay), Tái khám (1 tuần, 6 tuần).
+Action Call: ISSUE_OUTPATIENT_TREATMENT_ORDER (Kích hoạt: "nhấn nút Chỉ định điều trị ngoại trú").
+
+Kịch bản F: Khám tim mạch - Tư vấn kết quả siêu âm tim
+Ngữ cảnh: Bác sĩ tim mạch tư vấn cho bệnh nhân cao tuổi sau khi có kết quả siêu âm tim và xét nghiệm máu.
+Đặc điểm ASR cần test: Chỉ số định lượng (EF, huyết áp, cholesterol), code-switching dày đặc (EF 60%, LDL-C, statin, ACE inhibitor), thuật ngữ chuyên sâu, giọng bệnh nhân lớn tuổi (nói chậm, hay hỏi lại).
+Bác sĩ: Chào bác Hùng, kết quả siêu âm tim và xét nghiệm máu của bác đã có. Phân suất tống máu EF vẫn 60%, chức năng tim còn tốt. Tuy nhiên, LDL-cholesterol của bác đang 3.8 mmol/L, hơi cao so với mục tiêu dưới 2.6 cho người có nguy cơ tim mạch.
+Bệnh nhân: Ờ vậy là sao hả bác sĩ? Bác có bị nặng không?
+Bác sĩ: Chưa nặng đâu bác, nhưng mình cần kiểm soát cholesterol để tránh xơ vữa động mạch. Cháu sẽ kê cho bác thuốc Rosuvastatin 10mg uống 1 viên tối trước khi ngủ, kết hợp với Aspirin 81mg uống sáng sau ăn. Bác tiếp tục uống thuốc huyết áp Amlodipine 5mg như cũ nhé.
+Bệnh nhân: Thế bao lâu bác tái khám?
+Bác sĩ: 1 tháng sau quay lại xét nghiệm men gan AST/ALT và lipid profile để đánh giá đáp ứng thuốc. Trong thời gian này, bác giảm ăn mỡ động vật, đi bộ 30 phút mỗi ngày. Bác nhấn nút "In phiếu khám và đơn thuốc" để ra quầy thuốc nhé.
+Bệnh nhân: Ok bác sĩ, bác cảm ơn cháu.
+🎯 Mục tiêu Validate:
+NER (Form): Tên BN (Hùng), Kết quả CLS (EF 60%, LDL-C 3.8 mmol/L), Chẩn đoán (tăng cholesterol máu, nguy cơ tim mạch), Thuốc mới (Rosuvastatin 10mg, Aspirin 81mg), Thuốc cũ (Amlodipine 5mg), Tái khám (1 tháng), Chỉ định xét nghiệm (men gan AST/ALT, lipid profile).
+Action Call: PRINT_EXAMINATION_SLIP_AND_PRESCRIPTION (Kích hoạt: "nhấn nút In phiếu khám và đơn thuốc").
+💡 Mẹo tối ưu khi dùng các kịch bản y khoa này để test:
+Test code-switching: Bác sĩ Việt Nam rất hay dùng thuật ngữ tiếng Anh (EF, MRI, HP, LDL-C, triple therapy). Hãy đảm bảo ASR không "Việt hóa" các từ này thành "ê ép", "em rờ ai", "hát pê" mà giữ nguyên dạng chữ.
+Test số và đơn vị: Các cụm như 40mg, 1cm, 60%, 3.8 mmol/L rất dễ bị ASR tách rời ("bốn mươi mi li gam" → "40 mi li gam" thay vì "40mg"). Cần kiểm tra kỹ phần Inverse Text Normalization (ITN).
+Test phân biệt thuốc: Các tên thuốc như Esomeprazole, Clarithromycin, Rosuvastatin rất dễ bị ASR nhận diện sai thành các từ vô nghĩa. Đây là điểm yếu phổ biến của ASR tổng quát → cần fine-tune model với corpus y tế.
+Test intent phức tạp: Trong kịch bản F, có nhiều action cùng lúc (kê đơn mới, tiếp tục đơn cũ, chỉ định xét nghiệm). Pipeline cần phân biệt được đâu là "thuốc mới", đâu là "thuốc tiếp tục", đâu là "chỉ định CLS".
+Tạo biến thể giọng nói: Với bệnh nhân lớn tuổi (Kịch bản F), hãy dùng TTS có giọng nói chậm, có khoảng nghỉ dài, và hay hỏi lại ("Ờ vậy là sao hả bác sĩ?"). Điều này giúp test độ robust của ASR với tốc độ nói không đều.

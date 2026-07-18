@@ -1,0 +1,22 @@
+# Copy file này thành `apikey.txt` ở repo root rồi điền key thật.
+# `apikey.txt` đã nằm trong .gitignore — TUYỆT ĐỐI KHÔNG commit.
+# Format linh hoạt NAME=value mỗi dòng; tên khóa nhận nhiều alias
+# (xem app/config.py). Biến môi trường cùng tên được ưu tiên hơn file.
+
+# BẮT BUỘC — VALSEA ASR/RTT/TTS/formatting (pipeline chính)
+VALSEA_API_KEY=your-valsea-api-key
+
+# TUỲ CHỌN — sinh audio test (scripts/gen_test_audio.py) + giọng dự phòng
+ELEVENLABS_API_KEY=
+
+# TUỲ CHỌN — E8 mode gọi số điện thoại thật (thiếu thì nút tự tắt, replay/browser vẫn chạy)
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_FROM_NUMBER=
+PUBLIC_BASE_URL=
+
+# TUỲ CHỌN — email xác nhận sau cuộc gọi (app/core/mailer.py)
+BREVO_API_KEY=
+
+# TUỲ CHỌN — CRM lookup tổng đài (thiếu thì fallback data demo local)
+MCP_AUTH_TOKEN=

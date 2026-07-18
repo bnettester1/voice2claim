@@ -1,0 +1,43 @@
+Kịch bản A: Tai nạn xe máy (Va chạm với ô tô)
+Ngữ cảnh: Giám định viên gọi cho người đi xe máy vừa bị ô tô đâm phải tại ngã tư.
+Đặc điểm ASR cần test: Từ vựng xe máy, mô tả vết thương nhẹ tại chỗ, biển số xe đối phương, sự hoảng loạn nhẹ trong giọng nói.
+Giám định viên: Alo, em chào anh Tuấn. Em là Lan, giám định viên bảo hiểm. Em nhận được thông báo anh vừa bị tai nạn ở đường Cộng Hòa, anh có sao không ạ?
+Người bị nạn: Ờ, anh cũng không sao lắm, chỉ bị trầy xước tay và đau nhẹ ở đầu gối thôi. Nhưng cái xe Wave Alpha của anh thì hỏng nặng lắm.
+Giám định viên: Dạ em chia sẻ với anh. Anh có nhớ biển số xe ô tô đâm vào mình không ạ?
+Người bị nạn: Để anh xem... ờ, anh nhớ là xe Toyota Vios, biển số 59A-987.65. Nó đâm từ phía sau làm anh ngã xe, vỡ cái yếm xe và gãy luôn cái gương chiếu hậu bên trái.
+Giám định viên: Dạ em đã ghi nhận. Anh nhớ giữ nguyên hiện trường, đừng di chuyển xe nhé. Anh vui lòng mở ứng dụng, chụp 4 góc hiện trường và bấm vào nút "Gửi yêu cầu cứu hộ xe máy" giúp em. Xe cứu hộ sẽ đến trong 20 phút nữa.
+Người bị nạn: Ok em, anh làm ngay đây.
+🎯 Mục tiêu Validate:
+NER (Form): Tên (Tuấn), Vị trí (đường Cộng Hòa), Phương tiện (Wave Alpha), Xe đối phương (Toyota Vios, 59A-987.65), Hư hỏng (vỡ yếm xe, gãy gương chiếu hậu bên trái), Thương tích (trầy xước tay, đau nhẹ đầu gối).
+Action Call: REQUEST_MOTORBIKE_TOWING (Kích hoạt: "bấm vào nút Gửi yêu cầu cứu hộ xe máy").
+
+Kịch bản B: Tai nạn ô tô có người bị thương nhẹ tại chỗ (Cần xe cứu thương)
+Ngữ cảnh: Giám định viên gọi xác minh nhanh một vụ va chạm có người bị thương nhẹ, cần điều phối cả cứu hộ và y tế.
+Đặc điểm ASR cần test: Sự khẩn cấp, thuật ngữ sơ cứu, đa nhiệm (xử lý cả xe và người).
+Giám định viên: Alo, em chào chị Mai. Em là giám định viên hiện trường. Em được tin xe của chị vừa va quệt với xe tải ở cao tốc Long Thành - Dầu Giây. Chị và mọi người trên xe có bị làm sao không ạ?
+Chủ xe: Dạ chào em. Chị thì không sao, nhưng bé ngồi ghế sau bị va đầu vào thành xe, bé đang khóc và hơi chóng mặt.
+Giám định viên: Dạ vâng, quan trọng nhất là sức khỏe của bé. Chị đã gọi xe cấp cứu chưa ạ?
+Chủ xe: Ờ chị vừa gọi rồi, xe cứu thương đang đến. Còn xe của chị là Honda CR-V, biển 51F-555.88, bị móp sâu phần cửa bên phải và vỡ kính cửa sổ.
+Giám định viên: Dạ em đã note lại: Honda CR-V, biển 51F-555.88, hư hỏng cửa phải và vỡ kính. Chị yên tâm sơ cứu cho bé nhé. Khi nào ổn định, chị nhớ bấm nút "Xác nhận có người bị thương" trên hệ thống để em kích hoạt quy trình bồi thường nhân thân và điều tra nguyên nhân ạ.
+Chủ xe: Được rồi em, chị sẽ làm.
+🎯 Mục tiêu Validate:
+NER (Form): Tên (Mai), Vị trí (cao tốc Long Thành - Dầu Giây), Phương tiện (Honda CR-V, 51F-555.88), Hư hỏng (móp sâu cửa bên phải, vỡ kính cửa sổ), Tình trạng người (bé bị va đầu, chóng mặt).
+Action Call: CONFIRM_PERSONAL_INJURY (Kích hoạt: "bấm nút Xác nhận có người bị thương").
+
+Kịch bản C: Va chạm liên hoàn / Nhiều xe (Phức tạp)
+Ngữ cảnh: Giám định viên gọi cho tài xế trong một vụ tai nạn liên hoàn (3 xe trở lên) để lấy thông tin sơ bộ.
+Đặc điểm ASR cần test: Nhiều thực thể cùng lúc (nhiều biển số, nhiều vị trí hư hỏng), câu dài, thông tin chồng chéo.
+Giám định viên: Alo, em chào anh Khoa. Em là giám định viên. Em nhận được tin báo vụ va chạm liên hoàn ở cầu Sài Gòn. Anh có thể mô tả sơ lược giúp em được không ạ?
+Tài xế: Ờ, vụ này hơi rối em ơi. Xe anh là Ford Ranger, biển 51C-111.22. Anh đang dừng đèn đỏ thì bị một xe SH biển 59-S1 345.67 tông từ phía sau, đẩy xe anh lao lên đâm vào đuôi xe buýt biển 51B-234.56 ở phía trước.
+Giám định viên: Dạ em hiểu rồi. Vậy tổng cộng có 3 phương tiện tham gia. Xe Ford Ranger của anh hiện tại hư hỏng những gì ạ?
+Tài xế: Thì cản sau bị móp do xe SH đâm, còn đầu xe thì vỡ đèn sương mù và lưới tản nhiệt do đâm vào xe buýt.
+Giám định viên: Dạ rõ. Em đã ghi nhận đầy đủ: 3 xe, biển số 51C-111.22, 59-S1 345.67 và 51B-234.56. Hư hỏng cản sau, đèn sương mù và lưới tản nhiệt. Anh vui lòng bấm nút "Gửi biên bản va chạm liên hoàn" kèm theo ảnh chụp toàn cảnh 3 xe để em chuyển cho bộ phận pháp chế xử lý nhanh nhất nhé.
+Tài xế: Ok, anh gửi ngay.
+🎯 Mục tiêu Validate:
+NER (Form): Tên (Khoa), Vị trí (cầu Sài Gòn), Phương tiện 1 (Ford Ranger, 51C-111.22), Phương tiện 2 (SH, 59-S1 345.67), Phương tiện 3 (xe buýt, 51B-234.56), Hư hỏng xe 1 (móp cản sau, vỡ đèn sương mù, vỡ lưới tản nhiệt).
+Action Call: SUBMIT_MULTI_VEHICLE_COLLISION_REPORT (Kích hoạt: "bấm nút Gửi biên bản va chạm liên hoàn").
+💡 Mẹo tối ưu khi dùng các kịch bản này để test:
+Tạo biến thể phát âm: Với các biển số như 59-S1 345.67, hãy tạo 2 bản TTS: một bản đọc là "năm chín S một ba bốn năm chấm sáu bảy", một bản đọc là "năm chín gạch S một ba bốn lăm chấm sáu bảy" để test khả năng Inverse Text Normalization (ITN) của hệ thống.
+Thêm nhiễu (Noise): Đối với Kịch bản B (có người bị thương), hãy chèn thêm tiếng ồn nền như tiếng còi xe cứu thương xa xa hoặc tiếng trẻ em khóc nhẹ. Điều này giúp bạn đánh giá xem ASR có bị "điếc" (drop words) ở những đoạn quan trọng hay không.
+Test độ trễ và Intent: Đảm bảo rằng ngay khi cụm từ "bấm nút..." được nói ra, hệ thống NLP của bạn có thể bắt được intent trong vòng < 500ms để kích hoạt UI trên web một cách mượt mà.
+Bạn có muốn mình điều chỉnh thêm chi tiết nào (ví dụ: thêm tiếng lóng, giọng địa phương, hoặc tình huống khách hàng tức giận) để bài test sát với thực tế hơn không?

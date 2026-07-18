@@ -1,0 +1,359 @@
+{
+  "id": "insurance_motor",
+  "name": "Bảo hiểm — Giám định tai nạn xe",
+  "icon": "🛡️",
+  "form": {
+    "title": "Phiếu ghi nhận tổn thất hiện trường",
+    "sections": [
+      {
+        "title": "Thông tin khai báo",
+        "fields": [
+          {
+            "name": "ten_khach_hang",
+            "label": "Tên khách hàng",
+            "type": "text",
+            "required": true,
+            "synonyms": [
+              "người khai",
+              "chủ xe",
+              "người bị nạn",
+              "tài xế"
+            ]
+          },
+          {
+            "name": "vi_tri",
+            "label": "Vị trí sự cố",
+            "type": "text",
+            "required": true,
+            "synonyms": [
+              "địa điểm",
+              "hiện trường",
+              "nơi xảy ra"
+            ]
+          },
+          {
+            "name": "thoi_diem",
+            "label": "Thời điểm sự cố",
+            "type": "text",
+            "required": false,
+            "synonyms": [
+              "lúc",
+              "khi nào",
+              "thời gian"
+            ]
+          },
+          {
+            "name": "nguyen_nhan",
+            "label": "Nguyên nhân sơ bộ",
+            "type": "enum",
+            "required": false,
+            "options": [
+              "va chạm",
+              "ngập nước",
+              "trộm cắp bộ phận",
+              "cháy nổ",
+              "khác"
+            ],
+            "synonyms": [
+              "lý do",
+              "do đâu"
+            ]
+          },
+          {
+            "name": "so_gcn",
+            "label": "Số GCN bảo hiểm / hợp đồng",
+            "type": "text",
+            "required": false,
+            "synonyms": [
+              "giấy chứng nhận",
+              "số hợp đồng",
+              "số thẻ bảo hiểm"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Phương tiện",
+        "fields": [
+          {
+            "name": "xe_khach",
+            "label": "Xe của khách (hãng/mẫu)",
+            "type": "text",
+            "required": true,
+            "synonyms": [
+              "xe của anh",
+              "xe của chị",
+              "phương tiện"
+            ]
+          },
+          {
+            "name": "bien_so_xe_khach",
+            "label": "Biển số xe khách",
+            "type": "text",
+            "required": false,
+            "itn": true,
+            "synonyms": [
+              "biển kiểm soát",
+              "biển số"
+            ]
+          },
+          {
+            "name": "xe_lien_quan",
+            "label": "Xe liên quan (mẫu — biển số)",
+            "type": "list",
+            "required": false,
+            "synonyms": [
+              "xe đối phương",
+              "xe bên kia",
+              "xe thứ hai",
+              "xe thứ ba"
+            ],
+            "item_hint": "mỗi phần tử: '<hãng/mẫu xe> — <biển số>' nếu có biển số"
+          }
+        ]
+      },
+      {
+        "title": "Tổn thất & thương tích",
+        "fields": [
+          {
+            "name": "hu_hong_xe_khach",
+            "label": "Hư hỏng xe khách",
+            "type": "list",
+            "required": true,
+            "synonyms": [
+              "thiệt hại",
+              "hỏng chỗ nào",
+              "tổn thất xe"
+            ]
+          },
+          {
+            "name": "hu_hong_xe_lien_quan",
+            "label": "Hư hỏng xe liên quan",
+            "type": "list",
+            "required": false
+          },
+          {
+            "name": "hang_muc_mat_cap",
+            "label": "Hạng mục mất cắp/bị phá",
+            "type": "list",
+            "required": false,
+            "synonyms": [
+              "bị trộm",
+              "bị gỡ",
+              "bị cạy",
+              "mất"
+            ]
+          },
+          {
+            "name": "thuong_tich",
+            "label": "Thương tích / tình trạng người",
+            "type": "textarea",
+            "required": false,
+            "synonyms": [
+              "bị thương",
+              "sức khỏe",
+              "có ai bị sao không"
+            ]
+          },
+          {
+            "name": "bang_chung",
+            "label": "Bằng chứng hiện có",
+            "type": "list",
+            "required": false,
+            "synonyms": [
+              "camera",
+              "hình ảnh",
+              "clip",
+              "nhân chứng"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "actions": [
+    {
+      "id": "REQUEST_MOTORBIKE_TOWING",
+      "label": "Gửi yêu cầu cứu hộ xe máy",
+      "triggers": [
+        "bấm vào nút gửi yêu cầu cứu hộ xe máy",
+        "bấm nút gửi yêu cầu cứu hộ xe máy",
+        "gửi yêu cầu cứu hộ xe máy"
+      ],
+      "confirm": "auto",
+      "required_fields": [
+        "vi_tri",
+        "xe_khach"
+      ],
+      "tts_confirm": "Đã ghi nhận. Yêu cầu cứu hộ xe máy đang được gửi đi, xe cứu hộ sẽ đến trong khoảng hai mươi phút.",
+      "template": "towing_request"
+    },
+    {
+      "id": "REQUEST_CAR_TOWING",
+      "label": "Gửi yêu cầu cứu hộ ô tô",
+      "triggers": [
+        "bấm nút gửi yêu cầu cứu hộ ô tô",
+        "gửi yêu cầu cứu hộ ô tô",
+        "yêu cầu cứu hộ ô tô giúp"
+      ],
+      "confirm": "auto",
+      "required_fields": [
+        "vi_tri",
+        "xe_khach"
+      ],
+      "tts_confirm": "Đã ghi nhận. Yêu cầu cứu hộ ô tô đang được gửi đi. Anh chị vui lòng không nổ máy lại để tránh thủy kích nặng hơn.",
+      "template": "towing_request"
+    },
+    {
+      "id": "CONFIRM_PERSONAL_INJURY",
+      "label": "Xác nhận có người bị thương",
+      "triggers": [
+        "bấm nút xác nhận có người bị thương",
+        "xác nhận có người bị thương trên hệ thống",
+        "xác nhận có người bị thương"
+      ],
+      "confirm": "auto",
+      "required_fields": [
+        "thuong_tich"
+      ],
+      "tts_confirm": "Đã xác nhận có người bị thương. Quy trình bồi thường nhân thân được kích hoạt, tổng đài y tế sẽ liên hệ ngay.",
+      "template": "injury_confirmation"
+    },
+    {
+      "id": "SUBMIT_MULTI_VEHICLE_COLLISION_REPORT",
+      "label": "Gửi biên bản va chạm liên hoàn",
+      "triggers": [
+        "bấm nút gửi biên bản va chạm liên hoàn",
+        "gửi biên bản va chạm liên hoàn"
+      ],
+      "confirm": "click",
+      "required_fields": [
+        "ten_khach_hang",
+        "vi_tri",
+        "xe_khach",
+        "xe_lien_quan"
+      ],
+      "tts_confirm": "Biên bản va chạm liên hoàn đã được gửi cho bộ phận pháp chế xử lý.",
+      "template": "multi_vehicle_report"
+    },
+    {
+      "id": "SUBMIT_THEFT_PARTS_REPORT",
+      "label": "Gửi báo cáo mất cắp phụ tùng",
+      "triggers": [
+        "bấm nút gửi báo cáo mất cắp phụ tùng",
+        "gửi báo cáo mất cắp phụ tùng",
+        "gửi hồ sơ mất cắp bộ phận xe"
+      ],
+      "confirm": "click",
+      "required_fields": [
+        "ten_khach_hang",
+        "vi_tri",
+        "hang_muc_mat_cap"
+      ],
+      "tts_confirm": "Báo cáo mất cắp phụ tùng đã được gửi. Bộ phận giám định sẽ đối chiếu camera trong hai mươi bốn giờ.",
+      "template": "theft_report"
+    },
+    {
+      "id": "SCHEDULE_SURVEYOR_VISIT",
+      "label": "Hẹn giám định viên tới hiện trường",
+      "triggers": [
+        "bấm nút hẹn giám định viên tới hiện trường",
+        "hẹn giám định viên xuống hiện trường",
+        "đặt lịch giám định hiện trường"
+      ],
+      "confirm": "click",
+      "required_fields": [
+        "vi_tri"
+      ],
+      "tts_confirm": "Đã đặt lịch. Giám định viên sẽ có mặt tại hiện trường trong thời gian sớm nhất.",
+      "template": "surveyor_visit"
+    }
+  ],
+  "hint_terms": [
+    "giám định viên",
+    "cứu hộ",
+    "hiện trường",
+    "bồi thường",
+    "giấy chứng nhận bảo hiểm",
+    "Wave Alpha",
+    "Toyota Vios",
+    "Honda CR-V",
+    "Ford Ranger",
+    "Honda SH",
+    "Mazda CX-5",
+    "Toyota Camry",
+    "xe buýt",
+    "xe tải",
+    "59A-987.65",
+    "51F-555.88",
+    "51C-111.22",
+    "59-S1 345.67",
+    "51B-234.56",
+    "51H-368.24",
+    "30G-555.12",
+    "yếm xe",
+    "gương chiếu hậu",
+    "cản sau",
+    "cản trước",
+    "đèn sương mù",
+    "lưới tản nhiệt",
+    "kính chắn gió",
+    "kính cửa sổ",
+    "nẹp cốp",
+    "capo",
+    "la giăng",
+    "thủy kích",
+    "ngập nước",
+    "chết máy",
+    "không khởi động được",
+    "trầy xước",
+    "móp",
+    "va quệt",
+    "va chạm liên hoàn",
+    "camera hành trình",
+    "camera bãi xe",
+    "bãi giữ xe",
+    "đường Cộng Hòa",
+    "cao tốc Long Thành - Dầu Giây",
+    "cầu Sài Gòn",
+    "hầm chung cư"
+  ],
+  "itn_rules": [
+    {
+      "pattern": "năm mốt hát",
+      "replace": "51H"
+    },
+    {
+      "pattern": "năm chín a",
+      "replace": "59A"
+    }
+  ],
+  "few_shots": [
+    {
+      "transcript": "Giám định viên: Em chào anh Bình, anh báo xe bị sự cố ở hầm gửi xe tòa nhà Sunrise đúng không ạ? Chủ xe: Đúng rồi em, mưa lớn quá nước tràn vô hầm, chiếc Kia Morning biển số 51G-234.56 của anh chết máy luôn, anh không dám đề lại. Giám định viên: Dạ anh làm đúng rồi, đề lại là dễ thủy kích lắm. Em ghi nhận nhé, anh bấm nút gửi yêu cầu cứu hộ ô tô giúp em.",
+      "expected": {
+        "ten_khach_hang": "Bình",
+        "vi_tri": "hầm gửi xe tòa nhà Sunrise",
+        "nguyen_nhan": "ngập nước",
+        "xe_khach": "Kia Morning",
+        "bien_so_xe_khach": "51G-234.56",
+        "hu_hong_xe_khach": [
+          "chết máy do ngập nước, chưa đề lại"
+        ],
+        "xe_lien_quan": null,
+        "thuong_tich": null
+      }
+    }
+  ],
+  "extraction_instructions": "Đây là hội thoại giám định bảo hiểm xe. Phân biệt rõ XE CỦA KHÁCH và XE LIÊN QUAN (đối phương): 'xe tôi/xe anh/xe chị' là xe khách; xe đâm vào/bị đâm là xe liên quan. Biển số viết dạng chuẩn '59A-987.65' (2 số + serie + 3 số chấm 2 số, xe máy có thể '59-S1 345.67'). Hư hỏng tách thành từng mục ngắn. Thương tích của NGƯỜI ghi vào thuong_tich, không lẫn với hư hỏng xe. nguyen_nhan chọn đúng một giá trị enum. Không suy diễn thông tin không được nói.",
+  "scoring": {
+    "submit_threshold": 85,
+    "validators": [
+      {
+        "field": "bien_so_xe_khach",
+        "rule": "regex",
+        "value": "^\\d{2}[A-Z]{1,2}\\d?\\s?-?\\s?\\d{3}\\.?\\d{2}$|^\\d{2}-?[A-Z]\\d\\s?\\d{3}\\.?\\d{2}$"
+      }
+    ]
+  }
+}

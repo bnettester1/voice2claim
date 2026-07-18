@@ -1,0 +1,41 @@
+# ===== SECRETS — never commit =====
+apikey.txt
+*.key
+.env
+.env.*
+
+# ===== macOS / editor junk =====
+.DS_Store
+~$*
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# ===== Generated artifacts =====
+assets/audio/*.wav
+assets/audio/*.mp3
+out/
+*.pdf
+!docs/**/*.pdf
+
+# ===== ML model cache =====
+.models/
+*.pt
+*.onnx
+
+# Harness durable layer
+harness.db
+harness.db-wal
+harness.db-shm
+scripts/bin/harness-cli
+scripts/bin/harness-cli.exe
+*.bin
+assets/formatting_*.json
+
+# ===== Claude Code local =====
+.claude/worktrees/
+.claude/*.lock

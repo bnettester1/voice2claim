@@ -1,0 +1,457 @@
+{
+  "id": "healthcare_exam",
+  "name": "Y tế — Khám ngoại trú",
+  "icon": "🩺",
+  "form": {
+    "title": "Phiếu khám bệnh & kê đơn",
+    "sections": [
+      {
+        "title": "Hành chính & lý do khám",
+        "fields": [
+          {
+            "name": "ten_benh_nhan",
+            "label": "Tên bệnh nhân",
+            "type": "text",
+            "required": true,
+            "synonyms": [
+              "bệnh nhân",
+              "anh",
+              "chị",
+              "bác",
+              "cô",
+              "chú"
+            ]
+          },
+          {
+            "name": "tuoi",
+            "label": "Tuổi",
+            "type": "number",
+            "required": false
+          },
+          {
+            "name": "ly_do_kham",
+            "label": "Lý do khám / bệnh sử ngắn",
+            "type": "text",
+            "required": false,
+            "synonyms": [
+              "đến khám vì",
+              "tái khám",
+              "than phiền"
+            ]
+          },
+          {
+            "name": "trieu_chung",
+            "label": "Triệu chứng",
+            "type": "list",
+            "required": false,
+            "synonyms": [
+              "đau",
+              "khó chịu",
+              "biểu hiện"
+            ]
+          },
+          {
+            "name": "chuyen_khoa",
+            "label": "Chuyên khoa",
+            "type": "enum",
+            "required": false,
+            "options": [
+              "tiêu hóa",
+              "chấn thương chỉnh hình",
+              "tim mạch",
+              "khác"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Chẩn đoán & cận lâm sàng",
+        "fields": [
+          {
+            "name": "chan_doan",
+            "label": "Chẩn đoán",
+            "type": "textarea",
+            "required": true,
+            "synonyms": [
+              "kết luận",
+              "bị",
+              "mắc"
+            ]
+          },
+          {
+            "name": "ket_qua_cls",
+            "label": "Kết quả cận lâm sàng đã có",
+            "type": "list",
+            "required": false,
+            "synonyms": [
+              "kết quả xét nghiệm",
+              "nội soi",
+              "siêu âm",
+              "X-quang",
+              "MRI",
+              "test"
+            ],
+            "item_hint": "giữ nguyên chỉ số + đơn vị, ví dụ 'EF 60%', 'LDL-C 3.8 mmol/L', 'test hơi thở HP dương tính'"
+          },
+          {
+            "name": "chi_dinh_cls_moi",
+            "label": "Chỉ định CLS lần tới",
+            "type": "list",
+            "required": false,
+            "synonyms": [
+              "làm thêm xét nghiệm",
+              "chụp thêm",
+              "đo thêm",
+              "kiểm tra lại"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Điều trị",
+        "fields": [
+          {
+            "name": "thuoc_moi",
+            "label": "Thuốc kê mới",
+            "type": "list",
+            "required": false,
+            "synonyms": [
+              "kê đơn",
+              "kê cho",
+              "uống thuốc"
+            ],
+            "item_hint": "mỗi phần tử: '<Tên thuốc> <hàm lượng> — <cách dùng>' ví dụ 'Esomeprazole 40mg — sáng và tối trước ăn 30 phút'"
+          },
+          {
+            "name": "thuoc_duy_tri",
+            "label": "Thuốc duy trì (như cũ)",
+            "type": "list",
+            "required": false,
+            "synonyms": [
+              "tiếp tục uống",
+              "như cũ",
+              "duy trì"
+            ]
+          },
+          {
+            "name": "thuoc_dieu_chinh",
+            "label": "Thuốc điều chỉnh liều",
+            "type": "list",
+            "required": false,
+            "synonyms": [
+              "tăng liều",
+              "giảm liều",
+              "đổi liều"
+            ],
+            "item_hint": "ghi rõ liều cũ → liều mới, ví dụ 'Amlodipine 5mg → 10mg, uống sáng'"
+          },
+          {
+            "name": "chi_dinh_dieu_tri",
+            "label": "Chỉ định điều trị / thủ thuật",
+            "type": "list",
+            "required": false,
+            "synonyms": [
+              "bó bột",
+              "vật lý trị liệu",
+              "phẫu thuật",
+              "thủ thuật"
+            ]
+          },
+          {
+            "name": "lieu_trinh",
+            "label": "Liệu trình",
+            "type": "text",
+            "required": false,
+            "synonyms": [
+              "uống trong",
+              "kéo dài",
+              "đợt điều trị"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Hẹn & dặn dò",
+        "fields": [
+          {
+            "name": "tai_kham",
+            "label": "Lịch tái khám",
+            "type": "text",
+            "required": false,
+            "synonyms": [
+              "hẹn khám lại",
+              "quay lại",
+              "tái khám sau"
+            ]
+          },
+          {
+            "name": "dan_do",
+            "label": "Dặn dò",
+            "type": "textarea",
+            "required": false,
+            "synonyms": [
+              "kiêng",
+              "hạn chế",
+              "lưu ý",
+              "chế độ ăn",
+              "tập luyện"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "actions": [
+    {
+      "id": "ISSUE_ELECTRONIC_PRESCRIPTION",
+      "label": "Kê đơn thuốc điện tử",
+      "triggers": [
+        "nhấn nút kê đơn thuốc điện tử",
+        "bấm nút kê đơn thuốc điện tử",
+        "kê đơn thuốc điện tử để lấy thuốc"
+      ],
+      "confirm": "click",
+      "required_fields": [
+        "ten_benh_nhan",
+        "chan_doan",
+        "thuoc_moi"
+      ],
+      "tts_confirm": "Đơn thuốc điện tử đã được tạo. Bệnh nhân vui lòng ra quầy thuốc và đóng viện phí.",
+      "template": "e_prescription"
+    },
+    {
+      "id": "ISSUE_OUTPATIENT_TREATMENT_ORDER",
+      "label": "Chỉ định điều trị ngoại trú",
+      "triggers": [
+        "nhấn nút chỉ định điều trị ngoại trú",
+        "bấm nút chỉ định điều trị ngoại trú",
+        "chỉ định điều trị ngoại trú cho bệnh nhân"
+      ],
+      "confirm": "click",
+      "required_fields": [
+        "ten_benh_nhan",
+        "chan_doan",
+        "chi_dinh_dieu_tri"
+      ],
+      "tts_confirm": "Chỉ định điều trị ngoại trú đã được tạo. Y tá sẽ chuẩn bị phòng thủ thuật.",
+      "template": "outpatient_order"
+    },
+    {
+      "id": "PRINT_EXAMINATION_SLIP_AND_PRESCRIPTION",
+      "label": "In phiếu khám và đơn thuốc",
+      "triggers": [
+        "nhấn nút in phiếu khám và đơn thuốc",
+        "bấm nút in phiếu khám và đơn thuốc",
+        "in phiếu khám và đơn thuốc cho bác"
+      ],
+      "confirm": "click",
+      "required_fields": [
+        "ten_benh_nhan",
+        "chan_doan"
+      ],
+      "tts_confirm": "Phiếu khám và đơn thuốc đang được in. Bệnh nhân vui lòng ra quầy thuốc.",
+      "template": "exam_slip"
+    },
+    {
+      "id": "ORDER_LAB_TESTS",
+      "label": "Chỉ định xét nghiệm",
+      "triggers": [
+        "nhấn nút chỉ định xét nghiệm",
+        "bấm nút chỉ định xét nghiệm",
+        "chỉ định xét nghiệm cho bệnh nhân"
+      ],
+      "confirm": "click",
+      "required_fields": [
+        "ten_benh_nhan",
+        "chi_dinh_cls_moi"
+      ],
+      "tts_confirm": "Phiếu chỉ định cận lâm sàng đã được tạo và chuyển tới khoa xét nghiệm.",
+      "template": "lab_order"
+    },
+    {
+      "id": "SCHEDULE_FOLLOW_UP",
+      "label": "Đặt lịch tái khám",
+      "triggers": [
+        "nhấn nút đặt lịch tái khám",
+        "bấm nút đặt lịch tái khám",
+        "đặt lịch tái khám cho bệnh nhân"
+      ],
+      "confirm": "click",
+      "required_fields": [
+        "ten_benh_nhan",
+        "tai_kham"
+      ],
+      "tts_confirm": "Lịch tái khám đã được đặt. Hệ thống sẽ nhắn tin nhắc bệnh nhân trước một ngày.",
+      "template": "follow_up"
+    }
+  ],
+  "specialties": {
+    "tieu_hoa": {
+      "label": "Tiêu hóa",
+      "hint_terms": [
+        "HP",
+        "test hơi thở",
+        "nội soi dạ dày",
+        "tá tràng",
+        "ổ loét",
+        "viêm loét tá tràng",
+        "viêm hang vị",
+        "trào ngược",
+        "ợ chua",
+        "đau thượng vị",
+        "Esomeprazole",
+        "Omeprazole",
+        "Clarithromycin",
+        "Amoxicillin",
+        "triple therapy",
+        "PPI"
+      ]
+    },
+    "chan_thuong_chinh_hinh": {
+      "label": "Chấn thương chỉnh hình",
+      "hint_terms": [
+        "gãy kín",
+        "1/3 giữa",
+        "xương cẳng chân",
+        "dây chằng chéo trước",
+        "DCCT",
+        "độ 2",
+        "bó bột đùi bàn",
+        "di lệch",
+        "X-quang",
+        "MRI",
+        "ORIF",
+        "nội soi tái tạo",
+        "vật lý trị liệu",
+        "liền xương",
+        "Celecoxib",
+        "Alpha Choay"
+      ]
+    },
+    "tim_mach": {
+      "label": "Tim mạch",
+      "hint_terms": [
+        "EF",
+        "phân suất tống máu",
+        "siêu âm tim",
+        "LDL-C",
+        "LDL-cholesterol",
+        "mmol/L",
+        "lipid profile",
+        "men gan AST/ALT",
+        "xơ vữa động mạch",
+        "tăng huyết áp",
+        "Holter",
+        "điện giải đồ",
+        "Rosuvastatin",
+        "Aspirin",
+        "Amlodipine",
+        "statin",
+        "ACE inhibitor"
+      ]
+    }
+  },
+  "hint_terms": [
+    "bệnh án điện tử",
+    "đơn thuốc điện tử",
+    "cận lâm sàng",
+    "tái khám",
+    "viện phí",
+    "quầy lễ tân",
+    "mg",
+    "mmol/L",
+    "viên",
+    "uống sáng",
+    "uống tối",
+    "trước ăn",
+    "sau ăn",
+    "liệu trình"
+  ],
+  "itn_rules": [
+    {
+      "pattern": "\\bIF (\\d+\\s*%)",
+      "replace": "EF \\1",
+      "regex": true
+    },
+    {
+      "pattern": "phân suất tổng máu",
+      "replace": "phân suất tống máu"
+    },
+    {
+      "pattern": "mèn gần",
+      "replace": "men gan"
+    },
+    {
+      "pattern": "\\bIST[,\\s]+(và\\s+)?LT\\b",
+      "replace": "AST/ALT",
+      "regex": true
+    },
+    {
+      "pattern": "alpha[- ]?chloine",
+      "replace": "Alpha Choay",
+      "regex": true
+    },
+    {
+      "pattern": "alpha[- ]?choay",
+      "replace": "Alpha Choay",
+      "regex": true
+    },
+    {
+      "pattern": "hát pê",
+      "replace": "HP"
+    },
+    {
+      "pattern": "ê ép",
+      "replace": "EF"
+    },
+    {
+      "pattern": "tống máu IF",
+      "replace": "tống máu EF"
+    },
+    {
+      "pattern": "tổng máu IF",
+      "replace": "tống máu EF"
+    }
+  ],
+  "few_shots": [
+    {
+      "transcript": "Bác sĩ: Chào chị Hoa, kết quả siêu âm ổ bụng của chị bình thường, nhưng men gan ALT 85 hơi cao. Chị bị viêm gan nhiễm mỡ độ 1. Tôi kê cho chị Silymarin 140mg uống 1 viên sáng chiều trong 30 ngày, chị ngưng rượu bia hoàn toàn nhé. Tháng sau quay lại xét nghiệm men gan. Chị nhấn nút đặt lịch tái khám giúp tôi.",
+      "expected": {
+        "ten_benh_nhan": "Hoa",
+        "ket_qua_cls": [
+          "siêu âm ổ bụng bình thường",
+          "men gan ALT 85"
+        ],
+        "chan_doan": "viêm gan nhiễm mỡ độ 1",
+        "thuoc_moi": [
+          "Silymarin 140mg — 1 viên sáng chiều"
+        ],
+        "lieu_trinh": "30 ngày",
+        "chi_dinh_cls_moi": [
+          "xét nghiệm men gan"
+        ],
+        "tai_kham": "1 tháng sau",
+        "dan_do": "ngưng rượu bia hoàn toàn",
+        "chuyen_khoa": "khác"
+      }
+    }
+  ],
+  "extraction_instructions": "Đây là hội thoại khám bệnh, thư ký y khoa điền bệnh án điện tử. GIỮ NGUYÊN thuật ngữ tiếng Anh y khoa (EF, HP, MRI, LDL-C, triple therapy, tên thuốc) — tuyệt đối không phiên âm. Số + đơn vị viết liền chuẩn: 40mg, 1cm, 60%, 3.8 mmol/L, 150/95 mmHg. PHÂN BIỆT 3 nhóm thuốc: thuoc_moi (kê lần đầu hôm nay), thuoc_duy_tri (dặn tiếp tục như cũ), thuoc_dieu_chinh (đổi liều — ghi 'liều cũ → liều mới'). Kết quả CLS đã có ghi vào ket_qua_cls; chỉ định làm THÊM ghi vào chi_dinh_cls_moi. chi_dinh_dieu_tri = thủ thuật/điều trị được CHỈ ĐỊNH THỰC HIỆN NGAY đợt này (vd 'bó bột đùi bàn 6 tuần', 'vật lý trị liệu'); phương án TƯƠNG LAI CÓ ĐIỀU KIỆN ('nếu khớp còn lỏng thì mới phẫu thuật') KHÔNG được tính là chỉ định — nếu cần thì ghi vào dan_do. Phân loại chuyen_khoa theo nội dung. chan_doan = TỔNG HỢP bệnh/vấn đề bác sĩ KẾT LUẬN (kể cả khi nói gián tiếp: 'LDL-C cao so với mục tiêu, cần kiểm soát để tránh xơ vữa' → 'tăng LDL-cholesterol, nguy cơ tim mạch'); TUYỆT ĐỐI không ghi câu trấn an kiểu 'chưa nặng đâu' làm chẩn đoán. Không suy diễn chẩn đoán ngoài lời bác sĩ.",
+  "scoring": {
+    "submit_threshold": 85,
+    "validators": [
+      {
+        "field": "thuoc_moi",
+        "rule": "unit",
+        "value": [
+          "mg",
+          "g",
+          "ml",
+          "mcg",
+          "UI",
+          "viên"
+        ]
+      }
+    ]
+  }
+}

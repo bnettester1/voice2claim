@@ -1,0 +1,153 @@
+{
+  "cases": [
+    {
+      "id": "A",
+      "pack_id": "insurance_motor",
+      "title": "Tai nạn xe máy va chạm ô tô",
+      "transcript": "Giám định viên: Alo, em chào anh Tuấn. Em là Lan, giám định viên bảo hiểm. Em nhận được thông báo anh vừa bị tai nạn ở đường Cộng Hòa, anh có sao không ạ?\nNgười bị nạn: Ờ, anh cũng không sao lắm, chỉ bị trầy xước tay và đau nhẹ ở đầu gối thôi. Nhưng cái xe Wave Alpha của anh thì hỏng nặng lắm.\nGiám định viên: Dạ em chia sẻ với anh. Anh có nhớ biển số xe ô tô đâm vào mình không ạ?\nNgười bị nạn: Để anh xem... ờ, anh nhớ là xe Toyota Vios, biển số 59A-987.65. Nó đâm từ phía sau làm anh ngã xe, vỡ cái yếm xe và gãy luôn cái gương chiếu hậu bên trái.\nGiám định viên: Dạ em đã ghi nhận. Anh nhớ giữ nguyên hiện trường, đừng di chuyển xe nhé. Anh vui lòng mở ứng dụng, chụp 4 góc hiện trường và bấm vào nút \"Gửi yêu cầu cứu hộ xe máy\" giúp em. Xe cứu hộ sẽ đến trong 20 phút nữa.\nNgười bị nạn: Ok em, anh làm ngay đây.",
+      "gold_fields": {
+        "ten_khach_hang": "Tuấn",
+        "vi_tri": "đường Cộng Hòa",
+        "xe_khach": "Wave Alpha",
+        "xe_lien_quan": [
+          "Toyota Vios — 59A-987.65"
+        ],
+        "hu_hong_xe_khach": [
+          "vỡ yếm xe",
+          "gãy gương chiếu hậu bên trái"
+        ],
+        "thuong_tich": "trầy xước tay, đau nhẹ đầu gối"
+      },
+      "gold_actions": [
+        "REQUEST_MOTORBIKE_TOWING"
+      ],
+      "noise": "busy city intersection with motorbikes honking and distant siren"
+    },
+    {
+      "id": "B",
+      "pack_id": "insurance_motor",
+      "title": "Tai nạn ô tô có người bị thương",
+      "transcript": "Giám định viên: Alo, em chào chị Mai. Em là giám định viên hiện trường. Em được tin xe của chị vừa va quệt với xe tải ở cao tốc Long Thành - Dầu Giây. Chị và mọi người trên xe có bị làm sao không ạ?\nChủ xe: Dạ chào em. Chị thì không sao, nhưng bé ngồi ghế sau bị va đầu vào thành xe, bé đang khóc và hơi chóng mặt.\nGiám định viên: Dạ vâng, quan trọng nhất là sức khỏe của bé. Chị đã gọi xe cấp cứu chưa ạ?\nChủ xe: Ờ chị vừa gọi rồi, xe cứu thương đang đến. Còn xe của chị là Honda CR-V, biển 51F-555.88, bị móp sâu phần cửa bên phải và vỡ kính cửa sổ.\nGiám định viên: Dạ em đã note lại: Honda CR-V, biển 51F-555.88, hư hỏng cửa phải và vỡ kính. Chị yên tâm sơ cứu cho bé nhé. Khi nào ổn định, chị nhớ bấm nút \"Xác nhận có người bị thương\" trên hệ thống để em kích hoạt quy trình bồi thường nhân thân và điều tra nguyên nhân ạ.\nChủ xe: Được rồi em, chị sẽ làm.",
+      "gold_fields": {
+        "ten_khach_hang": "Mai",
+        "vi_tri": "cao tốc Long Thành - Dầu Giây",
+        "xe_khach": "Honda CR-V",
+        "bien_so_xe_khach": "51F-555.88",
+        "hu_hong_xe_khach": [
+          "móp sâu cửa bên phải",
+          "vỡ kính cửa sổ"
+        ],
+        "thuong_tich": "bé bị va đầu, chóng mặt"
+      },
+      "gold_actions": [
+        "CONFIRM_PERSONAL_INJURY"
+      ],
+      "noise": "ambulance siren approaching with a small child crying nearby"
+    },
+    {
+      "id": "C",
+      "pack_id": "insurance_motor",
+      "title": "Va chạm liên hoàn 3 xe",
+      "transcript": "Giám định viên: Alo, em chào anh Khoa. Em là giám định viên. Em nhận được tin báo vụ va chạm liên hoàn ở cầu Sài Gòn. Anh có thể mô tả sơ lược giúp em được không ạ?\nTài xế: Ờ, vụ này hơi rối em ơi. Xe anh là Ford Ranger, biển 51C-111.22. Anh đang dừng đèn đỏ thì bị một xe SH biển 59-S1 345.67 tông từ phía sau, đẩy xe anh lao lên đâm vào đuôi xe buýt biển 51B-234.56 ở phía trước.\nGiám định viên: Dạ em hiểu rồi. Vậy tổng cộng có 3 phương tiện tham gia. Xe Ford Ranger của anh hiện tại hư hỏng những gì ạ?\nTài xế: Thì cản sau bị móp do xe SH đâm, còn đầu xe thì vỡ đèn sương mù và lưới tản nhiệt do đâm vào xe buýt.\nGiám định viên: Dạ rõ. Em đã ghi nhận đầy đủ: 3 xe, biển số 51C-111.22, 59-S1 345.67 và 51B-234.56. Hư hỏng cản sau, đèn sương mù và lưới tản nhiệt. Anh vui lòng bấm nút \"Gửi biên bản va chạm liên hoàn\" kèm theo ảnh chụp toàn cảnh 3 xe để em chuyển cho bộ phận pháp chế xử lý nhanh nhất nhé.\nTài xế: Ok, anh gửi ngay.",
+      "gold_fields": {
+        "ten_khach_hang": "Khoa",
+        "vi_tri": "cầu Sài Gòn",
+        "xe_khach": "Ford Ranger",
+        "bien_so_xe_khach": "51C-111.22",
+        "xe_lien_quan": [
+          "SH — 59-S1 345.67",
+          "xe buýt — 51B-234.56"
+        ],
+        "hu_hong_xe_khach": [
+          "móp cản sau",
+          "vỡ đèn sương mù",
+          "vỡ lưới tản nhiệt"
+        ]
+      },
+      "gold_actions": [
+        "SUBMIT_MULTI_VEHICLE_COLLISION_REPORT"
+      ],
+      "noise": "heavy bridge traffic with trucks and bus engine"
+    },
+    {
+      "id": "D",
+      "pack_id": "healthcare_exam",
+      "title": "Tiêu hóa — viêm loét tá tràng HP dương tính",
+      "transcript": "Bác sĩ: Chào anh Nam, tôi đã xem kết quả nội soi dạ dày và test hơi thở của anh rồi. Anh bị viêm loét tá tràng, có một ổ loét kích thước khoảng 1cm ở mặt trước tá tràng, và test HP dương tính.\nBệnh nhân: Dạ vậy là nặng không bác sĩ? Em nghe nói vi khuẩn này khó trị lắm.\nBác sĩ: Chưa nặng đâu anh, nhưng mình phải điều trị tiệt trừ HP ngay theo phác đồ triple therapy. Tôi sẽ kê đơn cho anh: Esomeprazole 40mg uống sáng và tối trước ăn 30 phút, kết hợp với Clarithromycin 500mg và Amoxicillin 1g, cả hai uống sau ăn trưa và tối. Liệu trình 14 ngày.\nBệnh nhân: Dạ vâng. Thế bao giờ em tái khám ạ?\nBác sĩ: Uống hết thuốc thì nghỉ 1 tháng, sau đó quay lại làm test hơi thở kiểm tra xem đã tiệt trừ chưa. Trong thời gian uống thuốc, kiêng rượu bia và đồ cay nóng. Tôi sẽ in đơn, anh ra quầy lễ tân nhấn nút \"Kê đơn thuốc điện tử\" để lấy thuốc và đóng viện phí nhé.\nBệnh nhân: Dạ em cảm ơn bác sĩ.",
+      "gold_fields": {
+        "ten_benh_nhan": "Nam",
+        "chan_doan": "viêm loét tá tràng, ổ loét 1cm mặt trước tá tràng",
+        "ket_qua_cls": [
+          "test hơi thở HP dương tính"
+        ],
+        "thuoc_moi": [
+          "Esomeprazole 40mg",
+          "Clarithromycin 500mg",
+          "Amoxicillin 1g"
+        ],
+        "lieu_trinh": "14 ngày",
+        "tai_kham": "1 tháng",
+        "chuyen_khoa": "tiêu hóa"
+      },
+      "gold_actions": [
+        "ISSUE_ELECTRONIC_PRESCRIPTION"
+      ],
+      "noise": "quiet clinic room tone with soft background chatter"
+    },
+    {
+      "id": "E",
+      "pack_id": "healthcare_exam",
+      "title": "Chấn thương chỉnh hình — gãy xương cẳng chân",
+      "transcript": "Bác sĩ: Chào chị Lan, tôi vừa xem phim X-quang và MRI của chị. Chị bị gãy kín 1/3 giữa xương cẳng chân phải, không di lệch nhiều, nhưng có kèm theo rách dây chằng chéo trước độ 2.\nBệnh nhân: Dạ vậy em có phải mổ không bác sĩ? Em sợ mổ lắm.\nBác sĩ: Với mức độ này, mình chưa cần mổ xương ngay. Chị sẽ được bó bột đùi bàn trong 6 tuần, kết hợp vật lý trị liệu. Riêng dây chằng, mình sẽ theo dõi thêm 3 tháng, nếu khớp gối còn lỏng thì mới chỉ định phẫu thuật nội soi tái tạo DCCT.\nBệnh nhân: Dạ vậy bây giờ em cần làm gì ạ?\nBác sĩ: Tôi sẽ chỉ định cho chị: bó bột, thuốc giảm đau Celecoxib 200mg uống 1 viên sau ăn tối, thuốc chống phù nề Alpha Choay uống 2 viên sáng chiều. Chị tái khám sau 1 tuần để kiểm tra bột và 6 tuần để chụp X-quang kiểm tra liền xương. Chị nhấn nút \"Chỉ định điều trị ngoại trú\" để y tá chuẩn bị phòng bó bột nhé.\nBệnh nhân: Dạ em cảm ơn bác sĩ.",
+      "gold_fields": {
+        "ten_benh_nhan": "Lan",
+        "chan_doan": "gãy kín 1/3 giữa xương cẳng chân phải, rách dây chằng chéo trước độ 2",
+        "chi_dinh_dieu_tri": [
+          "bó bột đùi bàn 6 tuần",
+          "vật lý trị liệu"
+        ],
+        "thuoc_moi": [
+          "Celecoxib 200mg",
+          "Alpha Choay"
+        ],
+        "tai_kham": "1 tuần và 6 tuần",
+        "chuyen_khoa": "chấn thương chỉnh hình"
+      },
+      "gold_actions": [
+        "ISSUE_OUTPATIENT_TREATMENT_ORDER"
+      ],
+      "noise": "quiet clinic room tone with soft background chatter"
+    },
+    {
+      "id": "F",
+      "pack_id": "healthcare_exam",
+      "title": "Tim mạch — siêu âm tim, tăng cholesterol",
+      "transcript": "Bác sĩ: Chào bác Hùng, kết quả siêu âm tim và xét nghiệm máu của bác đã có. Phân suất tống máu EF vẫn 60%, chức năng tim còn tốt. Tuy nhiên, LDL-cholesterol của bác đang 3.8 mmol/L, hơi cao so với mục tiêu dưới 2.6 cho người có nguy cơ tim mạch.\nBệnh nhân: Ờ vậy là sao hả bác sĩ? Bác có bị nặng không?\nBác sĩ: Chưa nặng đâu bác, nhưng mình cần kiểm soát cholesterol để tránh xơ vữa động mạch. Cháu sẽ kê cho bác thuốc Rosuvastatin 10mg uống 1 viên tối trước khi ngủ, kết hợp với Aspirin 81mg uống sáng sau ăn. Bác tiếp tục uống thuốc huyết áp Amlodipine 5mg như cũ nhé.\nBệnh nhân: Thế bao lâu bác tái khám?\nBác sĩ: 1 tháng sau quay lại xét nghiệm men gan AST/ALT và lipid profile để đánh giá đáp ứng thuốc. Trong thời gian này, bác giảm ăn mỡ động vật, đi bộ 30 phút mỗi ngày. Bác nhấn nút \"In phiếu khám và đơn thuốc\" để ra quầy thuốc nhé.\nBệnh nhân: Ok bác sĩ, bác cảm ơn cháu.",
+      "gold_fields": {
+        "ten_benh_nhan": "Hùng",
+        "ket_qua_cls": [
+          "EF 60%",
+          "LDL-C 3.8 mmol/L"
+        ],
+        "chan_doan": "tăng cholesterol máu, nguy cơ tim mạch",
+        "thuoc_moi": [
+          "Rosuvastatin 10mg",
+          "Aspirin 81mg"
+        ],
+        "thuoc_duy_tri": [
+          "Amlodipine 5mg"
+        ],
+        "chi_dinh_cls_moi": [
+          "men gan AST/ALT",
+          "lipid profile"
+        ],
+        "tai_kham": "1 tháng",
+        "chuyen_khoa": "tim mạch"
+      },
+      "gold_actions": [
+        "PRINT_EXAMINATION_SLIP_AND_PRESCRIPTION"
+      ],
+      "noise": "quiet clinic room tone with soft background chatter"
+    }
+  ]
+}

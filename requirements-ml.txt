@@ -1,0 +1,6 @@
+# Lớp ML PyTorch (tùy chọn — thiếu thì engine degrade sạch, xem architecture.md §4)
+torch>=2.2,<2.3        ; platform_machine == "x86_64"   # bản cuối hỗ trợ macOS Intel
+torch>=2.2             ; platform_machine != "x86_64"
+torchaudio
+transformers>=4.40
+silero-vad>=5.0

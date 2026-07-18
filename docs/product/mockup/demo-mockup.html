@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup — Speech-to-Meaning Pilot (VALSEA Hackathon 2026)</title>
+<style>
+  :root{
+    --bg:#0b1020; --bg2:#111831; --panel:#151d3a; --panel2:#1a2347;
+    --line:#27305c; --txt:#e8ecff; --dim:#8a94c8; --dim2:#5d679e;
+    --acc:#4f7cff; --acc2:#7aa2ff; --ok:#2fd27d; --warn:#ffc24d;
+    --low:#6b76a8; --danger:#ff6b6b; --armed:#ffd34d;
+    --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;min-height:100vh}
+  .wrap{max-width:1240px;margin:0 auto;padding:16px 20px 60px}
+
+  /* ===== header ===== */
+  header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:12px 16px;background:linear-gradient(180deg,var(--bg2),rgba(17,24,49,.6));border:1px solid var(--line);border-radius:14px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:16px;letter-spacing:.2px}
+  .logo .dot{width:34px;height:34px;border-radius:10px;background:radial-gradient(circle at 30% 30%,var(--acc2),var(--acc) 60%,#2b4ecc);display:grid;place-items:center;font-size:17px}
+  .logo small{display:block;font-weight:500;color:var(--dim);font-size:11px}
+  .switcher{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px;gap:3px}
+  .switcher button{border:0;background:transparent;color:var(--dim);padding:7px 14px;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px}
+  .switcher button.on{background:var(--acc);color:#fff;box-shadow:0 2px 10px rgba(79,124,255,.45)}
+  .chips{display:flex;gap:8px;align-items:center;margin-left:auto;flex-wrap:wrap}
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:var(--panel);font-size:12px;font-weight:700;color:var(--dim)}
+  .chip .st{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok)}
+  .chip.mode{color:#8ef0b9;border-color:#1d5c3d}
+  .stopwatch{font-family:var(--mono);font-size:20px;font-weight:700;color:#fff;background:var(--panel);border:1px solid var(--line);padding:6px 14px;border-radius:10px}
+  .stopwatch span{color:var(--dim);font-size:10px;display:block;line-height:1;margin-bottom:2px;font-family:inherit}
+
+  /* ===== tabs ===== */
+  nav{display:flex;gap:8px;margin:16px 0}
+  nav button{flex:1;padding:11px;border-radius:11px;border:1px solid var(--line);background:var(--panel);color:var(--dim);font-weight:700;font-size:13.5px;cursor:pointer}
+  nav button.on{background:var(--panel2);color:#fff;border-color:var(--acc);box-shadow:inset 0 -3px 0 var(--acc)}
+  .screen{display:none}.screen.on{display:block}
+
+  /* ===== layout ===== */
+  .cols{display:grid;grid-template-columns:minmax(340px,5fr) minmax(380px,6fr);gap:14px;align-items:start}
+  .cols.con{grid-template-columns:minmax(420px,7fr) minmax(320px,4fr)}
+  .cols.rev{grid-template-columns:minmax(330px,4fr) minmax(430px,7fr)}
+  @media(max-width:940px){.cols,.cols.con,.cols.rev{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .panel h3{font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);padding:11px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
+  .panel h3 .right{margin-left:auto;display:flex;gap:6px;align-items:center}
+  .pad{padding:14px}
+
+  /* ===== call / transcript ===== */
+  .call{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(79,124,255,.09),transparent)}
+  .avatar{width:38px;height:38px;border-radius:50%;background:#28345f;display:grid;place-items:center;font-size:18px}
+  .call .who b{font-size:13.5px}
+  .call .who small{display:block;color:var(--dim);font-size:11.5px}
+  .bars{display:flex;gap:2.5px;align-items:flex-end;height:26px;margin-left:auto}
+  .bars i{width:3.5px;background:var(--acc2);border-radius:2px;animation:eq 1s ease-in-out infinite}
+  .bars i:nth-child(2n){animation-delay:.18s}.bars i:nth-child(3n){animation-delay:.32s}
+  @keyframes eq{0%,100%{height:22%}50%{height:95%}}
+  .rec{width:9px;height:9px;border-radius:50%;background:var(--danger);animation:blink 1.1s infinite}
+  @keyframes blink{50%{opacity:.25}}
+  .tr{max-height:430px;overflow:auto;padding:12px 14px;display:flex;flex-direction:column;gap:9px}
+  .line{display:flex;gap:9px}
+  .line .t{font-family:var(--mono);color:var(--dim2);font-size:10.5px;min-width:42px;padding-top:3px}
+  .line p{background:var(--bg2);border:1px solid var(--line);padding:7px 11px;border-radius:9px;font-size:13.5px}
+  .line.agent p{border-color:#2a3a76;background:#141c3d}
+  .line .spk{font-size:10.5px;font-weight:800;letter-spacing:.5px;color:var(--dim);display:block;margin-bottom:2px}
+  .line.partial p{border-style:dashed;color:var(--dim);font-style:italic}
+  .cs{color:#8ef0b9;font-weight:700;font-style:normal}
+  .plate{color:#ffd34d;font-weight:700;font-family:var(--mono);font-size:12.5px}
+  .trigger-hit{outline:1.5px solid var(--armed);background:#241f0c!important}
+  .armbadge{display:inline-flex;gap:6px;align-items:center;background:#241f0c;border:1px solid var(--armed);color:var(--armed);font-size:10.5px;font-weight:800;border-radius:999px;padding:2px 9px;margin-left:6px;font-family:var(--mono)}
+
+  /* ===== form ===== */
+  .sec{padding:11px 14px;border-bottom:1px solid var(--line)}
+  .sec:last-child{border-bottom:0}
+  .sec h4{font-size:11px;color:var(--acc2);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:9px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .grid .full{grid-column:1/-1}
+  .f{position:relative;background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--low);border-radius:9px;padding:7px 10px 6px;min-height:52px}
+  .f label{display:block;font-size:10.5px;color:var(--dim);letter-spacing:.3px;margin-bottom:2px}
+  .f .v{font-size:13.5px;font-weight:600;word-break:break-word}
+  .f .v .u{color:var(--dim2);font-weight:400}
+  .f.hi{border-left-color:var(--ok)}
+  .f.mid{border-left-color:var(--warn)}
+  .f.lo .v{color:var(--dim2);font-weight:400;font-style:italic}
+  .f .cf{position:absolute;top:6px;right:8px;font-family:var(--mono);font-size:9.5px;color:var(--dim2)}
+  .f.hi .cf{color:var(--ok)}.f.mid .cf{color:var(--warn)}
+  .f .lock{position:absolute;bottom:5px;right:8px;font-size:10px}
+  .f.filling::after{content:"";position:absolute;inset:0;border-radius:9px;border:1.5px solid var(--acc);animation:pulse 1.2s infinite}
+  @keyframes pulse{0%{opacity:.9}70%{opacity:0}100%{opacity:0}}
+  .evi{font-size:10.5px;color:var(--dim2);margin-top:3px;border-left:2px solid var(--line);padding-left:6px;font-style:italic}
+
+  /* ===== actions ===== */
+  .actions{display:flex;flex-direction:column;gap:8px;padding:12px 14px}
+  .act{display:flex;align-items:center;gap:11px;border:1px solid var(--line);background:var(--bg2);border-radius:11px;padding:10px 13px;opacity:.5}
+  .act .ic{width:30px;height:30px;border-radius:8px;background:#222c55;display:grid;place-items:center;font-size:15px}
+  .act b{font-size:13px;display:block}
+  .act small{color:var(--dim);font-size:11px;font-family:var(--mono)}
+  .act .st{margin-left:auto;font-size:10.5px;font-weight:800;letter-spacing:.6px;color:var(--dim2)}
+  .act.armed{opacity:1;border-color:var(--armed);background:linear-gradient(90deg,#241f0c,var(--bg2));box-shadow:0 0 18px rgba(255,211,77,.18);animation:armglow 1.4s infinite}
+  .act.armed .st{color:var(--armed)}
+  .act.fired{opacity:1;border-color:var(--ok)}
+  .act.fired .st{color:var(--ok)}
+  @keyframes armglow{50%{box-shadow:0 0 30px rgba(255,211,77,.35)}}
+  .toast{margin:0 14px 13px;border:1px solid #1d5c3d;background:#0d2a1e;border-radius:11px;padding:10px 13px;font-size:12.5px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .toast .tts{display:inline-flex;gap:6px;align-items:center;border:1px solid #2a3a76;background:#141c3d;border-radius:999px;padding:3px 10px;font-size:11.5px;color:var(--acc2)}
+  .filelink{color:#8ef0b9;font-weight:700;text-decoration:underline;cursor:pointer}
+
+  /* ===== batch ===== */
+  .drop{border:2px dashed var(--line);border-radius:13px;padding:22px;display:flex;align-items:center;gap:16px;background:var(--bg2)}
+  .drop .big{font-size:30px}
+  .drop b{display:block;font-size:14px}
+  .drop small{color:var(--dim)}
+  .drop .btns{margin-left:auto;display:flex;gap:8px}
+  .btn{border:1px solid var(--line);background:var(--panel2);color:#fff;font-weight:700;border-radius:9px;padding:9px 14px;cursor:pointer;font-size:12.5px}
+  .btn.pri{background:var(--acc);border-color:var(--acc)}
+  .fchip{display:inline-flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:12px;margin-top:10px;font-family:var(--mono)}
+  .sbs{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--line)}
+  .sbs>div{padding:12px 14px;font-size:12.5px}
+  .sbs>div:first-child{border-right:1px solid var(--line)}
+  .sbs h5{font-size:10.5px;letter-spacing:.8px;text-transform:uppercase;margin-bottom:7px;display:flex;gap:7px;align-items:center}
+  .sbs .v h5{color:var(--ok)}.sbs .g h5{color:var(--danger)}
+  .bad{background:#3a1420;color:#ff9d9d;border-radius:4px;padding:0 4px;text-decoration:line-through dashed}
+  .good{background:#0d2a1e;color:#8ef0b9;border-radius:4px;padding:0 4px;font-weight:700}
+  .tagrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+  .tag{font-size:10.5px;font-family:var(--mono);border:1px solid var(--line);color:var(--acc2);border-radius:6px;padding:2px 8px;background:var(--bg2)}
+
+  /* ===== console ===== */
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--dim);text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
+  td{padding:9px 12px;border-bottom:1px solid var(--line)}
+  td .mono{font-family:var(--mono);font-size:11.5px;color:var(--acc2)}
+  .pr{font-size:10px;font-weight:800;border-radius:6px;padding:2px 8px;letter-spacing:.5px}
+  .pr.high{background:#3a1420;color:#ff9d9d}.pr.med{background:#241f0c;color:var(--armed)}.pr.low{background:#12203f;color:var(--acc2)}
+  .stt{font-size:11px;font-weight:700}
+  .stt.done{color:var(--ok)}.stt.run{color:var(--warn)}
+  .pdfprev{background:#fff;color:#111;border-radius:10px;padding:16px 18px;font-size:11px;max-width:330px}
+  .pdfprev h6{font-size:11px;text-align:center;text-transform:uppercase;line-height:1.4}
+  .pdfprev .sub{text-align:center;color:#555;font-size:9.5px;margin-bottom:8px}
+  .pdfprev table{font-size:10px;color:#111}
+  .pdfprev td{border:1px solid #bbb;padding:3px 6px}
+  .pdfprev .sig{display:flex;justify-content:space-between;margin-top:10px;font-size:9px;color:#333}
+  .log{font-family:var(--mono);font-size:11px;color:var(--dim);background:var(--bg2);border-radius:9px;padding:10px 12px;line-height:1.8;overflow:auto}
+  .log .ok{color:var(--ok)}.log .k{color:var(--acc2)}
+  .note{margin-top:18px;color:var(--dim2);font-size:11.5px;text-align:center}
+  .kbd{font-family:var(--mono);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px;font-size:11px;color:var(--dim)}
+
+  /* ===== review & scoring ===== */
+  .scorewrap{display:flex;flex-direction:column;align-items:center;gap:9px;padding:18px 14px 6px}
+  .ring{width:132px;height:132px;border-radius:50%;background:conic-gradient(var(--ok) calc(var(--p)*1%),#222c55 0);display:grid;place-items:center;position:relative}
+  .ring::before{content:"";position:absolute;inset:11px;border-radius:50%;background:var(--panel)}
+  .ring span{position:relative;display:flex;align-items:baseline;gap:2px}
+  .ring b{font-size:38px;line-height:1}.ring small{color:var(--dim);font-size:12px}
+  .grade{font-weight:900;letter-spacing:1.2px;font-size:12.5px;padding:5px 16px;border-radius:999px}
+  .grade.ok{background:#0d2a1e;color:var(--ok);border:1px solid #1d5c3d}
+  .gsub{color:var(--dim2);font-size:10.5px;text-align:center;padding:0 14px 8px}
+  .brk{padding:4px 14px 14px;display:flex;flex-direction:column;gap:10px}
+  .brow label{display:flex;justify-content:space-between;font-size:11.5px;color:var(--dim);margin-bottom:4px}
+  .brow label b{color:var(--txt);font-family:var(--mono);font-size:11px}
+  .bar{height:6px;background:#222c55;border-radius:4px;overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:4px;background:var(--ok)}
+  .bar i.w{background:var(--warn)}
+  .att{margin:0 14px 10px;border:1px solid var(--line);border-left:3px solid var(--warn);background:var(--bg2);border-radius:9px;padding:9px 11px;font-size:12.5px}
+  .att.dim{border-left-color:var(--low)}
+  .att .h{display:flex;gap:8px;align-items:center;font-weight:700}
+  .att .h .mini{margin-left:auto;display:flex;gap:6px}
+  .att .evi{margin-top:4px}
+  .mini .btn{padding:4px 9px;font-size:11px;border-radius:7px}
+  .audit{margin:2px 14px 14px;font-size:11px;color:var(--dim2);font-family:var(--mono)}
+  .rrow{display:grid;grid-template-columns:175px 1fr 44px 26px;gap:10px;padding:8px 14px;border-bottom:1px solid var(--line);font-size:13px;align-items:center}
+  .rrow:last-of-type{border-bottom:0}
+  .rrow .k{color:var(--dim);font-size:11.5px}
+  .rrow .c{font-family:var(--mono);font-size:10.5px;text-align:right}
+  .rrow .c.g{color:var(--ok)}.rrow .c.y{color:var(--warn)}.rrow .c.n{color:var(--dim2)}
+  .rrow .e{color:var(--dim2);cursor:pointer;text-align:center}
+  .rrow.warnrow{background:rgba(255,194,77,.05)}
+  .actionbar{display:flex;gap:10px;padding:14px;border-top:1px solid var(--line);align-items:center;flex-wrap:wrap}
+  .btn.big{padding:12px 18px;font-size:13.5px;border-radius:11px}
+  .btn.send{margin-left:auto;background:linear-gradient(90deg,var(--ok),#1fa863);border-color:#1d5c3d;color:#04160c;font-weight:900;box-shadow:0 4px 18px rgba(47,210,125,.28)}
+  .sendnote{width:100%;font-size:11px;color:var(--dim2);font-family:var(--mono)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ================= HEADER ================= -->
+  <header>
+    <div class="logo">
+      <div class="dot">🎙️</div>
+      <div>Speech-to-Meaning<small>VALSEA Pilot · Hackathon 2026</small></div>
+    </div>
+    <div class="switcher" id="packSwitch">
+      <button class="on" data-pack="ins" onclick="setPack('ins')">🛡️ Bảo hiểm — Tai nạn xe</button>
+      <button data-pack="med" onclick="setPack('med')">🩺 Y tế — Khám ngoại trú</button>
+    </div>
+    <div class="chips">
+      <span class="chip mode">● LIVE</span>
+      <span class="chip"><span class="st"></span> VALSEA RTT: connected</span>
+      <div class="stopwatch"><span>TIME-TO-OUTPUT</span>00:37.4</div>
+    </div>
+  </header>
+
+  <!-- ================= TABS ================= -->
+  <nav>
+    <button class="on" onclick="go(0,this)">📞 Màn 1 · Live Call</button>
+    <button onclick="go(1,this)">📁 Màn 2 · Batch + Hard-case</button>
+    <button onclick="go(2,this)">🗄️ Màn 3 · Core System Console</button>
+    <button onclick="go(3,this)">✅ Màn 4 · Duyệt & Gửi</button>
+  </nav>
+
+  <!-- ================= SCREEN 1: LIVE ================= -->
+  <section class="screen on">
+    <div class="cols">
+      <!-- left: call + transcript -->
+      <div class="panel">
+        <div class="call">
+          <div class="avatar">👷</div>
+          <div class="who"><b id="callerName">Giám định viên hiện trường</b><small id="callerSub">Cuộc gọi xác minh tai nạn · 00:42 · giọng miền Nam</small></div>
+          <div class="bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <span class="rec"></span>
+        </div>
+        <h3>Transcript (VALSEA RTT) <span class="right"><span class="chip" style="font-size:10.5px">hint_text: 412 từ nghiệp vụ</span></span></h3>
+        <div class="tr" id="trIns">
+          <div class="line"><span class="t">00:04</span><p><span class="spk">KHÁCH — ANH TUẤN</span>Alô, tôi tên <b>Tuấn</b>, tôi vừa bị va chạm ở <b>đường Cộng Hòa</b> hướng về Lăng Cha Cả…</p></div>
+          <div class="line"><span class="t">00:11</span><p><span class="spk">KHÁCH</span>Xe tôi là <b>Wave Alpha</b>, còn xe bên kia là <b>Toyota Vios</b> biển số <span class="plate">59A-987.65</span> <span class="cs">(ITN ✓ "năm chín A chín tám bảy sáu lăm")</span></p></div>
+          <div class="line"><span class="t">00:19</span><p><span class="spk">KHÁCH</span>Xe bị <b>vỡ yếm</b>, <b>gãy gương chiếu hậu bên trái</b>… tay tôi trầy xước, đầu gối hơi đau 🔊<i style="color:var(--dim2)">(tiếng còi cứu thương nền)</i></p></div>
+          <div class="line agent"><span class="t">00:27</span><p><span class="spk">GIÁM ĐỊNH VIÊN</span>Dạ anh yên tâm, em ghi nhận đủ rồi. Giờ em <span class="trigger-hit" style="padding:1px 5px;border-radius:5px">bấm nút <b>Gửi yêu cầu cứu hộ xe máy</b></span> nhé <span class="armbadge">⚡ ARMED · 212 ms</span></p></div>
+          <div class="line partial"><span class="t">00:33</span><p><span class="spk">KHÁCH</span>ờ… đúng rồi em, gửi giúp anh, anh đang đứng chỗ cây xăng…▌</p></div>
+        </div>
+      </div>
+
+      <!-- right: form + actions -->
+      <div class="panel">
+        <h3 id="formTitle">📋 Phiếu ghi nhận tổn thất hiện trường — insurance_motor
+          <span class="right"><span class="chip" style="font-size:10.5px">7/9 field · rev 12</span></span>
+        </h3>
+        <div id="formIns">
+          <div class="sec">
+            <h4>Thông tin khai báo</h4>
+            <div class="grid">
+              <div class="f hi"><span class="cf">0.97</span><label>Tên khách hàng</label><div class="v">Tuấn</div></div>
+              <div class="f hi"><span class="cf">0.93</span><label>Vị trí sự cố</label><div class="v">Đường Cộng Hòa, hướng Lăng Cha Cả</div></div>
+              <div class="f hi full"><span class="cf">0.95</span><label>Thời điểm ghi nhận</label><div class="v">18/07/2026 · 09:41 <span class="u">(tự động)</span></div></div>
+            </div>
+          </div>
+          <div class="sec">
+            <h4>Phương tiện</h4>
+            <div class="grid">
+              <div class="f hi"><span class="cf">0.96</span><label>Xe của khách</label><div class="v">Honda Wave Alpha</div></div>
+              <div class="f hi"><span class="cf">0.98</span><label>Xe đối phương · Biển số</label><div class="v">Toyota Vios · <span class="plate">59A-987.65</span></div>
+                <div class="evi">"…biển số năm chín A, chín trăm tám mươi bảy chấm sáu lăm…"</div></div>
+            </div>
+          </div>
+          <div class="sec">
+            <h4>Tổn thất & thương tích</h4>
+            <div class="grid">
+              <div class="f hi full"><span class="cf">0.91</span><label>Hư hỏng xe khách</label><div class="v">Vỡ yếm xe · Gãy gương chiếu hậu bên trái</div></div>
+              <div class="f mid"><span class="cf">0.72</span><label>Thương tích</label><div class="v">Trầy xước tay, đau nhẹ đầu gối</div><span class="lock" title="User đã sửa — khóa">🔒</span></div>
+              <div class="f mid filling"><span class="cf">0.64</span><label>Hư hỏng xe đối phương</label><div class="v">Đang nghe thêm…</div></div>
+              <div class="f lo"><span class="cf">—</span><label>Số GCN bảo hiểm</label><div class="v">chưa nhắc tới</div></div>
+            </div>
+          </div>
+        </div>
+
+        <h3>⚡ Action Calls — kích hoạt bằng giọng nói</h3>
+        <div class="actions" id="actIns">
+          <div class="act armed">
+            <div class="ic">🛻</div>
+            <div><b>Gửi yêu cầu cứu hộ xe máy</b><small>REQUEST_MOTORBIKE_TOWING · trigger khớp 94/100</small></div>
+            <span class="st">⚡ ARMED — chờ xác nhận final</span>
+          </div>
+          <div class="act">
+            <div class="ic">🚑</div>
+            <div><b>Xác nhận có người bị thương</b><small>CONFIRM_PERSONAL_INJURY</small></div>
+            <span class="st">STANDBY</span>
+          </div>
+          <div class="act">
+            <div class="ic">🚧</div>
+            <div><b>Gửi biên bản va chạm liên hoàn</b><small>SUBMIT_MULTI_VEHICLE_COLLISION_REPORT</small></div>
+            <span class="st">STANDBY</span>
+          </div>
+        </div>
+        <div class="toast">✅ <b>REQUEST_MOTORBIKE_TOWING</b> đã thực thi lúc 00:31 —
+          <span class="filelink">📄 bien-ban-cuu-ho_TCK-0012.pdf</span> · Ticket <b>#TCK-0012</b>
+          <span class="tts">🔊 Agent (VALSEA TTS): "Đã ghi nhận. Yêu cầu cứu hộ xe máy đang được gửi đi."</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SCREEN 2: BATCH ================= -->
+  <section class="screen">
+    <div class="cols">
+      <div class="panel">
+        <h3>📁 Nguồn audio</h3>
+        <div class="pad">
+          <div class="drop">
+            <div class="big">🎧</div>
+            <div><b>Kéo thả file ghi âm vào đây</b><small>WAV · MP3 · M4A · OGG · WEBM — tối đa 10MB / 60 phút</small></div>
+            <div class="btns"><button class="btn">Chọn file</button><button class="btn pri">🎙️ Ghi âm</button></div>
+          </div>
+          <span class="fchip">▶ kichban_B_noisy.wav · 0:58 · tiếng còi + trẻ khóc · <b style="color:var(--ok)">đã xử lý 41.2s</b></span>
+          <div class="tagrow">
+            <span class="tag">semantic_tags: tai_nạn</span><span class="tag">cao_tốc</span><span class="tag">trẻ_em</span><span class="tag">y_tế</span>
+            <span class="tag" style="color:#ff9d9d;border-color:#5c2734">sentiment: lo lắng → priority CAO</span>
+          </div>
+        </div>
+        <h3>⚔️ Hard-case: VALSEA vs ASR generic <span class="right"><span class="chip" style="font-size:10.5px">clip: telephony 8kHz + noise</span></span></h3>
+        <div class="sbs">
+          <div class="v">
+            <h5>✅ VALSEA valsea-transcribe (+hint_text)</h5>
+            <p>…xe tôi là Honda <span class="good">CR-V</span> biển số <span class="good">51F-555.88</span>, cháu nhà tôi bị <span class="good">va đầu</span>, hơi <span class="good">chóng mặt</span>, đang trên <span class="good">cao tốc Long Thành – Dầu Giây</span>…</p>
+          </div>
+          <div class="g">
+            <h5>❌ Generic ASR (whisper-large-v3 — đối chứng)</h5>
+            <p>…xe tôi là Honda <span class="bad">xê rờ vê</span> biển số <span class="bad">năm mốt ép năm năm năm</span> <span class="bad">(mất "88")</span>, cháu nhà tôi bị <span class="bad">___</span> <i style="color:var(--dim2)">(rớt từ do trẻ khóc)</i>, đang trên cao tốc <span class="bad">Long Thanh Giây</span>…</p>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>📋 Kết quả — Phiếu ghi nhận tổn thất (kịch bản B)</h3>
+        <div class="sec">
+          <h4>Khai báo & phương tiện</h4>
+          <div class="grid">
+            <div class="f hi"><span class="cf">0.95</span><label>Tên khách hàng</label><div class="v">Mai</div></div>
+            <div class="f hi"><span class="cf">0.97</span><label>Xe · Biển số</label><div class="v">Honda CR-V · <span class="plate">51F-555.88</span></div></div>
+            <div class="f hi full"><span class="cf">0.92</span><label>Vị trí</label><div class="v">Cao tốc Long Thành – Dầu Giây, Km 12</div></div>
+            <div class="f hi full"><span class="cf">0.90</span><label>Hư hỏng</label><div class="v">Móp sâu cửa phải · Vỡ kính cửa sổ</div></div>
+            <div class="f mid full"><span class="cf">0.78</span><label>Tình trạng người trên xe</label><div class="v">Bé bị va đầu, chóng mặt — cần kiểm tra y tế</div>
+              <div class="evi">"…cháu nhà tôi bị va đầu, giờ nó kêu chóng mặt…"</div></div>
+          </div>
+        </div>
+        <div class="actions">
+          <div class="act fired">
+            <div class="ic">🚑</div>
+            <div><b>Xác nhận có người bị thương</b><small>CONFIRM_PERSONAL_INJURY · fired 00:38</small></div>
+            <span class="st">✅ FIRED</span>
+          </div>
+        </div>
+        <div class="toast">✅ Ticket <b>#TCK-0013</b> priority <b style="color:#ff9d9d">CAO</b> (sentiment) —
+          <span class="filelink">📄 xac-nhan-thuong-tich_TCK-0013.pdf</span>
+          <span class="tts">🔊 "Đã xác nhận có người bị thương. Tổng đài cứu thương sẽ được kết nối."</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SCREEN 3: CONSOLE ================= -->
+  <section class="screen">
+    <div class="cols con">
+      <div class="panel">
+        <h3>🗄️ Core System Console — hệ lõi doanh nghiệp (mô phỏng tích hợp)</h3>
+        <table>
+          <thead><tr><th>Ticket</th><th>Thời gian</th><th>Action Call</th><th>Pack</th><th>Priority</th><th>Trạng thái</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">#TCK-0014</td><td>09:52:10</td><td class="mono">ISSUE_ELECTRONIC_PRESCRIPTION</td><td>🩺 healthcare</td><td><span class="pr low">THƯỜNG</span></td><td class="stt run">⏳ đang đẩy HIS</td></tr>
+            <tr><td class="mono">#TCK-0013</td><td>09:47:33</td><td class="mono">CONFIRM_PERSONAL_INJURY</td><td>🛡️ insurance</td><td><span class="pr high">CAO</span></td><td class="stt done">✔ webhook 200</td></tr>
+            <tr><td class="mono">#TCK-0012</td><td>09:41:05</td><td class="mono">REQUEST_MOTORBIKE_TOWING</td><td>🛡️ insurance</td><td><span class="pr med">TRUNG BÌNH</span></td><td class="stt done">✔ webhook 200</td></tr>
+          </tbody>
+        </table>
+        <h3>Webhook log</h3>
+        <div class="pad">
+          <div class="log">
+<span class="k">09:41:05</span> POST /webhook/claims  action=<span class="k">REQUEST_MOTORBIKE_TOWING</span>  fields=9  conf_avg=0.91 → <span class="ok">200 OK (184ms)</span><br>
+<span class="k">09:41:06</span> PDF render bien-ban-cuu-ho_TCK-0012.pdf (fpdf2, NotoSans-VN) → <span class="ok">ok 38KB</span><br>
+<span class="k">09:41:07</span> VALSEA TTS /v1/audio/speech voice=female len=4.2s → <span class="ok">ok</span><br>
+<span class="k">09:47:33</span> POST /webhook/claims  action=<span class="k">CONFIRM_PERSONAL_INJURY</span>  priority=<span class="k">HIGH(sentiment)</span> → <span class="ok">200 OK (203ms)</span>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>📄 PDF sinh ra (fpdf2 — đúng chuẩn ngành)</h3>
+        <div class="pad" style="display:grid;place-items:center">
+          <div class="pdfprev">
+            <h6>CÔNG TY BẢO HIỂM ────<br>PHIẾU YÊU CẦU CỨU HỘ XE MÁY</h6>
+            <div class="sub">Số: TCK-0012 · Ngày 18/07/2026 · Kênh: Voice-to-Form (VALSEA)</div>
+            <table>
+              <tr><td style="width:38%"><b>Khách hàng</b></td><td>Tuấn</td></tr>
+              <tr><td><b>Vị trí cứu hộ</b></td><td>Đường Cộng Hòa, hướng Lăng Cha Cả</td></tr>
+              <tr><td><b>Phương tiện</b></td><td>Honda Wave Alpha</td></tr>
+              <tr><td><b>Xe liên quan</b></td><td>Toyota Vios — 59A-987.65</td></tr>
+              <tr><td><b>Ghi nhận tổn thất</b></td><td>Vỡ yếm xe; gãy gương chiếu hậu trái</td></tr>
+              <tr><td><b>Thương tích</b></td><td>Trầy xước tay, đau nhẹ đầu gối</td></tr>
+            </table>
+            <div class="sig"><span>Giám định viên<br>(ký, ghi rõ họ tên)</span><span>Hệ thống xác nhận<br>arm 212ms · conf 0.91</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SCREEN 4: REVIEW & SCORING ================= -->
+  <section class="screen">
+    <div class="cols rev">
+      <!-- left: score -->
+      <div class="panel">
+        <h3>🎯 Chấm điểm form — FormScorer</h3>
+        <div class="scorewrap">
+          <div class="ring" style="--p:87"><span><b>87</b><small>/100</small></span></div>
+          <div class="grade ok">SẴN SÀNG GỬI</div>
+        </div>
+        <p class="gsub">Ngưỡng gửi ≥ 85 · 60–84 gửi kèm xác nhận đã đọc · &lt; 60 phải sửa hoặc override có lý do</p>
+        <div class="brk">
+          <div class="brow"><label>Độ phủ trường bắt buộc <b>8/9</b></label><div class="bar"><i style="width:89%"></i></div></div>
+          <div class="brow"><label>Confidence trích xuất (bắt buộc ×2) <b>0.91</b></label><div class="bar"><i style="width:91%"></i></div></div>
+          <div class="brow"><label>Đối chiếu NER local — PyTorch <b>6/7 khớp</b></label><div class="bar"><i class="w" style="width:86%"></i></div></div>
+          <div class="brow"><label>Validator định dạng (biển số · ITN) <b>3/3</b></label><div class="bar"><i style="width:100%"></i></div></div>
+        </div>
+        <h3>⚠️ Cần chú ý (2)</h3>
+        <div class="att">
+          <div class="h">🟡 Hư hỏng xe đối phương — conf 0.64, NER local không xác nhận
+            <span class="mini"><button class="btn">▶ 00:19</button><button class="btn">✏️ Sửa</button></span>
+          </div>
+          <div class="evi">"…hình như cản sau xe Vios cũng bị móp móp sao đó…" — nghe lại để chốt trước khi gửi</div>
+        </div>
+        <div class="att dim">
+          <div class="h">⚪ Số GCN bảo hiểm — trống (không bắt buộc)
+            <span class="mini"><button class="btn">✏️ Nhập</button></span>
+          </div>
+        </div>
+        <div class="audit">Người duyệt: GĐV Minh · bắt đầu đọc lại 09:41:38 · đã đọc 00:12</div>
+      </div>
+
+      <!-- right: read-back + decision -->
+      <div class="panel">
+        <h3>📖 Đọc lại toàn bộ form trước khi gửi <span class="right"><span class="chip" style="font-size:10.5px">insurance_motor · rev 12</span></span></h3>
+        <div>
+          <div class="rrow"><span class="k">Tên khách hàng</span><span>Tuấn</span><span class="c g">0.97</span><span class="e">✏️</span></div>
+          <div class="rrow"><span class="k">Vị trí sự cố</span><span>Đường Cộng Hòa, hướng Lăng Cha Cả</span><span class="c g">0.93</span><span class="e">✏️</span></div>
+          <div class="rrow"><span class="k">Thời điểm ghi nhận</span><span>18/07/2026 · 09:41</span><span class="c g">0.95</span><span class="e">✏️</span></div>
+          <div class="rrow"><span class="k">Xe của khách</span><span>Honda Wave Alpha</span><span class="c g">0.96</span><span class="e">✏️</span></div>
+          <div class="rrow"><span class="k">Xe đối phương · Biển số</span><span>Toyota Vios · <span class="plate">59A-987.65</span> <span style="font-size:10px;color:var(--ok)">NER ✓ regex ✓</span></span><span class="c g">0.98</span><span class="e">✏️</span></div>
+          <div class="rrow"><span class="k">Hư hỏng xe khách</span><span>Vỡ yếm xe · Gãy gương chiếu hậu bên trái</span><span class="c g">0.91</span><span class="e">✏️</span></div>
+          <div class="rrow"><span class="k">Thương tích</span><span>Trầy xước tay, đau nhẹ đầu gối 🔒 <span style="font-size:10px;color:var(--dim2)">user đã sửa</span></span><span class="c y">0.72</span><span class="e">✏️</span></div>
+          <div class="rrow warnrow"><span class="k">Hư hỏng xe đối phương</span><span style="color:var(--warn)">Móp cản sau (chưa chắc chắn — nghe lại 00:19)</span><span class="c y">0.64</span><span class="e">✏️</span></div>
+          <div class="rrow"><span class="k">Số GCN bảo hiểm</span><span style="color:var(--dim2);font-style:italic">— trống (không bắt buộc)</span><span class="c n">—</span><span class="e">✏️</span></div>
+        </div>
+        <div class="actionbar">
+          <button class="btn big">✏️ Sửa lại form</button>
+          <button class="btn big">▶ Nghe lại audio</button>
+          <button class="btn big send">📤 GỬI FORM ĐI</button>
+          <div class="sendnote">Gửi đi sẽ thực thi: render bien-ban-cuu-ho.pdf · tạo ticket #TCK-0015 · POST /webhook/claims · lưu audit trail (điểm 87, người duyệt, evidence)</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <p class="note">Mockup tĩnh để duyệt bố cục — dữ liệu minh họa lấy từ kịch bản A/B (KB_tainanxe) &amp; D (KB_khambenh). Chuyển pack bằng switcher trên header · chuyển màn bằng 4 tab. Luồng: nghe → điền form (Màn 1/2) → <b>duyệt &amp; chấm điểm (Màn 4)</b> → gửi → ticket vào hệ lõi (Màn 3). Phím tắt demo thật dự kiến: <span class="kbd">L</span> live · <span class="kbd">R</span> replay.</p>
+</div>
+
+<script>
+/* ---- tabs ---- */
+const screens=[...document.querySelectorAll('.screen')],tabs=[...document.querySelectorAll('nav button')];
+function go(i,btn){screens.forEach((s,k)=>s.classList.toggle('on',k===i));tabs.forEach(t=>t.classList.toggle('on',t===btn));}
+
+/* ---- pack switcher: đổi nội dung minh họa Bảo hiểm ⇄ Y tế ---- */
+const MED={
+ title:"📋 Phiếu khám bệnh & kê đơn — healthcare_exam (chuyên khoa: tim mạch)",
+ caller:["Bác sĩ phòng khám Tim mạch","Ghi âm buổi khám · BN Loan, 62 tuổi · specialty: tim_mach"],
+ tr:`<div class="line"><span class="t">00:06</span><p><span class="spk">BÁC SĨ</span>Cô Loan 62 tuổi tái khám tăng huyết áp, huyết áp đo ở nhà là <span class="plate">150/95</span> nhé</p></div>
+ <div class="line"><span class="t">00:15</span><p><span class="spk">BÁC SĨ</span>Mình sẽ tăng <b>Amlodipine</b> từ <span class="cs">5mg</span> lên <span class="cs">10mg</span> mỗi sáng, đo thêm <span class="cs">Holter</span> huyết áp 24 giờ</p></div>
+ <div class="line"><span class="t">00:24</span><p><span class="spk">BÁC SĨ</span>Làm thêm <b>điện giải đồ</b>, hẹn cô <b>tái khám sau 2 tuần</b> 🔊<i style="color:var(--dim2)">(phòng khám ồn nhẹ)</i></p></div>
+ <div class="line agent"><span class="t">00:31</span><p><span class="spk">BÁC SĨ</span>Em <span class="trigger-hit" style="padding:1px 5px;border-radius:5px">nhấn nút <b>Chỉ định xét nghiệm</b></span> cho cô nhé <span class="armbadge">⚡ ARMED · 187 ms</span></p></div>
+ <div class="line partial"><span class="t">00:35</span><p><span class="spk">BỆNH NHÂN</span>dạ rồi để tuần sau tôi lên lấy kết quả…▌</p></div>`,
+ form:`<div class="sec"><h4>Hành chính & lý do khám</h4><div class="grid">
+   <div class="f hi"><span class="cf">0.96</span><label>Bệnh nhân</label><div class="v">Loan · 62 tuổi</div></div>
+   <div class="f hi"><span class="cf">0.94</span><label>Lý do khám</label><div class="v">Tái khám tăng huyết áp</div></div>
+   <div class="f hi full"><span class="cf">0.95</span><label>Chỉ số ghi nhận</label><div class="v">HA tại nhà: <span class="plate">150/95 mmHg</span> <span class="u">(ITN ✓)</span></div></div></div></div>
+ <div class="sec"><h4>Điều trị — phân biệt thuốc chỉnh liều</h4><div class="grid">
+   <div class="f hi full"><span class="cf">0.93</span><label>Thuốc điều chỉnh</label><div class="v">Amlodipine: 5mg → <b>10mg</b>, uống sáng</div>
+     <div class="evi">"…tăng Amlodipine từ 5 lên 10 miligam mỗi sáng…"</div></div>
+   <div class="f hi"><span class="cf">0.90</span><label>Chỉ định CLS</label><div class="v">Holter HA 24h · Điện giải đồ</div></div>
+   <div class="f hi"><span class="cf">0.92</span><label>Tái khám</label><div class="v">Sau 2 tuần</div></div>
+   <div class="f lo full"><span class="cf">—</span><label>Dặn dò thêm</label><div class="v">chưa nhắc tới</div></div></div></div>`,
+ acts:`<div class="act armed"><div class="ic">🧪</div><div><b>Chỉ định xét nghiệm</b><small>ORDER_LAB_TESTS · trigger khớp 91/100</small></div><span class="st">⚡ ARMED</span></div>
+ <div class="act"><div class="ic">💊</div><div><b>Kê đơn thuốc điện tử</b><small>ISSUE_ELECTRONIC_PRESCRIPTION</small></div><span class="st">STANDBY</span></div>
+ <div class="act"><div class="ic">📅</div><div><b>Đặt lịch tái khám</b><small>SCHEDULE_FOLLOW_UP</small></div><span class="st">STANDBY</span></div>`,
+ toast:`✅ <b>ORDER_LAB_TESTS</b> sẵn sàng — <span class="filelink">📄 phieu-chi-dinh-cls_TCK-0014.pdf</span> · Ticket <b>#TCK-0014</b>
+   <span class="tts">🔊 Agent: "Đã tạo phiếu chỉ định Holter và điện giải đồ cho bệnh nhân Loan."</span>`
+};
+let INS=null;
+function snapshotIns(){INS={title:formTitle.innerHTML,caller:[callerName.textContent,callerSub.textContent],
+  tr:trIns.innerHTML,form:formIns.innerHTML,acts:actIns.innerHTML,
+  toast:document.querySelector('#actIns').nextElementSibling.innerHTML};}
+function setPack(p){
+  if(!INS)snapshotIns();
+  const d=p==='med'?MED:INS;
+  document.querySelectorAll('#packSwitch button').forEach(b=>b.classList.toggle('on',b.dataset.pack===p));
+  formTitle.innerHTML=d.title+` <span class="right"><span class="chip" style="font-size:10.5px">${p==='med'?'8/9 field · rev 9':'7/9 field · rev 12'}</span></span>`;
+  callerName.textContent=d.caller[0];callerSub.textContent=d.caller[1];
+  trIns.innerHTML=d.tr;formIns.innerHTML=d.form;actIns.innerHTML=d.acts;
+  document.querySelector('#actIns').nextElementSibling.innerHTML=d.toast;
+  document.querySelector('.call .avatar').textContent=p==='med'?'🩺':'👷';
+}
+</script>
+</body>
+</html>

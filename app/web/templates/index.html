@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Speech-to-Meaning Pilot — VALSEA</title>
+<link rel="stylesheet" href="/static/css/app.css">
+<script defer src="/static/js/app.js"></script>
+<script defer src="/static/js/vendor/alpine.min.js"></script>
+</head>
+<body x-data="s2m()" x-cloak>
+<div class="wrap">
+
+  <!-- ================= HEADER ================= -->
+  <header>
+    <div class="logo">
+      <div class="dot">🎙️</div>
+      <div>Speech-to-Meaning<small>VALSEA Pilot · Hackathon 2026</small></div>
+    </div>
+    <div class="switcher">
+      <template x-for="p in packs" :key="p.id">
+        <button :class="{on: packId===p.id}" @click="loadPack(p.id)"
+                x-text="p.icon+' '+p.name"></button>
+      </template>
+    </div>
+    <div class="chips">
+      <span class="chip mode" x-text="live ? '● LIVE' : '● BATCH'"></span>
+      <span class="chip"><span class="st"></span> <span x-text="live ? (liveStatus||'RTT') : 'VALSEA: sẵn sàng'"></span></span>
+      <div class="stopwatch"><span>TIME-TO-OUTPUT</span><span x-text="swText"></span></div>
+    </div>
+  </header>
+
+  <!-- ================= TABS ================= -->
+  <nav>
+    <button :class="{on: tab==='batch'}" @click="tab='batch'">📁 Xử lý ghi âm</button>
+    <button :class="{on: tab==='live'}" @click="tab='live'">📞 Live Call</button>
+    <button :class="{on: tab==='review'}" @click="goReview()" :disabled="!score">✅ Duyệt & Gửi</button>
+    <button :class="{on: tab==='console'}" @click="tab='console'; loadTickets()">🗄️ Core System Console</button>
+  </nav>
+
+  <!-- ================= TAB BATCH + LIVE (chung cột form) ================= -->
+  <section x-show="tab==='batch' || tab==='live'">
+    <div class="cols">
+      <div>
+        <!-- LIVE panel -->
+        <div class="panel" x-show="tab==='live'" x-cloak>
+          <div class="pad">
+            <div class="drop" style="border-style:solid">
+              <div class="big">📞</div>
+              <div><b x-text="live ? 'Cuộc gọi đang diễn ra…' : 'Live Call — mic streaming VALSEA RTT'"></b>
+                <small x-text="liveStatus || 'transcript chạy chữ, form điền dần real-time, trigger <500ms, agent đáp giọng nói'"></small></div>
+              <div class="btns">
+                <button class="btn" :class="live ? 'rec' : 'pri'" @click="live ? liveStop() : liveStart()">
+                  <span x-show="!live">📞 Bắt đầu cuộc gọi</span>
+                  <span x-show="live"><span class="rec-ind"></span> Kết thúc</span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="tagrow" style="padding:0 14px 12px" x-show="replayList.length">
+            <span style="font-size:11px;color:var(--dim2);align-self:center">Replay bản ghi (offline):</span>
+            <template x-for="r in replayList" :key="r">
+              <button class="tag" style="cursor:pointer;border-color:var(--warn);color:var(--warn)"
+                      @click="replayStart(r)" x-text="(replaying ? '⏹ ' : '▶ ') + r"></button>
+            </template>
+          </div>
+          <h3>Transcript trực tiếp (RTT + hint_text từ điển nghiệp vụ)</h3>
+          <div class="tr">
+            <template x-for="(l,i) in liveFinals" :key="i"><p x-text="l"></p></template>
+            <p class="muted" x-show="livePartial" x-text="livePartial + ' ▌'"></p>
+            <p class="muted" x-show="!liveFinals.length && !livePartial">— bấm “Bắt đầu cuộc gọi” và nói; thử kịch bản A: tai nạn đường Cộng Hòa, xe Wave Alpha… rồi nói “bấm nút gửi yêu cầu cứu hộ xe máy” —</p>
+          </div>
+        </div>
+
+        <div class="panel" x-show="tab==='batch'">
+          <h3>📁 Nguồn audio</h3>
+          <div class="pad">
+            <div class="drop" :class="{drag}" @dragover.prevent="drag=true"
+                 @dragleave="drag=false" @drop.prevent="onFile($event)">
+              <div class="big">🎧</div>
+              <div><b>Kéo thả file ghi âm vào đây</b>
+                <small>WAV · MP3 · M4A · OGG · WEBM — tối đa 10MB / 60 phút</small></div>
+              <div class="btns">
+                <label class="btn">Chọn file<input type="file" hidden accept="audio/*,video/webm" @change="onFile($event)"></label>
+                <button class="btn" :class="recording?'rec':'pri'" @click="toggleRecord()">
+                  <span x-show="!recording">🎙️ Ghi âm</span>
+                  <span x-show="recording"><span class="rec-ind"></span> Dừng & xử lý</span>
+                </button>
+              </div>
+            </div>
+            <div x-show="fileName" class="fchip">
+              <span>▶</span><span x-text="fileName"></span>
+              <b x-show="timing" style="color:var(--ok)" x-text="timing && ('ASR '+(timing.asr_ms/1000).toFixed(1)+'s · extract '+(timing.extract_ms/1000).toFixed(1)+'s')"></b>
+            </div>
+            <div class="tagrow" style="margin-top:12px" x-show="demoAudios.length">
+              <span style="font-size:11px;color:var(--dim2);align-self:center">Audio mẫu (KB):</span>
+              <template x-for="d in demoAudios" :key="d.id">
+                <button class="tag" style="cursor:pointer"
+                        :style="d.pack_id!==packId ? 'opacity:.5' : 'border-color:var(--acc)'"
+                        :title="d.title + (d.pack_id!==packId ? ' (tự đổi pack)' : '')"
+                        @click="runDemo(d.id)" x-text="'▶ '+d.id+' · '+d.secs+'s'"></button>
+              </template>
+            </div>
+            <div x-show="processing" style="margin-top:10px;color:var(--acc2);font-size:13px">
+              <span class="spin"></span> <span x-text="processingStep"></span>
+            </div>
+            <div class="tagrow" x-show="tags.length || langs.length">
+              <template x-for="t in (langs||[])"><span class="tag" x-text="'lang: '+t"></span></template>
+              <template x-for="t in (tags||[]).slice(0,8)"><span class="tag" x-text="typeof t==='string'?t:(t.tag||JSON.stringify(t))"></span></template>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" x-show="tab==='batch' && transcript">
+          <h3>Transcript (VALSEA transcribe + correction)</h3>
+          <div class="tr" x-text="transcript"></div>
+        </div>
+
+      </div>
+
+      <div>
+        <div class="panel">
+          <h3>📋 <span x-text="pack?.form?.title"></span>
+            <span class="right"><span class="chip" style="font-size:10.5px"
+              x-text="filledCount()+' field'"></span></span>
+          </h3>
+          <template x-for="section in (pack?.form?.sections||[])" :key="section.title">
+            <div class="sec">
+              <h4 x-text="section.title"></h4>
+              <div class="grid">
+                <template x-for="f in section.fields" :key="f.name">
+                  <div class="f" :class="[confClass(fields[f.name]), {show: revealed[f.name] || score}]"
+                       @click="(sid || live) && startEdit(f.name)" style="cursor:pointer"
+                       :title="fields[f.name]?.evidence || ''">
+                    <span class="cf" x-text="fields[f.name]?.source==='user' ? 'user' : (fields[f.name]?.confidence ? fields[f.name].confidence.toFixed(2) : '—')"></span>
+                    <label x-text="f.label"></label>
+                    <div class="v" x-show="editing!==f.name" x-text="fmtVal(fields[f.name]?.value)"></div>
+                    <div x-show="editing===f.name" @click.stop>
+                      <textarea rows="2" x-model="editValue" @keydown.enter.prevent="saveEdit()"
+                                style="width:100%;background:var(--bg);border:1px solid var(--acc);color:var(--txt);border-radius:7px;padding:6px 8px;font:inherit"></textarea>
+                      <button class="btn" style="margin-top:4px;padding:4px 10px;font-size:11px" @click="saveEdit()">Lưu</button>
+                    </div>
+                    <div class="evi" x-show="fields[f.name]?.evidence" x-text="'“'+(fields[f.name]?.evidence||'')+'”'"></div>
+                    <span class="lock" x-show="fields[f.name]?.source==='user'">🔒</span>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
+        </div>
+
+        <div class="panel">
+          <h3>⚡ Action Calls — kích hoạt bằng giọng nói</h3>
+          <div class="actions">
+            <template x-for="a in (pack?.actions||[])" :key="a.id">
+              <div class="act" :class="{armed: armed[a.id] && !fired.includes(a.id), fired: fired.includes(a.id)}">
+                <div class="ic" x-text="fired.includes(a.id)?'✅':'⚡'"></div>
+                <div><b x-text="a.label"></b>
+                  <small x-text="a.id + (armed[a.id]?(' · khớp '+armed[a.id].score+'/100 · arm '+armed[a.id].latency_ms+'ms'):'')"></small>
+                </div>
+                <div class="st">
+                  <template x-if="fired.includes(a.id)"><span>✅ FIRED</span></template>
+                  <template x-if="armed[a.id] && !fired.includes(a.id)">
+                    <span x-show="a.confirm==='click'">
+                      <button class="btn" style="border-color:var(--armed);color:var(--armed);background:#241f0c"
+                              @click="fireAction(a.id)">⚡ ARMED — bấm để chạy</button>
+                    </span>
+                  </template>
+                  <template x-if="armed[a.id] && !fired.includes(a.id) && a.confirm==='auto'">
+                    <span>⚡ ARMED</span>
+                  </template>
+                  <template x-if="!armed[a.id] && !fired.includes(a.id)"><span>STANDBY</span></template>
+                </div>
+              </div>
+            </template>
+          </div>
+          <template x-for="(t,i) in toasts" :key="i">
+            <div class="toast">✅ <b x-text="t.ticket.action"></b>
+              <span x-text="'Ticket '+t.ticket.id+' · priority '+t.ticket.priority"></span>
+              <a :href="t.pdf_url" target="_blank">📄 Mở PDF</a>
+              <span class="tts" x-show="t.tts_b64">🔊 Agent đã đáp bằng giọng VALSEA</span>
+            </div>
+          </template>
+          <div class="pad" x-show="score">
+            <button class="btn big send" style="width:100%" @click="goReview()">
+              ✅ Sang màn Duyệt & Chấm điểm → Gửi hồ sơ
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TAB 2: REVIEW ================= -->
+  <section x-show="tab==='review'" x-cloak>
+    <div class="cols rev">
+      <div class="panel">
+        <h3>🎯 Chấm điểm form — FormScorer</h3>
+        <div class="scorewrap">
+          <div class="ring" :style="ringStyle()"><span><b x-text="score?.total ?? '—'"></b><small>/100</small></span></div>
+          <div class="grade" :class="gradeClass(score?.grade)" x-text="gradeLabel(score?.grade)"></div>
+        </div>
+        <p class="gsub">Ngưỡng gửi ≥ <span x-text="pack?.scoring?.submit_threshold||85"></span> · 60–84 gửi kèm xác nhận đã đọc · &lt;60 phải sửa hoặc override có lý do</p>
+        <div class="brk" x-show="score">
+          <div class="brow"><label>Độ phủ trường bắt buộc <b x-text="score?.breakdown?.completeness?.detail"></b></label>
+            <div class="bar"><i :style="'width:'+(score?.breakdown?.completeness?.value||0)+'%'"></i></div></div>
+          <div class="brow"><label>Confidence trích xuất (bắt buộc ×2) <b x-text="score?.breakdown?.confidence?.detail"></b></label>
+            <div class="bar"><i :style="'width:'+(score?.breakdown?.confidence?.value||0)+'%'"></i></div></div>
+          <div class="brow"><label>Đối chiếu NER local — PyTorch <b x-text="score?.breakdown?.agreement?.detail"></b></label>
+            <div class="bar"><i :style="'width:'+(score?.breakdown?.agreement?.value||0)+'%'"></i></div></div>
+          <div class="brow"><label>Validator định dạng (ITN/biển số) <b x-text="score?.breakdown?.format?.detail"></b></label>
+            <div class="bar"><i :style="'width:'+(score?.breakdown?.format?.value||0)+'%'"></i></div></div>
+        </div>
+        <h3>⚠️ Cần chú ý (<span x-text="score?.attention?.length||0"></span>)</h3>
+        <template x-for="(a,i) in (score?.attention||[])" :key="i">
+          <div class="att" :class="{dim: a.level!=='high' && !a.reason.startsWith('Confidence')}">
+            <div class="h"><span x-text="(a.level==='high'?'🔴 ':'🟡 ')+a.label+' — '+a.reason"></span>
+              <span style="margin-left:auto"><button class="btn" style="padding:4px 9px;font-size:11px" @click="tab='batch'; startEdit(a.field)">✏️ Sửa</button></span>
+            </div>
+            <div class="evi" x-show="a.evidence" x-text="'“'+a.evidence+'”'"></div>
+          </div>
+        </template>
+        <div class="empty" x-show="!(score?.attention||[]).length">Không có cảnh báo — form sạch ✨</div>
+        <div class="audit">Người duyệt: <span x-text="reviewer"></span> · thời gian đọc lại: <span x-text="reviewSecs"></span>s</div>
+        <div class="pad" x-show="recordingUrl" style="padding-top:0">
+          <div style="font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);margin-bottom:6px">🎧 Băng ghi âm gốc — nghe lại trước khi gửi</div>
+          <audio controls preload="metadata" x-ref="recAudio" :src="recordingUrl" style="width:100%;height:36px"></audio>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>📖 Đọc lại toàn bộ form trước khi gửi
+          <span class="right"><span class="chip" style="font-size:10.5px" x-text="pack?.id"></span></span></h3>
+        <div>
+          <template x-for="section in (pack?.form?.sections||[])" :key="'r'+section.title">
+            <div>
+              <template x-for="f in section.fields" :key="'r'+f.name">
+                <div class="rrow" :class="{warnrow: confClass(fields[f.name])==='mid'}">
+                  <span class="k" x-text="f.label"></span>
+                  <span class="val" x-show="editing!==f.name" x-text="fmtVal(fields[f.name]?.value)"
+                        :style="fields[f.name]?.value?'':'color:var(--dim2);font-style:italic'"></span>
+                  <span x-show="editing===f.name" @click.stop>
+                    <textarea rows="2" x-model="editValue"></textarea>
+                    <button class="btn" style="margin-top:3px;padding:3px 9px;font-size:11px" @click="saveEdit()">Lưu</button>
+                  </span>
+                  <span class="c" :class="{g: confClass(fields[f.name])==='hi', y: confClass(fields[f.name])==='mid', n: !fields[f.name]?.value}"
+                        x-text="fields[f.name]?.source==='user' ? '🔒' : (fields[f.name]?.confidence ? fields[f.name].confidence.toFixed(2) : '—')"></span>
+                  <button class="e" @click="startEdit(f.name)">✏️</button>
+                </div>
+              </template>
+            </div>
+          </template>
+        </div>
+        <div class="actionbar" style="gap:8px">
+          <div style="display:flex;gap:8px;width:100%;flex-wrap:wrap">
+            <label style="flex:1;min-width:200px;font-size:10.5px;color:var(--dim)">📧 Email khách hàng
+              <input x-model="customerEmail" placeholder="khach@..." style="width:100%;margin-top:3px;background:var(--bg);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:7px 9px;font:inherit"></label>
+            <label style="flex:1;min-width:200px;font-size:10.5px;color:var(--dim)">🛠️ Email người xử lý
+              <input x-model="handlerEmail" placeholder="xuly@..." style="width:100%;margin-top:3px;background:var(--bg);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:7px 9px;font:inherit"></label>
+          </div>
+          <button class="btn big" @click="tab='batch'">✏️ Về form</button>
+          <button class="btn big" x-show="recordingUrl" @click="$refs.recAudio?.paused ? $refs.recAudio.play() : $refs.recAudio.pause()">🎧 Nghe lại băng</button>
+          <div class="ackrow" x-show="score?.needs_ack">
+            <input type="checkbox" id="ack" x-model="ack"><label for="ack">Tôi đã đọc lại toàn bộ form</label>
+          </div>
+          <button class="btn big send" style="margin-left:auto"
+                  :disabled="!score || submitted || (!score.can_submit) || (score.needs_ack && !ack)"
+                  @click="submitForm()">📤 GỬI FORM ĐI</button>
+          <div class="sendnote" x-show="!submitted">Gửi đi sẽ: render PDF chuẩn ngành · tạo ticket · POST webhook · lưu audit + băng ghi âm · gửi mail khách & người xử lý (kèm PDF + link nghe băng)</div>
+          <div class="sendnote" x-show="submitted" style="color:var(--ok)">
+            ✅ Đã gửi — <a :href="submitted?.pdf_url" target="_blank" style="color:#8ef0b9">📄 PDF</a> ·
+            Ticket <span x-text="submitted?.ticket?.id"></span> ·
+            duyệt trong <span x-text="submitted?.review_secs ?? reviewSecs"></span>s
+          </div>
+          <template x-for="(m,i) in mailStatus" :key="'m'+i">
+            <div class="sendnote" :style="m.ok ? 'color:var(--ok)' : 'color:var(--warn)'"
+                 x-text="(m.ok ? '📨 Mail đã gửi → ' : '⚠️ Mail lỗi → ') + m.to + (m.ok ? '' : ' — ' + m.detail)"></div>
+          </template>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TAB 3: CONSOLE ================= -->
+  <section x-show="tab==='console'" x-cloak>
+    <div class="cols con">
+      <div class="panel">
+        <h3>🗄️ Core System Console — hệ lõi doanh nghiệp (mô phỏng tích hợp)</h3>
+        <table>
+          <thead><tr><th>Ticket</th><th>Giờ</th><th>Action Call</th><th>Pack</th><th>Priority</th><th>Trạng thái</th><th></th></tr></thead>
+          <tbody>
+            <template x-for="t in tickets" :key="t.id">
+              <tr>
+                <td class="mono" x-text="t.id"></td>
+                <td x-text="t.ts"></td>
+                <td><span class="mono" x-text="t.action"></span>
+                  <div x-show="expanded===t.id && t.service_log" style="margin-top:6px;font-size:11px;color:var(--dim)">
+                    <div x-text="'service_log: ' + JSON.stringify(t.service_log).slice(0,300)"></div>
+                  </div>
+                </td>
+                <td x-text="t.pack_icon"></td>
+                <td><span class="pr" :class="prClass(t.priority)" x-text="t.priority"></span></td>
+                <td class="stt" x-text="'✔ '+t.status"></td>
+                <td><a :href="t.pdf" target="_blank">📄</a>
+                    <a :href="t.recording" target="_blank" x-show="t.recording" title="Nghe lại băng ghi âm">🎧</a>
+                    <button class="e" x-show="t.service_log" @click="expanded = expanded===t.id ? '' : t.id" style="background:none;border:0;color:var(--dim2)">ℹ️</button></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+        <div class="empty" x-show="!tickets.length">Chưa có ticket nào — chạy một ca xử lý ghi âm trước.</div>
+      </div>
+      <div class="panel">
+        <h3>Webhook log</h3>
+        <div class="pad">
+          <div class="log">
+            <template x-for="(l,i) in logs" :key="i">
+              <div :class="l.level"><span style="color:var(--acc2)" x-text="l.ts"></span> <span x-text="l.msg"></span></div>
+            </template>
+            <div x-show="!logs.length" style="color:var(--dim2)">— trống —</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <p class="note">Pilot chạy thật: VALSEA transcribe + formatting + TTS · Groq extraction (+whisper đối chứng) · Domain Pack cắm-rút · FormScorer gate. Live Call (RTT streaming) đang xây ở P4.</p>
+</div>
+</body>
+</html>
