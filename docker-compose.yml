@@ -130,6 +130,41 @@ services:
       - "127.0.0.1:8085:8000"
     networks:
       - bookwormnet
+
+  search-vector:
+    build:
+      context: ./search-vector   
+      dockerfile: Dockerfile
+    container_name: search-vector
+    restart: unless-stopped
+    env_file: .env 
+    ports:
+      - "127.0.0.1:8087:8001"
+    environment:
+      - DB_POSTGRES_HOST=postgres
+      - EMBEDDING_URL=http://e5_embedding:5004/embed
+    networks:
+      - bookwormnet
+
+  e5_embedding:
+    image: ghcr.io/huggingface/text-embeddings-inference:cuda-latest
+    container_name: e5_embedding
+    command:
+      - --model-id
+      - /models--intfloat--multilingual-e5-base/snapshots/835193815a3936a24a0ee7dc9e3d48c1fbb19c55
+    ports:
+      - "127.0.0.1:5004:80"
+    restart: unless-stopped
+    networks:
+      - bookwormnet
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
 volumes:
   redis-data:
   postgres-data:

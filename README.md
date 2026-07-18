@@ -161,6 +161,17 @@ graph TD
 ```
 ## Cài Đặt & Chạy Demo
 ```
+// Chuẩn bị certificate cho domain web, phục vụ gateway, các file
+/etc/nginx/ssl/voice2claim.crt;
+/etc/nginx/ssl/voice2claim.key;
+
+// Chuẩn bị certificate cho EMQX, xem: https://docs.emqx.com/
+
+// Cần có Docker Compose version v5.3.1
+
+// Cần có ghcr.io/huggingface/text-embeddings-inference:cuda-latest, có model đặt tại: /models--intfloat--multilingual-e5-base/snapshots/835193815a3936a24a0ee7dc9e3d48c1fbb19c55
+
+// Setup các modules
 docker compose up -d
 ```
 View: localhost:80
