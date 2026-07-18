@@ -1906,7 +1906,7 @@
                 recordTimer: null,
                 currentImage: null,
                 selectedAnnotation: null,
-                selectedTemplate: 'vehicle',
+                selectedTemplate: 'auto_claim',
                 activeQuickAccess: 'current',
                 claimForm: {},
                 claimFormBound: null,
@@ -1979,7 +1979,37 @@
                 },
                 selectedActions: [],
                 completedActions: [],
+                toasts: [],
+                isProcessing: false,
+                processingStatus: '',
                 mqttClient: null,
+
+                pushToast(code) {
+                    const msg = this.t(`errors.${code}`) || this.t('errors.UNKNOWN');
+                    const id = Date.now() + Math.random();
+                    this.toasts.push({ id, code, message: msg });
+                    setTimeout(() => {
+                        this.toasts = this.toasts.filter(t => t.id !== id);
+                    }, 5000);
+                },
+
+                t(key) {
+                    return window.AlpineI18n ? AlpineI18n.t(key) : key;
+                },
+
+                formatVND(n) {
+                    return new Intl.NumberFormat('vi-VN').format(n) + ' ₫';
+                },
+
+                validateAudioFile(file) {
+                    const ALLOWED_AUDIO = ['wav', 'mp3', 'm4a', 'ogg', 'flac', 'webm'];
+                    const ext = (file.name.split('.').pop() || '').toLowerCase();
+                    if (!ALLOWED_AUDIO.includes(ext)) {
+                        this.pushToast('INVALID_FILE_TYPE');
+                        return false;
+                    }
+                    return true;
+                },
 
                 async bootstrap() {
                     await this.$nextTick();
