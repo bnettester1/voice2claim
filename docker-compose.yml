@@ -166,7 +166,7 @@ services:
               capabilities: [gpu]
   mcp-gateway:
     build:
-      context: .
+      context: ./mcp-gateway
       dockerfile: Dockerfile
     container_name: mcp-gateway
     restart: unless-stopped
