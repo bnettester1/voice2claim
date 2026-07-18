@@ -1,0 +1,26 @@
+cat > openssl.cnf <<EOF
+[ req ]
+default_bits       = 2048
+default_keyfile    = emqx.key
+distinguished_name = req_distinguished_name
+req_extensions     = v3_req
+prompt             = no
+
+[ req_distinguished_name ]
+C  = VN
+ST = HN
+L  = Hanoi
+O  = MyOrg
+OU = MyDept
+CN = emqx1
+
+[ v3_req ]
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1 = emqx1
+DNS.2 = emqx2
+DNS.3 = emqx3
+DNS.4 = localhost
+IP.1  = 127.0.0.1
+EOF

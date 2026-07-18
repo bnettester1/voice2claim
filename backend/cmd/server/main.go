@@ -135,7 +135,7 @@ func main() {
 		}
 	}
 	// Phục vụ file index.html khi truy cập vào đường dẫn gốc "/"
-	//r.Static("/v2c", "./v2c")
+	r.Static("/", "./webclient")
 
 	log.Printf("🚀 Server is running on port %s", cfg.Port)
 	if err := r.Run(":" + cfg.Port); err != nil {

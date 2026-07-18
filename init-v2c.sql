@@ -138,7 +138,27 @@ CREATE TABLE IF NOT EXISTS workflow_actions (
     result JSONB,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+-- ==========================================
+-- Audit log
+-- ==========================================
+CREATE TABLE llm_audit_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    user_id VARCHAR(100),              -- Ai gọi? (Lấy từ Header)
+    client_ip VARCHAR(50),             -- Gọi từ đâu?
+    model VARCHAR(100),                -- Model nào?
+    request_payload JSONB,             -- Prompt gốc (để check sensitive data)
+    response_payload JSONB,            -- Câu trả lời gốc
+    status VARCHAR(50),                -- SUCCESS, FAILED, BLOCKED
+    latency_ms INTEGER,                -- Thời gian xử lý (ms)
+    prompt_tokens INTEGER DEFAULT 0,   -- Để kiểm soát chi phí/số lượng query
+    completion_tokens INTEGER DEFAULT 0,
+    is_sensitive BOOLEAN DEFAULT FALSE -- Cờ cảnh báo dữ liệu nhạy cảm
+);
 
+-- Index để truy vấn nhanh theo user hoặc thời gian
+CREATE INDEX idx_llm_audit_user_id ON llm_audit_logs(user_id);
+CREATE INDEX idx_llm_audit_timestamp ON llm_audit_logs(timestamp);
 -- ============================================================
 -- GRANT PERMISSIONS (Sửa thành user 'admin')
 -- ============================================================

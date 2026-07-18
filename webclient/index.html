@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice2Claim - Hệ thống giám định thông minh</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7ff 0%, #fef6ff 100%);
+            min-height: 100vh;
+            color: #2d3748;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            color: #667eea;
+        }
+
+        .logo-text {
+            color: white;
+        }
+
+        .logo-text h1 {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text p {
+            font-size: 12px;
+            opacity: 0.85;
+            font-weight: 500;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            border: 2px solid white;
+        }
+
+        /* ===== MAIN LAYOUT ===== */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 24px;
+            padding: 24px;
+            max-width: 1600px;
+            margin: 0 auto;
+            flex: 1;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            height: calc(100vh - 120px);
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            position: sticky;
+            top: 100px;
+        }
+
+        .sidebar-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #667eea;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .audio-item {
+            background: linear-gradient(135deg, #f8f9ff 0%, #fff5f8 100%);
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border: 2px solid transparent;
+        }
+
+        .audio-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+            border-color: #667eea;
+        }
+
+        .audio-item.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #eef0ff 0%, #ffeef3 100%);
+        }
+
+        .audio-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .play-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .audio-meta {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .audio-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #2d3748;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .audio-time {
+            font-size: 11px;
+            color: #a0aec0;
+            margin-top: 2px;
+        }
+
+        .audio-transcript {
+            font-size: 12px;
+            color: #718096;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            padding-left: 46px;
+        }
+
+        /* ===== CONTENT AREA ===== */
+        .content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title .badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 10px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        /* ===== RECORD SECTION ===== */
+        .record-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .record-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .record-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+            border: none;
+            padding: 20px 24px;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.35);
+            transition: all 0.25s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .record-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .record-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .record-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(255, 107, 107, 0.45);
+        }
+
+        .record-btn.recording {
+            background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 8px 20px rgba(255, 107, 107, 0.35); }
+            50% { box-shadow: 0 8px 30px rgba(255, 107, 107, 0.6); }
+        }
+
+        .upload-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .upload-btn {
+            background: #f7fafc;
+            border: 2px dashed #cbd5e0;
+            color: #4a5568;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .upload-btn:hover {
+            border-color: #667eea;
+            background: #eef0ff;
+            color: #667eea;
+        }
+
+        .image-preview {
+            background: linear-gradient(135deg, #f8f9ff 0%, #fff5f8 100%);
+            border-radius: 16px;
+            height: 100%;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #e2e8f0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .image-preview.has-image {
+            border-style: solid;
+            border-color: #667eea;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 14px;
+        }
+
+        .placeholder-content {
+            text-align: center;
+            color: #a0aec0;
+        }
+
+        .placeholder-content .icon {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+
+        .placeholder-content p {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* ===== AUDIO PLAYER BAR (MỚI) ===== */
+        .audio-player-bar {
+            background: white;
+            border-radius: 16px;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 0;
+        }
+
+        .player-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .player-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        .player-info {
+            flex-shrink: 0;
+            min-width: 160px;
+        }
+
+        .player-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .player-time {
+            font-size: 12px;
+            color: #a0aec0;
+            margin-top: 4px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .player-progress-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .player-progress {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 3px;
+            width: 35%;
+            transition: width 0.1s linear;
+            position: relative;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            right: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .player-waveform {
+            color: #667eea;
+            font-size: 24px;
+            opacity: 0.5;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .wave-bar {
+            width: 3px;
+            background: currentColor;
+            border-radius: 2px;
+            animation: wave 1s ease-in-out infinite;
+        }
+
+        .wave-bar:nth-child(1) { height: 12px; animation-delay: 0s; }
+        .wave-bar:nth-child(2) { height: 20px; animation-delay: 0.1s; }
+        .wave-bar:nth-child(3) { height: 16px; animation-delay: 0.2s; }
+        .wave-bar:nth-child(4) { height: 24px; animation-delay: 0.3s; }
+        .wave-bar:nth-child(5) { height: 14px; animation-delay: 0.4s; }
+
+        @keyframes wave {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.5); }
+        }
+
+        /* ===== REPORT + ACTION TO DO (GỘP 1 CARD) ===== */
+        .report-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            border-left: 6px solid #667eea;
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .template-select {
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            font-size: 13px;
+            font-weight: 600;
+            color: #4a5568;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .template-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .report-content {
+            background: linear-gradient(135deg, #fafbff 0%, #fff9fb 100%);
+            border-radius: 14px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+            margin-bottom: 20px;
+        }
+
+        .report-content h3 {
+            color: #667eea;
+            font-size: 16px;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .report-content p {
+            font-size: 14px;
+            line-height: 1.7;
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+
+        .report-content strong {
+            color: #e53e3e;
+            background: #fff5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        /* ===== ACTION THUMBNAILS (TO DO) ===== */
+        .action-section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #4a5568;
+        }
+
+        .action-section-title .count-badge {
+            background: #fed7aa;
+            color: #c05621;
+            font-size: 11px;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+
+        .action-thumbnails {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .action-thumbnail {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        .action-thumbnail:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+        }
+
+        .action-thumbnail.primary:hover {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f8f9ff 0%, #fff5f8 100%);
+        }
+
+        .action-thumbnail.secondary:hover {
+            border-color: #4a5568;
+            background: #f7fafc;
+        }
+
+        .action-thumbnail.warning:hover {
+            border-color: #ed8936;
+            background: #fff5eb;
+        }
+
+        .action-thumbnail-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+
+        .action-thumbnail.primary .action-thumbnail-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .action-thumbnail.secondary .action-thumbnail-icon {
+            background: linear-gradient(135deg, #a0aec0 0%, #718096 100%);
+        }
+
+        .action-thumbnail.warning .action-thumbnail-icon {
+            background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+        }
+
+        .action-thumbnail-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .action-thumbnail-badge {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: #fed7aa;
+            color: #c05621;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ===== REPORT QUICK ACCESS ===== */
+        .report-quick-access {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 2px solid #e2e8f0;
+            overflow-x: auto;
+        }
+
+        .quick-access-item {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .quick-access-item:hover {
+            border-color: #667eea;
+            background: #eef0ff;
+            color: #667eea;
+        }
+
+        .quick-access-item.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        /* ===== ACTION STATUS SECTION (DONE) ===== */
+        .action-section {
+            background: linear-gradient(135deg, #fff5eb 0%, #ffe8d6 100%);
+            border: 2px solid #fed7aa;
+        }
+
+        .action-section .card-title {
+            color: #c05621;
+        }
+
+        .action-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+        }
+
+        .action-item {
+            background: white;
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(237, 137, 54, 0.1);
+            border-left: 4px solid #48bb78;
+        }
+
+        .action-check {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-weight: 700;
+        }
+
+        .action-info {
+            flex: 1;
+        }
+
+        .action-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .action-time {
+            font-size: 11px;
+            color: #a0aec0;
+            margin-top: 2px;
+        }
+
+        /* ===== TEAM FOOTER (MỚI) ===== */
+        .team-footer {
+            margin-top: 8px;
+            padding: 24px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            border-top: 4px solid #667eea;
+            text-align: center;
+        }
+
+        .team-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .team-logo {
+            width: 760px;           /* Tăng kích thước lên (có thể chỉnh 150px - 200px tùy ý) */
+            height: 460px;          /* Giữ nguyên để thành hình vuông */
+            border-radius: 16px;    /* Bo góc nhẹ thay vì hình tròn (50%) */
+            object-fit: cover;
+            border: 3px solid #e2e8f0;
+            background: #f7fafc;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12); /* Tăng đổ bóng để ảnh nổi bật hơn */
+            margin-bottom: 8px;     /* Tạo khoảng cách với tên team bên dưới */
+        }
+
+        .team-details h3 {
+            font-size: 20px;
+            font-weight: 800;
+            color: #2d3748;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .team-details h3 span {
+            color: #667eea;
+        }
+
+        .team-git-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #4a5568;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 10px 20px;
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+
+        .team-git-link:hover {
+            background: #2d3748;
+            border-color: #2d3748;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(45, 55, 72, 0.2);
+        }
+
+        .team-git-link i {
+            font-size: 18px;
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+        }
+        .audio-player-bar {
+    background: white;
+    border-radius: 16px;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+    border: 1px solid #e2e8f0;
+}
+
+.player-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.player-info { flex-shrink: 0; min-width: 160px; }
+.player-title { font-size: 14px; font-weight: 700; color: #2d3748; }
+.player-time { font-size: 12px; color: #a0aec0; margin-top: 4px; }
+
+.player-progress-container { flex: 1; }
+.player-progress {
+    width: 100%;
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    cursor: pointer;
+    overflow: hidden;
+}
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    border-radius: 3px;
+    width: 0%;
+}
+
+.player-waveform {
+    color: #667eea;
+    opacity: 0.3;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+.player-waveform.playing { opacity: 1; }
+.wave-bar {
+    width: 3px;
+    background: currentColor;
+    border-radius: 2px;
+    animation: wave 1s ease-in-out infinite;
+}
+.wave-bar:nth-child(1) { height: 12px; animation-delay: 0s; }
+.wave-bar:nth-child(2) { height: 20px; animation-delay: 0.1s; }
+.wave-bar:nth-child(3) { height: 16px; animation-delay: 0.2s; }
+.wave-bar:nth-child(4) { height: 24px; animation-delay: 0.3s; }
+.wave-bar:nth-child(5) { height: 14px; animation-delay: 0.4s; }
+@keyframes wave {
+    0%, 100% { transform: scaleY(1); }
+    50% { transform: scaleY(0.5); }
+}
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                position: static;
+                height: auto;
+                max-height: 400px;
+            }
+            .record-section {
+                grid-template-columns: 1fr;
+            }
+            .audio-player-bar {
+                flex-wrap: wrap;
+            }
+            .player-progress-container {
+                width: 100%;
+                order: 3;
+                margin-top: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <audio id="mainAudio" src="/v2c/giamdinh_02.wav" preload="auto"></audio>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="logo-area">
+            <div class="logo-icon">
+                <i class="fas fa-microphone"></i>
+            </div>
+            <div class="logo-text">
+                <h1>Voice2Claim</h1>
+                <p>Hệ thống giám định thông minh bằng giọng nói</p>
+            </div>
+        </div>
+        <div class="user-info">
+            <div>
+                <div style="font-weight: 600; font-size: 14px;">Giám định viên</div>
+                <div style="font-size: 11px; opacity: 0.8;">Nguyễn Văn Minh</div>
+            </div>
+            <div class="avatar">MV</div>
+        </div>
+    </header>
+
+    <!-- MAIN LAYOUT -->
+    <div class="main-layout">
+
+        <!-- SIDEBAR - LỊCH SỬ -->
+        <aside class="sidebar">
+            <div class="sidebar-title">
+                <i class="fas fa-list"></i> Lịch sử
+            </div>
+
+            <div class="audio-item active">
+                <div class="audio-header">
+                    <button class="play-btn" onclick="togglePlay(this)">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <div class="audio-meta">
+                        <div class="audio-title">Vụ va chạm Nguyễn Văn Linh</div>
+                        <div class="audio-time">Hôm nay • 14:32 • 3:24</div>
+                    </div>
+                </div>
+                <div class="audio-transcript">Xe Mazda biển số 51H vỡ đèn pha móp cản trước...</div>
+            </div>
+
+            <div class="audio-item">
+                <div class="audio-header">
+                    <button class="play-btn" onclick="togglePlay(this)">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <div class="audio-meta">
+                        <div class="audio-title">Giám định thương tật chị Lan</div>
+                        <div class="audio-time">Hôm nay • 11:15 • 5:12</div>
+                    </div>
+                </div>
+                <div class="audio-transcript">Gãy kín xương cẳng chân phải tỷ lệ thương tật 22 phần trăm...</div>
+            </div>
+
+            <div class="audio-item">
+                <div class="audio-header">
+                    <button class="play-btn" onclick="togglePlay(this)">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <div class="audio-meta">
+                        <div class="audio-title">Hỏa hoạn nhà anh Khoa</div>
+                        <div class="audio-time">Hôm qua • 16:48 • 4:05</div>
+                    </div>
+                </div>
+                <div class="audio-transcript">Bão số 5 tốc mái tôn 30 mét vuông chập cháy tivi...</div>
+            </div>
+
+            <div class="audio-item">
+                <div class="audio-header">
+                    <button class="play-btn" onclick="togglePlay(this)">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <div class="audio-meta">
+                        <div class="audio-title">Khám tiêu hóa anh Nam</div>
+                        <div class="audio-time">Hôm qua • 09:20 • 6:30</div>
+                    </div>
+                </div>
+                <div class="audio-transcript">Viêm loét tá tràng HP dương tính kê Esomeprazole...</div>
+            </div>
+
+            <div class="audio-item">
+                <div class="audio-header">
+                    <button class="play-btn" onclick="togglePlay(this)">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <div class="audio-meta">
+                        <div class="audio-title">Va chạm liên hoàn cầu Sài Gòn</div>
+                        <div class="audio-time">17/07 • 15:40 • 7:18</div>
+                    </div>
+                </div>
+                <div class="audio-transcript">Ford Ranger bị xe SH tông từ phía sau đẩy vào xe buýt...</div>
+            </div>
+
+            <div class="audio-item">
+                <div class="audio-header">
+                    <button class="play-btn" onclick="togglePlay(this)">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <div class="audio-meta">
+                        <div class="audio-title">Tai nạn xe máy đường Cộng Hòa</div>
+                        <div class="audio-time">17/07 • 10:05 • 2:45</div>
+                    </div>
+                </div>
+                <div class="audio-transcript">Wave Alpha bị Toyota Vios 59A đâm vỡ yếm xe gãy gương...</div>
+            </div>
+        </aside>
+
+        <!-- CONTENT -->
+        <main class="content">
+
+            <!-- PHẦN 1: RECORD -->
+            <section class="card">
+                <div class="card-title">
+                    <i class="fas fa-microphone-alt" style="color: #667eea;"></i>
+                    Thu thập dữ liệu hiện trường
+                    <span class="badge">LIVE</span>
+                </div>
+                <div class="record-section">
+                    <div class="record-controls">
+                        <button class="record-btn" id="recordBtn" onclick="toggleRecord()">
+                            <i class="fas fa-circle" style="font-size: 20px;"></i>
+                            <span>Bắt đầu ghi âm hiện trường</span>
+                        </button>
+                        <div class="upload-row">
+                            <label class="upload-btn">
+                                <i class="fas fa-image"></i> Upload ảnh
+                                <input type="file" accept="image/*" hidden onchange="previewImage(event)">
+                            </label>
+                            <label class="upload-btn">
+                                <i class="fas fa-music"></i> Upload audio
+                                <input type="file" accept="audio/*" hidden onchange="showAudioPlayer(event)">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="image-preview has-image" id="imagePreview">
+                        <img src="/v2c/c.jpeg" alt="Ảnh hiện trường">
+                    </div>
+                </div>
+            </section>
+
+            <!-- AUDIO PLAYER BAR -->
+            <div class="audio-player-bar" id="audioPlayerBar">
+                <button class="player-btn" onclick="togglePlayerPlay(this)">
+                    <i class="fas fa-play"></i>
+                </button>
+                <div class="player-info">
+                    <div class="player-title">Audio hiện trường vừa tải lên</div>
+                    <div class="player-time"><span id="currentTime">00:00</span> / <span id="totalTime">03:24</span></div>
+                </div>
+                <div class="player-progress-container">
+                    <div class="player-progress" onclick="seekAudio(event)">
+                        <div class="progress-bar" id="progressBar" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="player-waveform">
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                </div>
+            </div>
+
+            <!-- PHẦN 2: REPORT + ACTION TO DO (GỘP 1 CARD) -->
+            <section class="report-card">
+                <div class="report-header">
+                    <div class="card-title" style="margin-bottom: 0;">
+                        <i class="fas fa-file-alt" style="color: #667eea;"></i>
+                        Báo cáo giám định
+                    </div>
+                    <select class="template-select" onchange="changeTemplate(this.value)">
+                        <option value="vehicle">🚗 Giám định tai nạn xe ô tô</option>
+                        <option value="medical">🏥 Đơn bệnh / Giám định y tế</option>
+                        <option value="fire">🔥 Giám định hỏa hoạn, bão lũ</option>
+                        <option value="injury">🩹 Giám định thương tật</option>
+                    </select>
+                </div>
+
+                <div class="report-content" id="reportContent">
+                    <h3>BÁO CÁO GIÁM ĐỊNH TAI NẠN XE Ô TÔ</h3>
+                    <p><strong>Thời gian:</strong> 14:32 ngày 18/07/2026 &nbsp;|&nbsp; <strong>Địa điểm:</strong> Ngã tư Nguyễn Văn Linh - Hoàng Diệu, TP.HCM</p>
+                    <p><strong>Phương tiện:</strong> Xe <strong>Mazda CX-5</strong>, biển số <strong>51H-123.45</strong>, chủ xe: anh Hùng (SDT: 0909.xxx.xxx)</p>
+                    <p><strong>Mô tả sự cố:</strong> Xe bị va chạm từ phía sau bởi xe Toyota Vios biển <strong>59A-987.65</strong> khi đang dừng đèn đỏ.</p>
+                    <p><strong>Thiệt hại ghi nhận:</strong></p>
+                    <p>• <strong>Vỡ đèn pha</strong> bên phải, cần thay mới chính hãng<br>
+                       • <strong>Móp cản trước</strong> biến dạng khoảng 30cm, cần sơn lại và gò hàn<br>
+                       • <strong>Rỉ dầu từ carter</strong> (các-te), nghi thủng do va chạm mạnh<br>
+                       • <strong>Trầy xước nắp capô</strong> dài 40cm, có thể phục hồi</p>
+                    <p><strong>Ước tính sơ bộ:</strong> Khoảng <strong>28.500.000 VNĐ</strong> (chưa bao gồm sơn phủ và kiểm tra hệ thống làm mát)</p>
+                </div>
+
+                <!-- ACTION TO DO (trong cùng card với Report) -->
+                <div class="action-section-title">
+                    <i class="fas fa-tasks" style="color: #ed8936;"></i>
+                    Hành động cần thực hiện
+                    <span class="count-badge">3</span>
+                </div>
+
+                <div class="action-thumbnails">
+                    <div class="action-thumbnail primary" onclick="triggerAction('sendMail')">
+                        <div class="action-thumbnail-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="action-thumbnail-label">Gửi mail cho khách</div>
+                        <div class="action-thumbnail-badge">
+                            <i class="fas fa-clock"></i> TO DO
+                        </div>
+                    </div>
+                    <div class="action-thumbnail secondary" onclick="triggerAction('callVan')">
+                        <div class="action-thumbnail-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="action-thumbnail-label">Gọi điện chị Vân</div>
+                        <div class="action-thumbnail-badge">
+                            <i class="fas fa-clock"></i> TO DO
+                        </div>
+                    </div>
+                    <div class="action-thumbnail warning" onclick="triggerAction('callCar')">
+                        <div class="action-thumbnail-icon">
+                            <i class="fas fa-car-side"></i>
+                        </div>
+                        <div class="action-thumbnail-label">Bảo xe xuống ngay</div>
+                        <div class="action-thumbnail-badge">
+                            <i class="fas fa-clock"></i> TO DO
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QUICK ACCESS BARLINES -->
+                <div class="report-quick-access">
+                    <div class="quick-access-item active">
+                        <i class="fas fa-file-alt"></i>
+                        Báo cáo hiện tại
+                    </div>
+                    <div class="quick-access-item">
+                        <i class="fas fa-history"></i>
+                        Báo cáo 17/07
+                    </div>
+                    <div class="quick-access-item">
+                        <i class="fas fa-history"></i>
+                        Báo cáo 16/07
+                    </div>
+                    <div class="quick-access-item">
+                        <i class="fas fa-history"></i>
+                        Báo cáo 15/07
+                    </div>
+                    <div class="quick-access-item">
+                        <i class="fas fa-history"></i>
+                        Báo cáo 14/07
+                    </div>
+                </div>
+            </section>
+
+            <!-- PHẦN 3: ACTION STATUS (DONE) -->
+            <section class="card action-section">
+                <div class="card-title">
+                    <i class="fas fa-bolt" style="color: #ed8936;"></i>
+                    Trạng thái hành động đã thực hiện
+                    <span class="badge" style="background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);">LIVE</span>
+                </div>
+                <div class="action-list">
+                    <div class="action-item">
+                        <div class="action-check">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="action-info">
+                            <div class="action-name">Đã gửi mail cho khách hàng</div>
+                            <div class="action-time">14:35 • anh Hùng</div>
+                        </div>
+                    </div>
+                    <div class="action-item">
+                        <div class="action-check">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="action-info">
+                            <div class="action-name">Đã gọi điện chị Vân</div>
+                            <div class="action-time">14:36 • 2 phút 15 giây</div>
+                        </div>
+                    </div>
+                    <div class="action-item">
+                        <div class="action-check">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="action-info">
+                            <div class="action-name">Đã gọi xe cứu hộ xuống</div>
+                            <div class="action-time">14:38 • Dự kiến 15 phút</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TEAM FOOTER (MỚI) -->
+            <footer class="team-footer">
+                <div class="team-content">
+                    <img src="t.jpg" alt="Team Bookworm" class="team-logo" onerror="this.src='https://ui-avatars.com/api/?name=Team+Bookworm&background=667eea&color=fff&size=128'">
+                    <div class="team-details">
+                        <h3>Team <span>Bookworm</span> - VAIC 2026</h3>
+                        <a href="https://github.com/bnettester1/voice2claim" target="_blank" class="team-git-link">
+                            <i class="fab fa-github"></i> github.com/bnettester1/voice2claim
+                        </a>
+                    </div>
+                </div>
+            </footer>
+
+        </main>
+    </div>
+
+    <script>
+        // Toggle play/pause audio sidebar
+        function togglePlay(btn) {
+            const icon = btn.querySelector('i');
+            const isPlaying = icon.classList.contains('fa-pause');
+            
+            document.querySelectorAll('.play-btn i').forEach(i => {
+                i.classList.remove('fa-pause');
+                i.classList.add('fa-play');
+            });
+            
+            if (isPlaying) {
+                icon.classList.remove('fa-pause');
+                icon.classList.add('fa-play');
+            } else {
+                icon.classList.remove('fa-play');
+                icon.classList.add('fa-pause');
+            }
+        }
+
+        // Toggle record
+        function toggleRecord() {
+            const btn = document.getElementById('recordBtn');
+            const isRecording = btn.classList.toggle('recording');
+            const icon = btn.querySelector('i');
+            const text = btn.querySelector('span:last-child');
+            
+            if (isRecording) {
+                icon.classList.remove('fa-circle');
+                icon.classList.add('fa-stop');
+                text.textContent = 'Đang ghi âm... Nhấn để dừng';
+            } else {
+                icon.classList.remove('fa-stop');
+                icon.classList.add('fa-circle');
+                text.textContent = 'Bắt đầu ghi âm hiện trường';
+            }
+        }
+
+        // Preview image
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('imagePreview');
+                    preview.classList.add('has-image');
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Show Audio Player Bar when audio is uploaded
+        function showAudioPlayer(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const playerBar = document.getElementById('audioPlayerBar');
+                playerBar.style.display = 'flex';
+                // Reset progress
+                document.getElementById('progressBar').style.width = '0%';
+                document.getElementById('currentTime').textContent = '00:00';
+                
+                // Auto play simulation
+                simulateAudioPlayback();
+            }
+        }
+
+        // Toggle Player Play/Pause
+        function togglePlayerPlay(btn) {
+            const icon = btn.querySelector('i');
+            if (icon.classList.contains('fa-play')) {
+                icon.classList.remove('fa-play');
+                icon.classList.add('fa-pause');
+                simulateAudioPlayback();
+            } else {
+                icon.classList.remove('fa-pause');
+                icon.classList.add('fa-play');
+            }
+        }
+
+        // Simulate audio playback progress
+        let playbackInterval;
+        function simulateAudioPlayback() {
+            clearInterval(playbackInterval);
+            let progress = parseFloat(document.getElementById('progressBar').style.width) || 0;
+            
+            playbackInterval = setInterval(() => {
+                progress += 0.5;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(playbackInterval);
+                    document.querySelector('.player-btn i').classList.remove('fa-pause');
+                    document.querySelector('.player-btn i').classList.add('fa-play');
+                }
+                document.getElementById('progressBar').style.width = progress + '%';
+                
+                // Update time simulation (total 3:24 = 204 seconds)
+                const currentSeconds = Math.floor((progress / 100) * 204);
+                const mins = Math.floor(currentSeconds / 60).toString().padStart(2, '0');
+                const secs = (currentSeconds % 60).toString().padStart(2, '0');
+                document.getElementById('currentTime').textContent = `${mins}:${secs}`;
+            }, 100);
+        }
+
+        // Seek audio
+        function seekAudio(event) {
+            const rect = event.currentTarget.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const percentage = (x / rect.width) * 100;
+            document.getElementById('progressBar').style.width = percentage + '%';
+        }
+
+        // Change template
+        function changeTemplate(type) {
+            const content = document.getElementById('reportContent');
+            const templates = {
+                vehicle: `
+                    <h3>BÁO CÁO GIÁM ĐỊNH TAI NẠN XE Ô TÔ</h3>
+                    <p><strong>Thời gian:</strong> 14:32 ngày 18/07/2026 &nbsp;|&nbsp; <strong>Địa điểm:</strong> Ngã tư Nguyễn Văn Linh - Hoàng Diệu, TP.HCM</p>
+                    <p><strong>Phương tiện:</strong> Xe <strong>Mazda CX-5</strong>, biển số <strong>51H-123.45</strong>, chủ xe: anh Hùng</p>
+                    <p><strong>Thiệt hại:</strong> <strong>Vỡ đèn pha</strong> bên phải, <strong>móp cản trước</strong> 30cm, <strong>rỉ dầu carter</strong>, <strong>trầy xước nắp capô</strong> 40cm.</p>
+                    <p><strong>Ước tính:</strong> <strong>28.500.000 VNĐ</strong></p>
+                `,
+                medical: `
+                    <h3>ĐƠN BỆNH / GIÁM ĐỊNH Y TẾ</h3>
+                    <p><strong>Bệnh nhân:</strong> Chị Lan, CCCD <strong>079-185-xxx-xxx</strong>, mã hồ sơ <strong>BA-987654</strong> (BV Chợ Rẫy)</p>
+                    <p><strong>Chẩn đoán:</strong> <strong>Gãy kín 1/3 giữa xương cẳng chân phải</strong>, <strong>đứt dây chằng chéo trước</strong> độ 2</p>
+                    <p><strong>Điều trị:</strong> <strong>Bó bột đùi bàn 6 tuần</strong>, thuốc <strong>Celecoxib 200mg</strong>, <strong>Alpha Choay</strong></p>
+                    <p><strong>Tỷ lệ thương tật tạm tính:</strong> <strong>22%</strong></p>
+                `,
+                fire: `
+                    <h3>BÁO CÁO GIÁM ĐỊNH HỎA HOẠN / BÃO LŨ</h3>
+                    <p><strong>Địa chỉ:</strong> <strong>Số 15 Nguyễn Kiệm, P.3, Gò Vấp</strong></p>
+                    <p><strong>Nguyên nhân:</strong> <strong>Bão số 5</strong> gây <strong>tốc mái tôn 30m²</strong></p>
+                    <p><strong>Thiệt hại:</strong> <strong>Chập cháy tivi Sony 65 inch</strong>, <strong>hư hỏng bộ bàn ghế gỗ</strong> do mưa tạt</p>
+                    <p><strong>Ước tính:</strong> <strong>45.000.000 VNĐ</strong></p>
+                `,
+                injury: `
+                    <h3>BIÊN BẢN GIÁM ĐỊNH THƯƠNG TẬT</h3>
+                    <p><strong>Nạn nhân:</strong> Anh Tuấn, tai nạn tại <strong>đường Cộng Hòa</strong></p>
+                    <p><strong>Thương tích:</strong> <strong>Trầy xước tay</strong>, <strong>đau nhẹ đầu gối</strong></p>
+                    <p><strong>Phương tiện:</strong> Xe <strong>Wave Alpha</strong> bị xe <strong>Toyota Vios 59A-987.65</strong> đâm từ phía sau</p>
+                    <p><strong>Hư hỏng xe:</strong> <strong>Vỡ yếm xe</strong>, <strong>gãy gương chiếu hậu</strong> bên trái</p>
+                `
+            };
+            content.innerHTML = templates[type];
+        }
+
+        // Trigger action
+        function triggerAction(type) {
+            const actionList = document.querySelector('.action-list');
+            const names = {
+                sendMail: 'Đã gửi mail cho khách hàng',
+                callVan: 'Đã gọi điện chị Vân',
+                callCar: 'Đã gọi xe cứu hộ xuống'
+            };
+            const now = new Date();
+            const time = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+            
+            const newItem = document.createElement('div');
+            newItem.className = 'action-item';
+            newItem.style.animation = 'fadeIn 0.4s';
+            newItem.innerHTML = `
+                <div class="action-check"><i class="fas fa-check"></i></div>
+                <div class="action-info">
+                    <div class="action-name">${names[type]}</div>
+                    <div class="action-time">${time} • Vừa thực hiện</div>
+                </div>
+            `;
+            actionList.insertBefore(newItem, actionList.firstChild);
+            
+            event.currentTarget.style.transform = 'scale(0.95)';
+            setTimeout(() => event.currentTarget.style.transform = '', 200);
+        }
+
+        // Audio player logic
+const audio = document.getElementById('mainAudio');
+const progressBar = document.getElementById('progressBar');
+const currentTimeEl = document.getElementById('currentTime');
+const totalTimeEl = document.getElementById('totalTime');
+const waveformAnim = document.getElementById('waveformAnim');
+
+function toggleRealAudioPlay(btn) {
+    const icon = btn.querySelector('i');
+    if (audio.paused) {
+        audio.play();
+        icon.classList.remove('fa-play');
+        icon.classList.add('fa-pause');
+        waveformAnim.classList.add('playing');
+    } else {
+        audio.pause();
+        icon.classList.remove('fa-pause');
+        icon.classList.add('fa-play');
+        waveformAnim.classList.remove('playing');
+    }
+}
+
+audio.addEventListener('timeupdate', () => {
+    if (audio.duration) {
+        progressBar.style.width = (audio.currentTime / audio.duration * 100) + '%';
+        currentTimeEl.textContent = formatTime(audio.currentTime);
+    }
+});
+
+audio.addEventListener('loadedmetadata', () => {
+    totalTimeEl.textContent = formatTime(audio.duration);
+});
+
+audio.addEventListener('ended', () => {
+    document.querySelector('.player-btn i').classList.remove('fa-pause');
+    document.querySelector('.player-btn i').classList.add('fa-play');
+    waveformAnim.classList.remove('playing');
+});
+
+function seekAudio(event) {
+    if (audio.duration) {
+        const rect = event.currentTarget.getBoundingClientRect();
+        audio.currentTime = ((event.clientX - rect.left) / rect.width) * audio.duration;
+    }
+}
+
+function formatTime(seconds) {
+    if (isNaN(seconds)) return '00:00';
+    return Math.floor(seconds/60).toString().padStart(2,'0') + ':' + Math.floor(seconds%60).toString().padStart(2,'0');
+}
+    </script>
+</body>
+</html>

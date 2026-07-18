@@ -1,1 +1,0 @@
-# Voice2Claim Frontend\n\nLayer 5: Voice2Claim Dashboard\n\n## Features\n- Real-time audio upload & playback\n- Auto-filled claim reports\n- Action items (TO DO / DONE)\n- Explainable AI (Show Source)\n\n## Tech Stack\n- HTML5 / CSS3 / Vanilla JS\n- Font Awesome 6\n- Inter Font\n
