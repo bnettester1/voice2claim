@@ -1,0 +1,1818 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice2Claim - Hệ thống giám định thông minh</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7ff 0%, #fef6ff 100%);
+            min-height: 100vh;
+            color: #2d3748;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            color: #667eea;
+        }
+
+        .logo-text {
+            color: white;
+        }
+
+        .logo-text h1 {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text p {
+            font-size: 12px;
+            opacity: 0.85;
+            font-weight: 500;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            border: 2px solid white;
+        }
+
+        /* ===== MAIN LAYOUT ===== */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 24px;
+            padding: 24px;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            height: calc(100vh - 120px);
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            position: sticky;
+            top: 100px;
+        }
+
+        .sidebar-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #667eea;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .audio-item {
+            background: linear-gradient(135deg, #f8f9ff 0%, #fff5f8 100%);
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border: 2px solid transparent;
+        }
+
+        .audio-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+            border-color: #667eea;
+        }
+
+        .audio-item.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #eef0ff 0%, #ffeef3 100%);
+        }
+
+        .audio-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .play-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .audio-meta {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .audio-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #2d3748;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .audio-time {
+            font-size: 11px;
+            color: #a0aec0;
+            margin-top: 2px;
+        }
+
+        .audio-transcript {
+            font-size: 12px;
+            color: #718096;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            padding-left: 46px;
+        }
+
+        /* ===== CONTENT AREA ===== */
+        .content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title .badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 10px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        /* ===== RECORD SECTION ===== */
+        .record-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .record-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .record-btn {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff4d54 0%, #d32f2f 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 24px rgba(211, 47, 47, 0.45);
+            transition: transform 0.25s, box-shadow 0.25s, background 0.25s;
+            position: relative;
+        }
+
+        .record-btn i {
+            font-size: 32px;
+        }
+
+        .record-btn:hover {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 12px 30px rgba(211, 47, 47, 0.55);
+        }
+
+        .record-btn.recording {
+            background: linear-gradient(135deg, #f5576c 0%, #c2185b 100%);
+            animation: pulse 1.5s infinite;
+        }
+
+        .record-btn.recording i {
+            font-size: 26px;
+        }
+
+        .record-info {
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #4a5568;
+            min-height: 20px;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(245, 87, 108, 0.6);
+            }
+
+            50% {
+                box-shadow: 0 0 0 14px rgba(245, 87, 108, 0);
+            }
+        }
+
+        .upload-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .upload-btn {
+            background: #f7fafc;
+            border: 2px dashed #cbd5e0;
+            color: #4a5568;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .upload-btn:hover {
+            border-color: #667eea;
+            background: #eef0ff;
+            color: #667eea;
+        }
+
+        .image-preview {
+            width: 100%;
+            min-height: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            margin-top: 20px;
+            box-sizing: border-box;
+        }
+
+        .image-preview-inner {
+            border: 2px dashed #e2e8f0;
+            background: linear-gradient(135deg, #f8f9ff 0%, #fff5f8 100%);
+            border-radius: 16px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .image-preview.has-image .image-preview-inner {
+            border-style: solid;
+            border-color: #667eea;
+            background: #fff;
+        }
+
+        .image-preview img {
+            display: block;
+            max-width: 100%;
+            max-height: 70vh;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+
+        .placeholder-content {
+            text-align: center;
+            color: #a0aec0;
+        }
+
+        .placeholder-content .icon {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+
+        .placeholder-content p {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* ===== SECTION DIVIDER (RỘNG HƠN + ICON BAR) ===== */
+        .section-divider {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 24px 0 20px 0;
+            padding: 0 4px;
+        }
+
+        .divider-line {
+            flex: 1;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            border-radius: 3px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .divider-line::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                left: -100%;
+            }
+
+            100% {
+                left: 100%;
+            }
+        }
+
+        .divider-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            flex-shrink: 0;
+        }
+
+        .divider-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #667eea;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        /* ===== REPORT + ACTION TO DO (GỘP 1 CARD) ===== */
+        .report-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            border-left: 6px solid #667eea;
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .template-select {
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            font-size: 13px;
+            font-weight: 600;
+            color: #4a5568;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .template-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .report-content {
+            background: linear-gradient(135deg, #fafbff 0%, #fff9fb 100%);
+            border-radius: 14px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+            margin-bottom: 20px;
+        }
+
+        .report-content h3 {
+            color: #667eea;
+            font-size: 16px;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .report-content p {
+            font-size: 14px;
+            line-height: 1.7;
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+
+        .report-content strong {
+            color: #e53e3e;
+            background: #fff5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        /* ===== ACTION THUMBNAILS (TO DO) ===== */
+        .action-section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #4a5568;
+        }
+
+        .action-section-title .count-badge {
+            background: #fed7aa;
+            color: #c05621;
+            font-size: 11px;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+
+        .action-thumbnails {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .action-thumbnail {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        .action-thumbnail:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+        }
+
+        .action-thumbnail.primary:hover {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f8f9ff 0%, #fff5f8 100%);
+        }
+
+        .action-thumbnail.secondary:hover {
+            border-color: #4a5568;
+            background: #f7fafc;
+        }
+
+        .action-thumbnail.warning:hover {
+            border-color: #ed8936;
+            background: #fff5eb;
+        }
+
+        .action-thumbnail-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+
+        .action-thumbnail.primary .action-thumbnail-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .action-thumbnail.secondary .action-thumbnail-icon {
+            background: linear-gradient(135deg, #a0aec0 0%, #718096 100%);
+        }
+
+        .action-thumbnail.warning .action-thumbnail-icon {
+            background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+        }
+
+        .action-thumbnail-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .action-thumbnail-badge {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: #fed7aa;
+            color: #c05621;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ===== REPORT QUICK ACCESS ===== */
+        .report-quick-access {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 2px solid #e2e8f0;
+            overflow-x: auto;
+        }
+
+        .quick-access-item {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .quick-access-item:hover {
+            border-color: #667eea;
+            background: #eef0ff;
+            color: #667eea;
+        }
+
+        .quick-access-item.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        /* ===== ACTION STATUS SECTION (DONE) ===== */
+        .action-section {
+            background: linear-gradient(135deg, #fff5eb 0%, #ffe8d6 100%);
+            border: 2px solid #fed7aa;
+        }
+
+        .action-section .card-title {
+            color: #c05621;
+        }
+
+        .action-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+        }
+
+        .action-item {
+            background: white;
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(237, 137, 54, 0.1);
+            border-left: 4px solid #48bb78;
+        }
+
+        .action-check {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-weight: 700;
+        }
+
+        .action-info {
+            flex: 1;
+        }
+
+        .action-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .action-time {
+            font-size: 11px;
+            color: #a0aec0;
+            margin-top: 2px;
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+                height: auto;
+                max-height: 400px;
+            }
+
+            .record-section {
+                flex-direction: column;
+            }
+        }
+
+        @media screen and (min-width: 1025px) and (max-width: 1149px) {
+            .main-layout {}
+        }
+
+        [x-cloak] {
+            display: none !important;
+        }
+
+        .audio-player-card {
+            background: #fff;
+        }
+
+        .audio-player-card .play-btn:disabled {
+            background: #e2e8f0;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .audio-player-card .play-btn:disabled i {
+            color: #a0aec0;
+        }
+
+        .audio-player-card #waveform {
+            background: linear-gradient(180deg, #f7fafc 0%, #edf2f7 100%);
+            border-radius: 12px;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .audio-player-card #waveform>div {
+            width: 100% !important;
+        }
+
+        .annotation-marker {
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 2px solid #fff;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.5);
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            z-index: 2;
+            transition: transform 0.15s ease;
+        }
+
+        .annotation-marker:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+
+        .annotation-tooltip {
+            position: absolute;
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            width: 280px;
+            z-index: 10;
+            font-size: 13px;
+            color: #2d3748;
+        }
+
+        .annotation-tooltip h4 {
+            margin: 0 0 6px 0;
+            font-size: 13px;
+            color: #667eea;
+        }
+
+        .annotation-tooltip p {
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .annotation-tooltip.tooltip-arrow-right::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-style: solid;
+            border-width: 8px 8px 8px 0;
+            border-color: transparent #fff transparent transparent;
+        }
+
+        .annotation-tooltip.tooltip-arrow-left::before {
+            content: '';
+            position: absolute;
+            right: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-style: solid;
+            border-width: 8px 0 8px 8px;
+            border-color: transparent transparent transparent #fff;
+        }
+
+        .team-footer {
+            max-width: 800px;
+            align-self: center;
+            margin-top: 8px;
+            padding: 24px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            border-top: 4px solid #667eea;
+            text-align: center;
+        }
+
+        .team-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .team-logo {
+            max-width: 100%;
+            /* Giữ nguyên để thành hình vuông */
+            border-radius: 16px;
+            /* Bo góc nhẹ thay vì hình tròn (50%) */
+            object-fit: cover;
+            border: 3px solid #e2e8f0;
+            background: #f7fafc;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            /* Tăng đổ bóng để ảnh nổi bật hơn */
+            margin-bottom: 8px;
+            /* Tạo khoảng cách với tên team bên dưới */
+        }
+
+        .team-details h3 {
+            font-size: 20px;
+            font-weight: 800;
+            color: #2d3748;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .team-details h3 span {
+            color: #667eea;
+        }
+
+        .team-git-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #4a5568;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 10px 20px;
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+
+        .team-git-link:hover {
+            background: #2d3748;
+            border-color: #2d3748;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(45, 55, 72, 0.2);
+        }
+
+        .team-git-link i {
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body x-data="claimFlow()" x-init="bootstrap()">
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="logo-area">
+            <div class="logo-icon">
+                <i class="fas fa-microphone"></i>
+            </div>
+            <div class="logo-text">
+                <h1>Voice2Claim</h1>
+                <p x-text="$t('header.subtitle')"></p>
+            </div>
+        </div>
+        <div class="user-info">
+            <button type="button" @click="$locale($locale() === 'vi' ? 'en' : 'vi')"
+                style="background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35); color: #fff; border-radius: 8px; padding: 6px 14px; font-weight: 700; font-size: 12px; cursor: pointer; margin-right: 14px; letter-spacing: 0.5px;"
+                x-text="$locale() === 'vi' ? 'EN' : 'VI'" title="Switch language / Đổi ngôn ngữ">
+            </button>
+            <div>
+                <div style="font-weight: 600; font-size: 14px;" x-text="$t('header.role')"></div>
+                <div style="font-size: 11px; opacity: 0.8;">Nguyễn Văn Minh</div>
+            </div>
+            <div class="avatar">MV</div>
+        </div>
+    </header>
+
+    <!-- MAIN LAYOUT -->
+    <div class="main-layout">
+
+        <!-- SIDEBAR - LỊCH SỬ -->
+        <aside class="sidebar">
+            <div class="sidebar-title">
+                <i class="fas fa-list"></i> <span x-text="$t('sidebar.history')"></span>
+            </div>
+            <template x-for="incident in incidents" :key="incident.id">
+                <div class="audio-item" :class="{ 'active': incident.id === selectedIncidentId }"
+                    @click="selectIncident(incident.id)">
+                    <div class="audio-header">
+                        <button class="play-btn" type="button">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <div class="audio-meta">
+                            <div class="audio-title" x-text="incident.title"></div>
+                            <div class="audio-time" x-text="incident.created_at"></div>
+                        </div>
+                    </div>
+                    <div class="audio-transcript" x-text="incident.snippet || $t('sidebar.no_transcript')"></div>
+                </div>
+            </template>
+            <div class="audio-item">
+                <div class="audio-header">
+                    <button class="play-btn"
+                        onclick="if (!window.__cfRLUnblockHandlers) return false; togglePlay(this)">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <div class="audio-meta">
+                        <div class="audio-title">Giám định thương tật chị Lan</div>
+                        <div class="audio-time">Hôm nay • 11:15 • 5:12</div>
+                    </div>
+                </div>
+                <div class="audio-transcript">Gãy kín xương cẳng chân phải tỷ lệ thương tật 22 phần trăm...</div>
+            </div>
+
+            <div class="audio-item">
+                <div class="audio-header">
+                    <button class="play-btn"
+                        onclick="if (!window.__cfRLUnblockHandlers) return false; togglePlay(this)">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <div class="audio-meta">
+                        <div class="audio-title">Hỏa hoạn nhà anh Khoa</div>
+                        <div class="audio-time">Hôm qua • 16:48 • 4:05</div>
+                    </div>
+                </div>
+                <div class="audio-transcript">Bão số 5 tốc mái tôn 30 mét vuông chập cháy tivi...</div>
+            </div>
+
+            <div class="audio-item">
+                <div class="audio-header">
+                    <button class="play-btn"
+                        onclick="if (!window.__cfRLUnblockHandlers) return false; togglePlay(this)">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <div class="audio-meta">
+                        <div class="audio-title">Khám tiêu hóa anh Nam</div>
+                        <div class="audio-time">Hôm qua • 09:20 • 6:30</div>
+                    </div>
+                </div>
+                <div class="audio-transcript">Viêm loét tá tràng HP dương tính kê Esomeprazole...</div>
+            </div>
+
+            <div class="audio-item">
+                <div class="audio-header">
+                    <button class="play-btn"
+                        onclick="if (!window.__cfRLUnblockHandlers) return false; togglePlay(this)">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <div class="audio-meta">
+                        <div class="audio-title">Va chạm liên hoàn cầu Sài Gòn</div>
+                        <div class="audio-time">17/07 • 15:40 • 7:18</div>
+                    </div>
+                </div>
+                <div class="audio-transcript">Ford Ranger bị xe SH tông từ phía sau đẩy vào xe buýt...</div>
+            </div>
+
+            <div class="audio-item">
+                <div class="audio-header">
+                    <button class="play-btn"
+                        onclick="if (!window.__cfRLUnblockHandlers) return false; togglePlay(this)">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <div class="audio-meta">
+                        <div class="audio-title">Tai nạn xe máy đường Cộng Hòa</div>
+                        <div class="audio-time">17/07 • 10:05 • 2:45</div>
+                    </div>
+                </div>
+                <div class="audio-transcript">Wave Alpha bị Toyota Vios 59A đâm vỡ yếm xe gãy gương...</div>
+            </div>
+            <div x-show="incidents.length === 0" class="audio-item">
+                <div class="audio-transcript" x-text="$t('sidebar.no_incidents')"></div>
+            </div>
+        </aside>
+
+        <!-- CONTENT -->
+        <main class="content">
+
+            <!-- PHẦN 1: RECORD -->
+            <section class="card">
+                <div class="card-title">
+                    <i class="fas fa-microphone-alt" style="color: #667eea;"></i>
+                    <span x-text="$t('record.title')"></span>
+                    <span class="badge">LIVE</span>
+                </div>
+                <div class="record-section">
+                    <div class="record-controls">
+                        <button class="record-btn" id="recordBtn" @click="toggleRecording()"
+                            :class="{ 'recording': isRecording }"
+                            :title="isRecording ? $t('record.stop') : $t('record.start')">
+                            <i class="fas" :class="isRecording ? 'fa-stop' : 'fa-microphone'"></i>
+                        </button>
+                        <div class="record-info"
+                            x-text="isRecording ? $t('record.recording_info', { sec: recordingSeconds }) : $t('record.start_info')">
+                        </div>
+                        <div class="upload-row">
+                            <label class="upload-btn">
+                                <i class="fas fa-image"></i> <span x-text="$t('record.upload_image')"></span>
+                                <input type="file" accept="image/*" hidden @change="uploadImages($event)">
+                            </label>
+                            <label class="upload-btn">
+                                <i class="fas fa-music"></i> <span x-text="$t('record.upload_audio')"></span>
+                                <input type="file" accept="audio/*" hidden @change="uploadAudioFile($event)">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION DIVIDER: REPLAY AUDIO -->
+
+                <section class="card audio-player-card" style="margin: 12px 0; padding: 12px 16px;">
+                    <div class="audio-player-header" style="display: flex; align-items: center; gap: 12px;">
+                        <button class="play-btn" type="button" @click="togglePlay()" :disabled="!selectedRecordingId"
+                            style="width: 36px; height: 36px; flex-shrink: 0;">
+                            <i class="fas" :class="isPlaying ? 'fa-pause' : 'fa-play'" style="font-size: 13px;"></i>
+                        </button>
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-weight: 600; color: #2d3748; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                                x-text="selectedRecording?.file_path || $t('audio.no_selection')"></div>
+                            <div style="font-size: 11px; color: #a0aec0; margin-top: 2px;">
+                                <span x-text="formatTime(currentTime)"></span> / <span
+                                    x-text="formatTime(duration)"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <template x-if="selectedRecordingId">
+                        <div id="waveform" x-ref="waveform" style="width: 100%; height: 56px; margin-top: 10px;"></div>
+                    </template>
+                    <div x-show="!selectedRecordingId" style="font-size: 12px; color: #a0aec0; margin-top: 8px;"
+                        x-text="$t('audio.select_prompt')">
+                    </div>
+                </section>
+
+                <!-- SECTION DIVIDER: IMAGE PREVIEW -->
+
+                <!-- Ảnh hiện trường (chỉ hiển thị khi có ảnh) -->
+                <template x-if="currentImage">
+                    <div class="image-preview has-image" id="imagePreview" @click.away="closeAnnotation()">
+                        <div class="image-preview-inner">
+                            <img :src="currentImage" :alt="$t('image.alt')">
+                            <template x-for="(ann, idx) in (images[0]?.annotations || [])" :key="idx">
+                                <div class="annotation-marker" :style="annotationStyle(ann)"
+                                    @click.stop="selectAnnotation(ann)"></div>
+                            </template>
+                            <template x-if="selectedAnnotation">
+                                <div class="annotation-tooltip" :class="tooltipArrowClass()" :style="tooltipStyle()">
+                                    <p x-text="selectedAnnotation.text || selectedAnnotation.label || ''"></p>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+            </section>
+
+            <!-- PHẦN 2: REPORT + ACTION TO DO (GỌP 1 CARD) -->
+            <section class="report-card">
+                <div class="report-header">
+                    <div class="card-title" style="margin-bottom: 0;">
+                        <i class="fas fa-file-alt" style="color: #667eea;"></i>
+                        <span x-text="$t('report.title')"></span>
+                    </div>
+                    <select class="template-select" x-model="selectedTemplate">
+                        <option value="vehicle" x-text="$t('report.template_vehicle')"></option>
+                        <option value="medical" x-text="$t('report.template_medical')"></option>
+                        <option value="fire" x-text="$t('report.template_fire')"></option>
+                        <option value="injury" x-text="$t('report.template_injury')"></option>
+                    </select>
+                </div>
+
+                <div class="report-content" id="reportContent" x-html="reportHtml"></div>
+
+                <!-- ACTION TO DO (trong cùng card với Report) -->
+                <div class="action-section-title">
+                    <i class="fas fa-tasks" style="color: #ed8936;"></i>
+                    <span x-text="$t('report.actions_title')"></span>
+                    <span class="count-badge" x-text="selectedActions.length"></span>
+                </div>
+
+                <div class="action-thumbnails">
+                    <template x-for="(action, idx) in selectedActions" :key="idx">
+                        <div class="action-thumbnail primary">
+                            <div class="action-thumbnail-icon">
+                                <i class="fas"
+                                    :class="action.action_type === 'email' ? 'fa-envelope' : (action.action_type === 'call' ? 'fa-phone' : 'fa-tasks')"></i>
+                            </div>
+                            <div class="action-thumbnail-label" x-text="action.text"></div>
+                            <div class="action-thumbnail-badge">
+                                <i class="fas fa-clock"></i> <span x-text="$t('report.auto')"></span>
+                            </div>
+                        </div>
+                    </template>
+                    <div x-show="selectedActions.length === 0" style="color: #a0aec0; padding: 12px;"
+                        x-text="$t('report.no_actions')">
+                    </div>
+                </div>
+
+                <!-- QUICK ACCESS BARLINES -->
+                <div class="report-quick-access">
+                    <div class="quick-access-item" :class="{ 'active': activeQuickAccess === 'current' }"
+                        @click="selectQuickAccess('current')">
+                        <i class="fas fa-file-alt"></i>
+                        <span x-text="$t('report.current')"></span>
+                    </div>
+                    <template x-for="d in ['17/07','16/07','15/07','14/07']" :key="d">
+                        <div class="quick-access-item" :class="{ 'active': activeQuickAccess === d }"
+                            @click="selectQuickAccess(d)">
+                            <i class="fas fa-history"></i>
+                            <span x-text="$t('report.report_date', { date: d })"></span>
+                        </div>
+                    </template>
+                </div>
+            </section>
+
+            <section class="card" style="margin-top: 20px;">
+                <div class="card-title">
+                    <i class="fas fa-list-ul" style="color: #667eea;"></i>
+                    <span x-text="$t('recordings.title')"></span>
+                    <span class="count-badge" x-text="recordings.length"></span>
+                </div>
+                <div class="action-list">
+                    <template x-for="rec in recordings" :key="rec.id">
+                        <div class="action-item" :class="{ 'active': rec.id === selectedRecordingId }"
+                            @click="selectRecording(rec.id)" style="cursor: pointer;">
+                            <div class="action-check"
+                                :style="rec.status === 'done' ? '' : 'background: #fed7aa; color: #ed8936;'">
+                                <i class="fas"
+                                    :class="rec.status === 'done' ? 'fa-check' : (rec.status === 'failed' ? 'fa-times' : 'fa-clock')"></i>
+                            </div>
+                            <div class="action-info">
+                                <div class="action-name" x-text="rec.file_path"></div>
+                                <div class="action-time">
+                                    <span x-text="rec.duration_sec + 's'"></span> •
+                                    <span x-text="rec.status"></span>
+                                </div>
+                            </div>
+                            <template x-if="images.length > 0">
+                                <img :src="'/api/audio/' + images[0].id"
+                                    style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px;"
+                                    alt="thumb">
+                            </template>
+                        </div>
+                    </template>
+                    <div x-show="recordings.length === 0" style="color: #a0aec0; padding: 12px;"
+                        x-text="$t('recordings.empty')">
+                    </div>
+                </div>
+            </section>
+
+            <!-- PHẦN 3: ACTION STATUS (DONE) -->
+            <section class="card action-section">
+                <div class="card-title">
+                    <i class="fas fa-bolt" style="color: #ed8936;"></i>
+                    <span x-text="$t('actions_done.title')"></span>
+                    <span class="badge"
+                        style="background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);">LIVE</span>
+                </div>
+                <div class="action-list">
+                    <template x-for="(action, idx) in completedActions" :key="idx">
+                        <div class="action-item">
+                            <div class="action-check"><i class="fas fa-check"></i></div>
+                            <div class="action-info">
+                                <div class="action-name" x-text="action.text"></div>
+                                <div class="action-time" x-text="action.completed_at || $t('actions_done.just_now')">
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <div x-show="completedActions.length === 0" style="color: #a0aec0; padding: 12px;"
+                        x-text="$t('actions_done.empty')">
+                    </div>
+                </div>
+            </section>
+
+            <footer class="team-footer">
+                <div class="team-content">
+                    <img src="t.jpg" alt="Team Bookworm" class="team-logo"
+                        onerror="this.src='https://ui-avatars.com/api/?name=Team+Bookworm&amp;background=667eea&amp;color=fff&amp;size=128'">
+                    <div class="team-details">
+                        <h3>Team <span>Bookworm</span> - VAIC 2026</h3>
+                        <a href="https://github.com/bnettester1/voice2claim" target="_blank" class="team-git-link">
+                            <i class="fab fa-github"></i> github.com/bnettester1/voice2claim
+                        </a>
+                    </div>
+                </div>
+            </footer>
+        </main>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs-i18n@2.5.3/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mqtt@5.0.5/dist/mqtt.min.js"></script>
+    <script>
+        const I18N_MESSAGES = {
+            vi: {
+                title: 'Voice2Claim - Hệ thống giám định thông minh',
+                header: { subtitle: 'Hệ thống giám định thông minh bằng giọng nói', role: 'Giám định viên' },
+                sidebar: { history: 'Lịch sử', no_transcript: 'Chưa có transcript', no_incidents: 'Chưa có vụ nào. Bấm ghi âm để bắt đầu.' },
+                record: {
+                    title: 'Thu thập dữ liệu hiện trường',
+                    stop: 'Dừng ghi âm', start: 'Bắt đầu ghi âm',
+                    recording_info: 'Đang ghi âm... {sec}s — Nhấn để dừng',
+                    start_info: 'Bắt đầu ghi âm hiện trường',
+                    upload_image: 'Upload ảnh', upload_audio: 'Upload audio',
+                },
+                audio: { no_selection: 'Chưa chọn bản ghi', select_prompt: 'Chọn một bản ghi âm để phát' },
+                image: { alt: 'Ảnh hiện trường' },
+                report: {
+                    title: 'Báo cáo giám định',
+                    template_vehicle: '🚗 Giám định tai nạn xe ô tô',
+                    template_medical: '🏥 Đơn bệnh / Giám định y tế',
+                    template_fire: '🔥 Giám định hỏa hoạn, bão lũ',
+                    template_injury: '🩹 Giám định thương tật',
+                    actions_title: 'Hành động cần thực hiện',
+                    auto: 'TỰ ĐỘNG', no_actions: 'Chưa có hành động đề xuất.',
+                    current: 'Báo cáo hiện tại', report_date: 'Báo cáo {date}',
+                    no_transcript: 'Chưa có transcript cho bản ghi này.',
+                    plate: 'Biển số:', location: 'Địa điểm:', damage: 'Thiệt hại:',
+                    estimate: 'Ước tính:', diagnosis: 'Chẩn đoán:', patient: 'Bệnh nhân:', quality: 'Chất lượng:',
+                },
+                recordings: { title: 'Bản ghi âm trong vụ này', empty: 'Chưa có bản ghi âm nào trong vụ này.' },
+                actions_done: {
+                    title: 'Trạng thái hành động đã thực hiện',
+                    just_now: 'Vừa thực hiện', empty: 'Chưa có hành động nào hoàn thành.',
+                    done_prefix: 'Đã thực hiện: ',
+                },
+                lang_toggle: 'EN',
+            },
+            en: {
+                title: 'Voice2Claim - Intelligent Voice Assessment System',
+                header: { subtitle: 'Intelligent voice-based assessment system', role: 'Assessor' },
+                sidebar: { history: 'History', no_transcript: 'No transcript yet', no_incidents: 'No cases yet. Press record to start.' },
+                record: {
+                    title: 'Field Data Collection',
+                    stop: 'Stop recording', start: 'Start recording',
+                    recording_info: 'Recording... {sec}s — Click to stop',
+                    start_info: 'Start field recording',
+                    upload_image: 'Upload image', upload_audio: 'Upload audio',
+                },
+                audio: { no_selection: 'No recording selected', select_prompt: 'Select a recording to play' },
+                image: { alt: 'Field image' },
+                report: {
+                    title: 'Assessment Report',
+                    template_vehicle: '🚗 Vehicle Accident Assessment',
+                    template_medical: '🏥 Medical Assessment',
+                    template_fire: '🔥 Fire / Storm Assessment',
+                    template_injury: '🩹 Injury Assessment',
+                    actions_title: 'Actions to perform',
+                    auto: 'AUTO', no_actions: 'No suggested actions.',
+                    current: 'Current report', report_date: 'Report {date}',
+                    no_transcript: 'No transcript for this recording.',
+                    plate: 'Plate:', location: 'Location:', damage: 'Damage:',
+                    estimate: 'Estimate:', diagnosis: 'Diagnosis:', patient: 'Patient:', quality: 'Quality:',
+                },
+                recordings: { title: 'Recordings in this case', empty: 'No recordings in this case.' },
+                actions_done: {
+                    title: 'Completed Actions',
+                    just_now: 'Just completed', empty: 'No actions completed yet.',
+                    done_prefix: 'Done: ',
+                },
+                lang_toggle: 'VI',
+            },
+        };
+
+        document.addEventListener('alpine-i18n:ready', function () {
+            const saved = localStorage.getItem('v2c_locale') || 'vi';
+            window.AlpineI18n.create(saved, I18N_MESSAGES);
+            window.AlpineI18n.fallbackLocale = 'vi';
+            document.documentElement.lang = saved;
+        });
+
+        document.addEventListener('alpine-i18n:locale-change', function () {
+            const loc = window.AlpineI18n.locale;
+            document.documentElement.lang = loc;
+            localStorage.setItem('v2c_locale', loc);
+        });
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
+    <script>
+        function claimFlow() {
+            return {
+                incidents: [],
+                selectedIncidentId: null,
+                currentCaseId: null,
+                recordings: [],
+                images: [],
+                selectedRecordingId: null,
+                wavesurfer: null,
+                isPlaying: false,
+                currentTime: 0,
+                duration: 0,
+                isRecording: false,
+                recordingSeconds: 0,
+                mediaRecorder: null,
+                audioChunks: [],
+                recordTimer: null,
+                currentImage: null,
+                selectedAnnotation: null,
+                selectedTemplate: 'vehicle',
+                activeQuickAccess: 'current',
+                sampleTemplates: {
+                    '17/07': `<h3>BÁO CÁO GIÁM ĐỊNH TAI NẠN XE Ô TÔ</h3>
+                <p><strong>Thời gian:</strong> 14:32 ngày 18/07/2026 &nbsp;|&nbsp; <strong>Địa điểm:</strong> Ngã tư Nguyễn Văn Linh - Hoàng Diệu, TP.HCM</p>
+                <p><strong>Phương tiện:</strong> Xe <strong>Mazda CX-5</strong>, biển số <strong>51H-123.45</strong>, chủ xe: anh Hùng</p>
+                <p><strong>Thiệt hại:</strong> <strong>Vỡ đèn pha</strong> bên phải, <strong>móp cản trước</strong> 30cm, <strong>rỉ dầu carter</strong>, <strong>trầy xước nắp capô</strong> 40cm.</p>
+                <p><strong>Ước tính:</strong> <strong>28.500.000 VNĐ</strong></p>`,
+                    '16/07': `<h3>ĐƠN BỆNH / GIÁM ĐỊNH Y TẾ</h3>
+                <p><strong>Bệnh nhân:</strong> Chị Lan, CCCD <strong>079-185-xxx-xxx</strong>, mã hồ sơ <strong>BA-987654</strong> (BV Chợ Rẫy)</p>
+                <p><strong>Chẩn đoán:</strong> <strong>Gãy kín 1/3 giữa xương cẳng chân phải</strong>, <strong>đứt dây chằng chéo trước</strong> độ 2</p>
+                <p><strong>Điều trị:</strong> <strong>Bó bột đùi bàn 6 tuần</strong>, thuốc <strong>Celecoxib 200mg</strong>, <strong>Alpha Choay</strong></p>
+                <p><strong>Tỷ lệ thương tật tạm tính:</strong> <strong>22%</strong></p>`,
+                    '15/07': `<h3>BÁO CÁO GIÁM ĐỊNH HỎA HOẠN / BÃO LŨ</h3>
+                <p><strong>Địa chỉ:</strong> <strong>Số 15 Nguyễn Kiệm, P.3, Gò Vấp</strong></p>
+                <p><strong>Nguyên nhân:</strong> <strong>Bão số 5</strong> gây <strong>tốc mái tôn 30m²</strong></p>
+                <p><strong>Thiệt hại:</strong> <strong>Chập cháy tivi Sony 65 inch</strong>, <strong>hư hỏng bộ bàn ghế gỗ</strong> do mưa tạt</p>
+                <p><strong>Ước tính:</strong> <strong>45.000.000 VNĐ</strong></p>`,
+                    '14/07': `<h3>BIÊN BẢN GIÁM ĐỊNH THƯƠNG TẬT</h3>
+                <p><strong>Nạn nhân:</strong> Anh Tuấn, tai nạn tại <strong>đường Cộng Hòa</strong></p>
+                <p><strong>Thương tích:</strong> <strong>Trầy xước tay</strong>, <strong>đau nhẹ đầu gối</strong></p>
+                <p><strong>Phương tiện:</strong> Xe <strong>Wave Alpha</strong> bị xe <strong>Toyota Vios 59A-987.65</strong> đâm từ phía sau</p>
+                <p><strong>Hư hỏng xe:</strong> <strong>Vỡ yếm xe</strong>, <strong>gãy gương chiếu hậu</strong> bên trái</p>`,
+                },
+                selectedActions: [],
+                completedActions: [],
+                mqttClient: null,
+
+                async bootstrap() {
+                    await this.$nextTick();
+                    this.initMQTT();
+                    await this.loadIncidents();
+                },
+
+                initWaveSurfer(container) {
+                    const ws = WaveSurfer.create({
+                        container: container,
+                        waveColor: '#c3dafe',
+                        progressColor: '#667eea',
+                        cursorColor: '#764ba2',
+                        cursorWidth: 2,
+                        barWidth: 3,
+                        barRadius: 3,
+                        barGap: 2,
+                        height: 56,
+                        normalize: true,
+                    });
+                    ws.on('play', () => { this.isPlaying = true; });
+                    ws.on('pause', () => { this.isPlaying = false; });
+                    ws.on('finish', () => { this.isPlaying = false; });
+                    ws.on('timeupdate', (t) => { this.currentTime = t; });
+                    ws.on('ready', () => { this.duration = ws.getDuration(); });
+                    ws.on('error', (e) => { console.error('WaveSurfer error:', e); });
+                    return ws;
+                },
+
+                togglePlay() {
+                    if (!this.wavesurfer) return;
+                    this.wavesurfer.playPause();
+                },
+
+                formatTime(sec) {
+                    if (!sec || isNaN(sec)) return '00:00';
+                    const m = Math.floor(sec / 60);
+                    const s = Math.floor(sec % 60);
+                    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+                },
+
+                get selectedRecording() {
+                    return this.recordings.find(r => r.id === this.selectedRecordingId) || null;
+                },
+
+                async loadIncidents() {
+                    try {
+                        const resp = await fetch('/api/cases');
+                        const cases = await resp.json();
+                        this.incidents = cases.map(c => ({
+                            id: c.id,
+                            title: c.title,
+                            created_at: c.created_at,
+                            recording_count: (c.recordings || []).length,
+                            snippet: (c.recordings && c.recordings[0] && c.recordings[0].transcript)
+                                ? (c.recordings[0].transcript.raw_text || '').slice(0, 80) + '...'
+                                : '',
+                        }));
+                        if (this.incidents.length > 0 && !this.selectedIncidentId) {
+                            this.selectIncident(this.incidents[0].id);
+                        }
+                    } catch (e) {
+                        console.error('Failed to load incidents:', e);
+                    }
+                },
+
+                selectIncident(id) {
+                    this.selectedIncidentId = id;
+                    this.loadCaseDetail(id);
+                },
+
+                async loadCaseDetail(caseId) {
+                    try {
+                        const resp = await fetch(`/api/cases/${caseId}`);
+                        const data = await resp.json();
+                        this.recordings = (data.recordings || []).map(r => ({
+                            id: r.id,
+                            file_path: r.file_path,
+                            duration_sec: r.duration_sec,
+                            status: r.status,
+                            template_type: r.template_type,
+                            error: r.error,
+                            transcript: r.transcript,
+                            image_id: null,
+                        }));
+                        this.images = (data.images || []).map(img => ({
+                            id: img.id,
+                            file_path: img.file_path,
+                            status: img.status,
+                            annotations: img.annotations || [],
+                        }));
+                        if (this.recordings.length > 0) {
+                            this.selectRecording(this.recordings[0].id);
+                        } else {
+                            this.selectedRecordingId = null;
+                        }
+                    } catch (e) {
+                        console.error('Failed to load case detail:', e);
+                    }
+                },
+                selectRecording(id) {
+                    this.selectedRecordingId = id;
+                    this.activeQuickAccess = 'current';
+                    this.currentTime = 0;
+                    this.duration = 0;
+                    this.isPlaying = false;
+                    this.refreshReport();
+                    this.loadWaveform(id);
+                },
+
+                async loadWaveform(id) {
+                    if (typeof WaveSurfer === 'undefined') {
+                        console.warn('WaveSurfer script not loaded');
+                        return;
+                    }
+                    await this.$nextTick();
+                    const container = this.$refs.waveform;
+                    if (!container) return;
+                    if (this.wavesurfer) {
+                        try { this.wavesurfer.destroy(); } catch (e) { }
+                        this.wavesurfer = null;
+                    }
+                    this.wavesurfer = this.initWaveSurfer(container);
+                    try {
+                        const url = `/api/audio/${id}`;
+                        const resp = await fetch(url);
+                        if (!resp.ok) {
+                            console.error('Audio fetch failed:', resp.status);
+                            return;
+                        }
+                        const blob = await resp.blob();
+                        console.log('Audio blob:', blob.size, 'bytes, type:', blob.type);
+                        if (blob.size < 100) {
+                            console.warn('Audio blob too small, likely empty recording');
+                        }
+                        this.wavesurfer.loadBlob(blob);
+                    } catch (e) {
+                        console.error('loadWaveform failed:', e);
+                    }
+                },
+                refreshReport() {
+                    const rec = this.recordings.find(r => r.id === this.selectedRecordingId);
+                    if (!rec || !rec.transcript) {
+                        this.selectedActions = [];
+                        return;
+                    }
+                    const actions = rec.transcript.suggested_actions || [];
+                    this.selectedActions = actions.map(a => {
+                        if (typeof a === 'string') return { text: a, action_type: null, target: null, done: false };
+                        return { text: a.text, action_type: a.action_type, target: a.target, done: false };
+                    });
+                },
+                get reportHtml() {
+                    const t = (k) => window.AlpineI18n ? AlpineI18n.t(k) : k;
+                    if (this.activeQuickAccess !== 'current' && this.sampleTemplates[this.activeQuickAccess]) {
+                        return this.sampleTemplates[this.activeQuickAccess];
+                    }
+                    const rec = this.recordings.find(r => r.id === this.selectedRecordingId);
+                    if (!rec || !rec.transcript) {
+                        return `<p style="color: #a0aec0;">${t('report.no_transcript')}</p>`;
+                    }
+                    const s = rec.transcript.structured || {};
+                    const txt = rec.transcript.raw_text || '';
+                    const parts = [];
+                    if (s.vehicle_plate) parts.push(`<p><strong>${t('report.plate')}</strong> ${s.vehicle_plate}</p>`);
+                    if (s.location) parts.push(`<p><strong>${t('report.location')}</strong> ${s.location}</p>`);
+                    if (s.damage_description) parts.push(`<p><strong>${t('report.damage')}</strong> ${s.damage_description}</p>`);
+                    if (s.estimate_amount) parts.push(`<p><strong>${t('report.estimate')}</strong> ${s.estimate_amount}</p>`);
+                    if (s.diagnosis) parts.push(`<p><strong>${t('report.diagnosis')}</strong> ${s.diagnosis}</p>`);
+                    if (s.patient_name) parts.push(`<p><strong>${t('report.patient')}</strong> ${s.patient_name}</p>`);
+                    if (parts.length === 0) parts.push(`<p>${txt}</p>`);
+                    if (rec.transcript.quality_score !== undefined) {
+                        parts.push(`<p><strong>${t('report.quality')}</strong> ${rec.transcript.quality_score}/10</p>`);
+                    }
+                    return parts.join('');
+                },
+
+                selectQuickAccess(key) {
+                    this.activeQuickAccess = key;
+                },
+                annotationStyle(ann) {
+                    return `left: ${(ann.x * 100).toFixed(2)}%; top: ${(ann.y * 100).toFixed(2)}%;`;
+                },
+
+                tooltipStyle() {
+                    const ann = this.selectedAnnotation;
+                    if (!ann) return '';
+                    const xPct = ann.x * 100;
+                    const yPct = ann.y * 100;
+                    const flipLeft = ann.x > 0.6;
+                    if (flipLeft) {
+                        return `right: ${(100 - xPct).toFixed(2)}%; margin-right: 14px; top: ${yPct.toFixed(2)}%; transform: translateY(-50%);`;
+                    }
+                    return `left: ${xPct.toFixed(2)}%; margin-left: 14px; top: ${yPct.toFixed(2)}%; transform: translateY(-50%);`;
+                },
+
+                tooltipArrowClass() {
+                    if (!this.selectedAnnotation) return '';
+                    return this.selectedAnnotation.x > 0.6 ? 'tooltip-arrow-left' : 'tooltip-arrow-right';
+                },
+
+                selectAnnotation(ann) {
+                    this.selectedAnnotation = ann;
+                },
+
+                closeAnnotation() {
+                    this.selectedAnnotation = null;
+                },
+                async toggleRecording() {
+                    if (this.isRecording) {
+                        this.stopRecording();
+                    } else {
+                        await this.startRecording();
+                    }
+                },
+
+                async startRecording() {
+                    if (!this.currentCaseId) {
+                        const resp = await fetch('/api/cases', { method: 'POST' });
+                        const caseData = await resp.json();
+                        this.currentCaseId = caseData.id;
+                    }
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    const chunks = [];
+                    this.audioChunks = chunks;
+                    const recorder = new MediaRecorder(stream);
+                    this.mediaRecorder = recorder;
+                    recorder.ondataavailable = (e) => {
+                        if (e.data && e.data.size > 0) chunks.push(e.data);
+                    };
+                    recorder.onstop = () => this.uploadAudio();
+                    recorder.start(1000);
+                    this.isRecording = true;
+                    this.recordingSeconds = 0;
+                    this.recordTimer = setInterval(() => this.recordingSeconds++, 1000);
+                },
+
+                stopRecording() {
+                    if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+                        this.mediaRecorder.stop();
+                        this.mediaRecorder.stream.getTracks().forEach(t => t.stop());
+                    }
+                    this.isRecording = false;
+                    clearInterval(this.recordTimer);
+                },
+
+                async uploadAudio() {
+                    const chunks = this.audioChunks;
+                    if (!chunks || chunks.length === 0) {
+                        console.warn('No audio chunks to upload');
+                        return;
+                    }
+                    const blob = new Blob(chunks, { type: 'audio/webm' });
+                    console.log('Uploading audio blob:', blob.size, 'bytes');
+                    const formData = new FormData();
+                    formData.append('file', blob, `recording_${Date.now()}.webm`);
+                    const resp = await fetch(
+                        `/api/cases/${this.currentCaseId}/upload`,
+                        { method: 'POST', body: formData }
+                    );
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        this.recordings.unshift({
+                            id: data.recording_id,
+                            file_path: `recording_${Date.now()}.webm`,
+                            duration_sec: this.recordingSeconds,
+                            status: 'transcribing',
+                            template_type: null,
+                            transcript: null,
+                            image_id: null,
+                        });
+                        this.selectRecording(data.recording_id);
+                        await this.loadIncidents();
+                    }
+                },
+
+                async uploadImages(event) {
+                    const files = event.target.files;
+                    for (const file of files) {
+                        if (!this.currentCaseId) {
+                            const resp = await fetch('/api/cases', { method: 'POST' });
+                            const caseData = await resp.json();
+                            this.currentCaseId = caseData.id;
+                        }
+                        const formData = new FormData();
+                        formData.append('file', file);
+                        const resp = await fetch(
+                            `/api/cases/${this.currentCaseId}/upload`,
+                            { method: 'POST', body: formData }
+                        );
+                        if (resp.ok) {
+                            const data = await resp.json();
+                            const imgUrl = `/api/audio/${data.recording_id}`;
+                            this.images.unshift({
+                                id: data.recording_id,
+                                file_path: file.name,
+                                status: 'uploaded',
+                                annotations: [],
+                            });
+                            this.currentImage = imgUrl;
+                        }
+                    }
+                    event.target.value = '';
+                },
+
+                async uploadAudioFile(event) {
+
+                    // === SENDING FILE BLOB HERE ===
+
+                    if (this.mqttClient) {
+                        console.log(`MQTT/SEND(${new Date().toLocaleTimeString()}):`, event.target.files);
+
+                        const files = event.target.files;
+                        for (const file of files) {
+                            const arrayBuffer = await blob.arrayBuffer()
+                            const buffer = new Uint8Array(arrayBuffer)
+
+                            // do something with the file format
+                            // file.mime (like image/jpeg)
+                            // file.name (like abc123.webm or abc123.wav)
+
+                            // this.mqttClient.publish("event", buffer);
+                        }
+                    }
+
+                    const files = event.target.files;
+                    for (const file of files) {
+                        if (!this.currentCaseId) {
+                            const resp = await fetch('/api/cases', { method: 'POST' });
+                            const caseData = await resp.json();
+                            this.currentCaseId = caseData.id;
+                        }
+                        const formData = new FormData();
+                        formData.append('file', file);
+                        const resp = await fetch(
+                            `/api/cases/${this.currentCaseId}/upload`,
+                            { method: 'POST', body: formData }
+                        );
+                        if (resp.ok) {
+                            const data = await resp.json();
+                            this.recordings.unshift({
+                                id: data.recording_id,
+                                file_path: file.name,
+                                duration_sec: 0,
+                                status: 'transcribing',
+                                template_type: null,
+                                transcript: null,
+                                image_id: null,
+                            });
+                            this.selectRecording(data.recording_id);
+                            await this.loadIncidents();
+                        }
+                    }
+                    event.target.value = '';
+
+                    // === SENDING FILE BLOB END ===
+
+                },
+                initMQTT() {
+                    const wsUrl = `wss://dathoc.net:443/mq`;
+                    this.mqttClient = mqtt.connect(wsUrl, {
+                        protocol: 'wss',
+                        path: '/mq',
+                    });
+                    this.mqttClient.on('connect', () => {
+                        this.mqttClient.subscribe('claimflow/result/#');
+                    });
+                    this.mqttClient.on('message', (topic, message) => {
+                        try {
+                            const data = JSON.parse(message.toString());
+                            if (topic === 'claimflow/result/transcript') this.handleTranscript(data);
+                            else if (topic === 'claimflow/result/failed') this.handleFailed(data);
+                            else if (topic === 'claimflow/result/annotations') this.handleAnnotations(data);
+                            console.log(`MQTT/RECEIVE(${new Date().toLocaleTimeString()}):`, data);
+
+                            // tODO. Do something with the receiving information, maybe extract buffered image/audio
+
+                        } catch (e) {
+                            console.error('MQTT message parse failed:', e);
+                        }
+                    });
+                },
+                handleTranscript(data) {
+                    const rec = this.recordings.find(r => r.id === data.recording_id);
+                    if (rec) {
+                        const qualityScore = data.quality_score;
+                        if (qualityScore !== undefined && qualityScore < 5) {
+                            rec.status = 'needs_review';
+                        } else {
+                            rec.status = 'done';
+                        }
+                        rec.template_type = data.template_type || null;
+                        rec.transcript = {
+                            raw_text: data.raw_text,
+                            structured: data.structured,
+                            suggested_actions: data.suggested_actions,
+                            confidence: data.confidence,
+                            quality_score: qualityScore,
+                        };
+                        if (this.selectedRecordingId === rec.id) {
+                            this.refreshReport();
+                        }
+                        const now = new Date();
+                        const ts = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+                        const prefix = window.AlpineI18n ? AlpineI18n.t('actions_done.done_prefix') : 'Đã thực hiện: ';
+                        const newDone = (data.suggested_actions || []).map(a => {
+                            const text = typeof a === 'string' ? a : a.text;
+                            return { text: prefix + text, completed_at: ts };
+                        });
+                        this.completedActions = [...newDone, ...this.completedActions];
+                    }
+                },
+                handleFailed(data) {
+                    const rec = this.recordings.find(r => r.id === data.recording_id);
+                    if (rec) {
+                        rec.status = 'failed';
+                        rec.error = data.error;
+                    }
+                },
+                handleAnnotations(data) {
+                    const img = this.images.find(i => i.id === data.image_id);
+                    if (img) {
+                        img.status = 'done';
+                        img.annotations = data.annotations || [];
+                    }
+                },
+            };
+        }
+    </script>
+</body>
+
+</html>
