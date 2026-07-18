@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dự thảo hồ sơ bồi thường xe cơ giới</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            padding: 24px;
+            background: linear-gradient(135deg, #f5f7ff 0%, #fef6ff 100%);
+            color: #2d3748;
+        }
+
+        .claim-page {
+            max-width: 980px;
+            margin: 0 auto;
+        }
+
+        .card {
+            padding: 24px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            color: #2d3748;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .card-title .badge {
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .claim-action-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .claim-btn {
+            padding: 11px 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        .claim-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .claim-btn:disabled {
+            cursor: wait;
+            opacity: 0.6;
+            transform: none;
+        }
+
+        .claim-btn.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .claim-btn.secondary {
+            background: #eef0ff;
+            color: #5a67d8;
+        }
+
+        .claim-builder-card {
+            border-left: 6px solid #667eea;
+        }
+
+        .claim-builder-intro {
+            color: #718096;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .claim-form-section {
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 1px solid #edf2f7;
+        }
+
+        .claim-form-section h3 {
+            margin-bottom: 12px;
+            color: #4a5568;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .claim-form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .claim-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .claim-field.full {
+            grid-column: 1 / -1;
+        }
+
+        .claim-field label {
+            color: #718096;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .claim-field input,
+        .claim-field textarea {
+            width: 100%;
+            padding: 10px 11px;
+            border: 1px solid #dce2ee;
+            border-radius: 10px;
+            background: #fbfcff;
+            color: #2d3748;
+            font: inherit;
+            font-size: 13px;
+        }
+
+        .claim-field textarea {
+            min-height: 82px;
+            resize: vertical;
+            line-height: 1.55;
+        }
+
+        .claim-missing {
+            margin-top: 14px;
+            padding: 13px 15px;
+            border-radius: 10px;
+            background: #fff7e8;
+            color: #8a5500;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .claim-missing ul {
+            margin: 6px 0 0 18px;
+        }
+
+        .claim-generation-status {
+            color: #718096;
+            font-size: 12px;
+        }
+
+        @media (max-width: 1024px) {
+            .claim-form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .claim-field.full {
+                grid-column: auto;
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+
+            .card {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="claim-page">
+        <section class="card claim-builder-card" id="claimBuilderCard">
+            <div class="card-title">
+                <i class="fas fa-file-shield" style="color: #667eea;"></i>
+                Dự thảo hồ sơ bồi thường xe cơ giới
+                <span class="badge">AI DRAFT</span>
+            </div>
+            <p class="claim-builder-intro">Thông tin được trích xuất từ bản chép lời và có thể chỉnh sửa. Các trường còn thiếu phải được đối chiếu với giấy chứng nhận bảo hiểm, giấy tờ xe, ảnh hiện trường và biên bản liên quan trước khi ký.</p>
+
+            <form id="claimForm">
+                <div class="claim-form-section">
+                    <h3>Hồ sơ và người được bảo hiểm</h3>
+                    <div class="claim-form-grid">
+                        <div class="claim-field"><label for="claimReference">Mã hồ sơ</label><input id="claimReference"></div>
+                        <div class="claim-field"><label for="adjusterName">Giám định viên</label><input id="adjusterName"></div>
+                        <div class="claim-field"><label for="insuredName">Chủ xe / Người được bảo hiểm</label><input id="insuredName"></div>
+                        <div class="claim-field"><label for="insuredPhone">Điện thoại</label><input id="insuredPhone"></div>
+                        <div class="claim-field"><label for="insuredEmail">Email</label><input id="insuredEmail"></div>
+                        <div class="claim-field"><label for="policyNumber">Số đơn / GCN bảo hiểm</label><input id="policyNumber"></div>
+                        <div class="claim-field full"><label for="insuredAddress">Địa chỉ liên hệ</label><input id="insuredAddress"></div>
+                    </div>
+                </div>
+
+                <div class="claim-form-section">
+                    <h3>Xe và người điều khiển</h3>
+                    <div class="claim-form-grid">
+                        <div class="claim-field"><label for="vehicleMakeModel">Nhãn hiệu / Model</label><input id="vehicleMakeModel"></div>
+                        <div class="claim-field"><label for="vehiclePlate">Biển số xe</label><input id="vehiclePlate"></div>
+                        <div class="claim-field"><label for="vehicleVin">Số khung (VIN)</label><input id="vehicleVin"></div>
+                        <div class="claim-field"><label for="driverName">Người điều khiển</label><input id="driverName"></div>
+                        <div class="claim-field"><label for="driverPhone">Điện thoại lái xe</label><input id="driverPhone"></div>
+                        <div class="claim-field"><label for="driverLicense">Số GPLX</label><input id="driverLicense"></div>
+                    </div>
+                </div>
+
+                <div class="claim-form-section">
+                    <h3>Tai nạn và thiệt hại</h3>
+                    <div class="claim-form-grid">
+                        <div class="claim-field"><label for="accidentTime">Thời gian xảy ra</label><input id="accidentTime"></div>
+                        <div class="claim-field"><label for="accidentLocation">Địa điểm</label><input id="accidentLocation"></div>
+                        <div class="claim-field full"><label for="accidentDescription">Diễn biến tai nạn</label><textarea id="accidentDescription"></textarea></div>
+                        <div class="claim-field full"><label for="accidentCause">Nguyên nhân sơ bộ</label><textarea id="accidentCause"></textarea></div>
+                        <div class="claim-field"><label for="policeAgency">Cơ quan Công an</label><input id="policeAgency"></div>
+                        <div class="claim-field"><label for="estimatedAmount">Ước tính thiệt hại</label><input id="estimatedAmount"></div>
+                        <div class="claim-field full"><label for="vehicleDamage">Thiệt hại xe (mỗi hạng mục một dòng)</label><textarea id="vehicleDamage"></textarea></div>
+                        <div class="claim-field full"><label for="thirdPartyDamage">Thiệt hại bên thứ ba</label><textarea id="thirdPartyDamage"></textarea></div>
+                        <div class="claim-field full"><label for="injuries">Thiệt hại về người</label><textarea id="injuries"></textarea></div>
+                        <div class="claim-field full"><label for="repairRecommendation">Phương án khắc phục / sửa chữa</label><textarea id="repairRecommendation"></textarea></div>
+                        <div class="claim-field full"><label for="immediateActions">Hành động đã thực hiện / cần theo dõi (mỗi mục một dòng)</label><textarea id="immediateActions"></textarea></div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="claim-missing" id="claimMissingFields" hidden></div>
+            <div class="claim-action-row" style="margin-top: 16px;">
+                <button class="claim-btn primary" id="downloadClaimPdfBtn" type="button"><i class="fas fa-file-pdf"></i> Tải PDF</button>
+                <button class="claim-btn secondary" id="shareClaimPdfBtn" type="button"><i class="fas fa-share-nodes"></i> Gửi / Chia sẻ PDF</button>
+                <span class="claim-generation-status" id="claimGenerationStatus"></span>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

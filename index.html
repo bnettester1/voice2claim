@@ -481,10 +481,12 @@
         }
 
         .report-content {
-            background: linear-gradient(135deg, #fafbff 0%, #fff9fb 100%);
-            border-radius: 14px;
-            padding: 20px;
-            border-left: 4px solid #667eea;
+            /* background: linear-gradient(135deg, #fafbff 0%, #fff9fb 100%); */
+            /* border-radius: 14px; */
+            /* padding: 20px; */
+            /* border-left: 4px solid #667eea; */
+            padding-bottom: 16px;
+            border-bottom: 2px solid #e2e8f0;
             margin-bottom: 20px;
         }
 
@@ -508,6 +510,255 @@
             padding: 2px 6px;
             border-radius: 4px;
             font-weight: 600;
+        }
+
+        /* ===== CLAIM FORM (structured draft from docs/draft-claim-form.html) ===== */
+        .claim-builder-intro {
+            color: #718096;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 6px;
+        }
+
+        .claim-form-section {
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 1px solid #edf2f7;
+        }
+
+        .claim-form-section h3 {
+            margin-bottom: 12px;
+            color: #4a5568;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            font-weight: 700;
+        }
+
+        .claim-form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .claim-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .claim-field.full {
+            grid-column: 1 / -1;
+        }
+
+        .claim-field label {
+            color: #718096;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .claim-field input,
+        .claim-field textarea {
+            width: 100%;
+            padding: 10px 11px;
+            border: 1px solid #dce2ee;
+            border-radius: 10px;
+            background: #fbfcff;
+            color: #2d3748;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            line-height: 1.5;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+        }
+
+        .claim-field input.claim-invalid,
+        .claim-field textarea.claim-invalid {
+            border-color: #e53e3e;
+            background: #fff5f5;
+        }
+
+        .claim-field input.claim-invalid:focus,
+        .claim-field textarea.claim-invalid:focus {
+            border-color: #e53e3e;
+            box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.15);
+        }
+
+        .claim-field input:focus,
+        .claim-field textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+        }
+
+        .claim-field textarea {
+            min-height: 82px;
+            resize: vertical;
+            line-height: 1.55;
+        }
+
+        .claim-missing {
+            margin-top: 14px;
+            padding: 13px 15px;
+            border-radius: 10px;
+            background: #fff7e8;
+            color: #8a5500;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .claim-missing ul {
+            margin: 6px 0 0 18px;
+        }
+
+        .claim-action-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin-top: 16px;
+            margin-bottom: 16px;
+            border-bottom: 2px solid #dce2ee;
+            padding-bottom: 16px;
+        }
+
+        .claim-btn {
+            padding: 11px 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            transition: transform 0.2s, opacity 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .claim-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .claim-btn:disabled {
+            cursor: wait;
+            opacity: 0.6;
+            transform: none;
+        }
+
+        .claim-btn.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .claim-btn.secondary {
+            background: #eef0ff;
+            color: #5a67d8;
+        }
+
+        .claim-generation-status {
+            color: #718096;
+            font-size: 12px;
+        }
+
+        /* ===== CLAIM PREVIEW (read-only view of structured data) ===== */
+        .claim-preview {
+            margin-top: 4px;
+        }
+
+        .claim-preview-section {
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 1px solid #edf2f7;
+        }
+
+        .claim-preview-section:first-child {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
+        }
+
+        .claim-preview-section h3 {
+            margin-bottom: 12px;
+            color: #4a5568;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            font-weight: 700;
+        }
+
+        .claim-preview-grid {
+            display: grid;
+            grid-template-columns: minmax(140px, 200px) 1fr;
+            gap: 10px 24px;
+            align-items: start;
+        }
+
+        .claim-preview-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            padding-top: 3px;
+        }
+
+        .claim-preview-value {
+            font-size: 13.5px;
+            line-height: 1.6;
+            color: #1d1d1f;
+            white-space: pre-line;
+            word-break: break-word;
+        }
+
+        .claim-preview-empty {
+            color: #a0aec0;
+            font-size: 13.5px;
+            line-height: 1.6;
+            padding: 18px 0 4px 0;
+        }
+
+        .claim-edit-btn {
+            padding: 10px 16px;
+            border: 2px solid #dce2ee;
+            border-radius: 10px;
+            background: #fbfcff;
+            color: #5a67d8;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: border-color 0.18s ease, background 0.18s ease;
+        }
+
+        .claim-edit-btn:hover {
+            border-color: #667eea;
+            background: #eef0ff;
+        }
+
+        @media (max-width: 640px) {
+            .claim-preview-grid {
+                grid-template-columns: 1fr;
+                gap: 2px 0;
+            }
+
+            .claim-preview-label {
+                padding-top: 8px;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .claim-form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .claim-field.full {
+                grid-column: auto;
+            }
         }
 
         /* ===== ACTION THUMBNAILS (TO DO) ===== */
@@ -1117,18 +1368,106 @@
             <section class="report-card">
                 <div class="report-header">
                     <div class="card-title" style="margin-bottom: 0;">
-                        <i class="fas fa-file-alt" style="color: #667eea;"></i>
+                        <i class="fas fa-file-shield" style="color: #667eea;"></i>
                         <span x-text="$t('report.title')"></span>
+                        <span class="badge" x-text="$t('report.ai_draft')"></span>
                     </div>
-                    <select class="template-select" x-model="selectedTemplate">
-                        <option value="vehicle" x-text="$t('report.template_vehicle')"></option>
-                        <option value="medical" x-text="$t('report.template_medical')"></option>
-                        <option value="fire" x-text="$t('report.template_fire')"></option>
-                        <option value="injury" x-text="$t('report.template_injury')"></option>
-                    </select>
+                    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                        <button class="claim-edit-btn" type="button" @click="toggleClaimEditMode()">
+                            <i class="fas" :class="claimEditMode ? 'fa-pen' : 'fa-pen'"></i>
+                            <span x-text="$t('report.edit_btn')"></span>
+                        </button>
+                        <select class="template-select" x-model="selectedTemplate">
+                            <option value="vehicle" x-text="$t('report.template_vehicle')"></option>
+                            <option value="medical" x-text="$t('report.template_medical')"></option>
+                            <option value="fire" x-text="$t('report.template_fire')"></option>
+                            <option value="injury" x-text="$t('report.template_injury')"></option>
+                        </select>
+                    </div>
                 </div>
 
-                <div class="report-content" id="reportContent" x-html="reportHtml"></div>
+                <p class="claim-builder-intro" x-text="$t('report.intro')"></p>
+
+                <!-- PREVIEW MODE (read-only structured data) -->
+                <div class="claim-preview" x-show="!claimEditMode">
+                    <div x-show="hasClaimData" x-transition>
+                        <template x-for="(section, sIdx) in claimFormSections" :key="'p'+sIdx">
+                            <div class="claim-preview-section">
+                                <h3 x-text="$t(section.titleKey)"></h3>
+                                <div class="claim-preview-grid">
+                                    <template x-for="field in section.fields" :key="'p'+field.id">
+                                        <template
+                                            x-if="claimForm[field.id] && claimForm[field.id].toString().trim() !== ''">
+                                            <div>
+                                                <div class="claim-preview-label" x-text="$t(field.labelKey)"></div>
+                                                <div class="claim-preview-value" x-text="claimForm[field.id]"></div>
+                                            </div>
+                                        </template>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div x-show="!hasClaimData" class="claim-preview-empty" x-text="$t('report.no_data')"></div>
+                </div>
+
+                <!-- EDIT MODE (structured, editable form) -->
+                <div id="claimForm" x-show="claimEditMode && claimFormSections.length > 0" x-transition>
+                    <template x-for="(section, sIdx) in claimFormSections" :key="'e'+sIdx">
+                        <div class="claim-form-section">
+                            <h3 x-text="$t(section.titleKey)"></h3>
+                            <div class="claim-form-grid">
+                                <template x-for="field in section.fields" :key="'e'+field.id">
+                                    <div class="claim-field" :class="{ 'full': field.full }">
+                                        <label :for="field.id" x-text="$t(field.labelKey)"></label>
+                                        <textarea x-show="field.full" :id="field.id" x-model="claimForm[field.id]"
+                                            :class="{ 'claim-invalid': isClaimFieldMissing(field.id) }"
+                                            @input="onClaimFieldInput(field.id, $event.target.value)"></textarea>
+                                        <input x-show="!field.full" type="text" :id="field.id"
+                                            x-model="claimForm[field.id]"
+                                            :class="{ 'claim-invalid': isClaimFieldMissing(field.id) }"
+                                            @input="onClaimFieldInput(field.id, $event.target.value)">
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <p x-show="claimEditMode && claimFormSections.length === 0" class="claim-builder-intro"
+                    x-text="$t('report.no_transcript')"></p>
+
+                <div class="claim-action-row" x-show="claimEditMode">
+                    <button class="claim-btn primary" type="button" @click="saveClaimForm()">
+                        <i class="fas fa-check"></i>
+                        <span x-text="$t('report.save_btn')"></span>
+                    </button>
+                    <button class="claim-btn secondary" type="button" @click="cancelClaimEdit()">
+                        <span x-text="$t('report.cancel_btn')"></span>
+                    </button>
+                </div>
+
+                <div class="claim-missing" x-show="missingClaimFields.length > 0">
+                    <strong x-text="$t('report.missing_title')"></strong>
+                    <ul>
+                        <template x-for="m in missingClaimFields" :key="m">
+                            <li x-text="m"></li>
+                        </template>
+                    </ul>
+                </div>
+
+                <div class="claim-action-row">
+                    <button class="claim-btn primary" type="button" @click="downloadClaimPdf()"
+                        :disabled="claimPdfBusy">
+                        <i class="fas fa-file-pdf"></i>
+                        <span x-text="$t('report.download_pdf')"></span>
+                    </button>
+                    <button class="claim-btn secondary" type="button" @click="shareClaimPdf()" :disabled="claimPdfBusy">
+                        <i class="fas fa-share-nodes"></i>
+                        <span x-text="$t('report.share_pdf')"></span>
+                    </button>
+                    <span class="claim-generation-status" x-text="claimGenerationStatus"></span>
+                </div>
 
                 <!-- ACTION TO DO (trong cùng card với Report) -->
                 <div class="action-section-title">
@@ -1267,7 +1606,9 @@
                 audio: { no_selection: 'Chưa chọn bản ghi', select_prompt: 'Chọn một bản ghi âm để phát' },
                 image: { alt: 'Ảnh hiện trường' },
                 report: {
-                    title: 'Báo cáo giám định',
+                    title: 'Dự thảo hồ sơ bồi thường',
+                    ai_draft: 'AI DRAFT',
+                    intro: 'Thông tin được trích xuất từ bản chép lời và có thể chỉnh sửa. Các trường còn thiếu phải được đối chiếu với giấy chứng nhận bảo hiểm, giấy tờ xe, ảnh hiện trường và biên bản liên quan trước khi ký.',
                     template_vehicle: '🚗 Giám định tai nạn xe ô tô',
                     template_medical: '🏥 Đơn bệnh / Giám định y tế',
                     template_fire: '🔥 Giám định hỏa hoạn, bão lũ',
@@ -1276,8 +1617,47 @@
                     auto: 'TỰ ĐỘNG', no_actions: 'Chưa có hành động đề xuất.',
                     current: 'Báo cáo hiện tại', report_date: 'Báo cáo {date}',
                     no_transcript: 'Chưa có transcript cho bản ghi này.',
-                    plate: 'Biển số:', location: 'Địa điểm:', damage: 'Thiệt hại:',
-                    estimate: 'Ước tính:', diagnosis: 'Chẩn đoán:', patient: 'Bệnh nhân:', quality: 'Chất lượng:',
+                    no_data: 'Chưa có dữ liệu cấu trúc. Nhấn "Sửa" để nhập thủ công hoặc ghi âm để trích xuất tự động.',
+                    edit_btn: 'Sửa',
+                    preview_btn: 'Xong',
+                    save_btn: 'Lưu',
+                    cancel_btn: 'Hủy',
+                    missing_title: 'Các trường còn thiếu cần đối chiếu:',
+                    download_pdf: 'Tải PDF',
+                    share_pdf: 'Gửi / Chia sẻ PDF',
+                    generating: 'Đang tạo PDF…',
+                    pdf_ready: 'PDF đã sẵn sàng',
+                    pdf_error: 'Lỗi PDF',
+                    sharing: 'Đang gửi…',
+                    shared: 'Đã gửi',
+                    share_error: 'Lỗi gửi',
+                    section_insured: 'Hồ sơ và người được bảo hiểm',
+                    section_vehicle: 'Xe và người điều khiển',
+                    section_accident: 'Tai nạn và thiệt hại',
+                    f_claim_reference: 'Mã hồ sơ',
+                    f_adjuster_name: 'Giám định viên',
+                    f_insured_name: 'Chủ xe / Người được bảo hiểm',
+                    f_insured_phone: 'Điện thoại',
+                    f_insured_email: 'Email',
+                    f_policy_number: 'Số đơn / GCN bảo hiểm',
+                    f_insured_address: 'Địa chỉ liên hệ',
+                    f_vehicle_make_model: 'Nhãn hiệu / Model',
+                    f_vehicle_plate: 'Biển số xe',
+                    f_vehicle_vin: 'Số khung (VIN)',
+                    f_driver_name: 'Người điều khiển',
+                    f_driver_phone: 'Điện thoại lái xe',
+                    f_driver_license: 'Số GPLX',
+                    f_accident_time: 'Thời gian xảy ra',
+                    f_accident_location: 'Địa điểm',
+                    f_accident_description: 'Diễn biến tai nạn',
+                    f_accident_cause: 'Nguyên nhân sơ bộ',
+                    f_police_agency: 'Cơ quan Công an',
+                    f_estimated_amount: 'Ước tính thiệt hại',
+                    f_vehicle_damage: 'Thiệt hại xe (mỗi hạng mục một dòng)',
+                    f_third_party_damage: 'Thiệt hại bên thứ ba',
+                    f_injuries: 'Thiệt hại về người',
+                    f_repair_recommendation: 'Phương án khắc phục / sửa chữa',
+                    f_immediate_actions: 'Hành động đã thực hiện / cần theo dõi (mỗi mục một dòng)',
                 },
                 recordings: { title: 'Bản ghi âm trong vụ này', empty: 'Chưa có bản ghi âm nào trong vụ này.' },
                 actions_done: {
@@ -1301,7 +1681,9 @@
                 audio: { no_selection: 'No recording selected', select_prompt: 'Select a recording to play' },
                 image: { alt: 'Field image' },
                 report: {
-                    title: 'Assessment Report',
+                    title: 'Claim File Draft',
+                    ai_draft: 'AI DRAFT',
+                    intro: 'Information is extracted from the transcript and can be edited. Missing fields must be cross-checked against the insurance certificate, vehicle documents, field photos and related records before signing.',
                     template_vehicle: '🚗 Vehicle Accident Assessment',
                     template_medical: '🏥 Medical Assessment',
                     template_fire: '🔥 Fire / Storm Assessment',
@@ -1310,8 +1692,47 @@
                     auto: 'AUTO', no_actions: 'No suggested actions.',
                     current: 'Current report', report_date: 'Report {date}',
                     no_transcript: 'No transcript for this recording.',
-                    plate: 'Plate:', location: 'Location:', damage: 'Damage:',
-                    estimate: 'Estimate:', diagnosis: 'Diagnosis:', patient: 'Patient:', quality: 'Quality:',
+                    no_data: 'No structured data yet. Click "Edit" to enter manually, or record audio to extract automatically.',
+                    edit_btn: 'Edit',
+                    preview_btn: 'Done',
+                    save_btn: 'Save',
+                    cancel_btn: 'Cancel',
+                    missing_title: 'Missing fields to cross-check:',
+                    download_pdf: 'Download PDF',
+                    share_pdf: 'Send / Share PDF',
+                    generating: 'Generating PDF…',
+                    pdf_ready: 'PDF ready',
+                    pdf_error: 'PDF error',
+                    sharing: 'Sharing…',
+                    shared: 'Shared',
+                    share_error: 'Share error',
+                    section_insured: 'File and insured',
+                    section_vehicle: 'Vehicle and driver',
+                    section_accident: 'Accident and damage',
+                    f_claim_reference: 'Reference',
+                    f_adjuster_name: 'Adjuster',
+                    f_insured_name: 'Insured',
+                    f_insured_phone: 'Phone',
+                    f_insured_email: 'Email',
+                    f_policy_number: 'Policy / Certificate No.',
+                    f_insured_address: 'Contact address',
+                    f_vehicle_make_model: 'Make / Model',
+                    f_vehicle_plate: 'Plate',
+                    f_vehicle_vin: 'VIN',
+                    f_driver_name: 'Driver',
+                    f_driver_phone: 'Driver phone',
+                    f_driver_license: 'License No.',
+                    f_accident_time: 'Time of accident',
+                    f_accident_location: 'Location',
+                    f_accident_description: 'Accident description',
+                    f_accident_cause: 'Preliminary cause',
+                    f_police_agency: 'Police agency',
+                    f_estimated_amount: 'Estimated damage',
+                    f_vehicle_damage: 'Vehicle damage (one item per line)',
+                    f_third_party_damage: 'Third-party damage',
+                    f_injuries: 'Personal injuries',
+                    f_repair_recommendation: 'Repair / mitigation plan',
+                    f_immediate_actions: 'Actions done / to follow up (one item per line)',
                 },
                 recordings: { title: 'Recordings in this case', empty: 'No recordings in this case.' },
                 actions_done: {
@@ -1359,27 +1780,74 @@
                 selectedAnnotation: null,
                 selectedTemplate: 'vehicle',
                 activeQuickAccess: 'current',
+                claimForm: {},
+                claimFormBound: null,
+                claimPdfBusy: false,
+                claimGenerationStatus: '',
+                claimEditMode: false,
+                claimFormSnapshot: null,
                 sampleTemplates: {
-                    '17/07': `<h3>BÁO CÁO GIÁM ĐỊNH TAI NẠN XE Ô TÔ</h3>
-                <p><strong>Thời gian:</strong> 14:32 ngày 18/07/2026 &nbsp;|&nbsp; <strong>Địa điểm:</strong> Ngã tư Nguyễn Văn Linh - Hoàng Diệu, TP.HCM</p>
-                <p><strong>Phương tiện:</strong> Xe <strong>Mazda CX-5</strong>, biển số <strong>51H-123.45</strong>, chủ xe: anh Hùng</p>
-                <p><strong>Thiệt hại:</strong> <strong>Vỡ đèn pha</strong> bên phải, <strong>móp cản trước</strong> 30cm, <strong>rỉ dầu carter</strong>, <strong>trầy xước nắp capô</strong> 40cm.</p>
-                <p><strong>Ước tính:</strong> <strong>28.500.000 VNĐ</strong></p>`,
-                    '16/07': `<h3>ĐƠN BỆNH / GIÁM ĐỊNH Y TẾ</h3>
-                <p><strong>Bệnh nhân:</strong> Chị Lan, CCCD <strong>079-185-xxx-xxx</strong>, mã hồ sơ <strong>BA-987654</strong> (BV Chợ Rẫy)</p>
-                <p><strong>Chẩn đoán:</strong> <strong>Gãy kín 1/3 giữa xương cẳng chân phải</strong>, <strong>đứt dây chằng chéo trước</strong> độ 2</p>
-                <p><strong>Điều trị:</strong> <strong>Bó bột đùi bàn 6 tuần</strong>, thuốc <strong>Celecoxib 200mg</strong>, <strong>Alpha Choay</strong></p>
-                <p><strong>Tỷ lệ thương tật tạm tính:</strong> <strong>22%</strong></p>`,
-                    '15/07': `<h3>BÁO CÁO GIÁM ĐỊNH HỎA HOẠN / BÃO LŨ</h3>
-                <p><strong>Địa chỉ:</strong> <strong>Số 15 Nguyễn Kiệm, P.3, Gò Vấp</strong></p>
-                <p><strong>Nguyên nhân:</strong> <strong>Bão số 5</strong> gây <strong>tốc mái tôn 30m²</strong></p>
-                <p><strong>Thiệt hại:</strong> <strong>Chập cháy tivi Sony 65 inch</strong>, <strong>hư hỏng bộ bàn ghế gỗ</strong> do mưa tạt</p>
-                <p><strong>Ước tính:</strong> <strong>45.000.000 VNĐ</strong></p>`,
-                    '14/07': `<h3>BIÊN BẢN GIÁM ĐỊNH THƯƠNG TẬT</h3>
-                <p><strong>Nạn nhân:</strong> Anh Tuấn, tai nạn tại <strong>đường Cộng Hòa</strong></p>
-                <p><strong>Thương tích:</strong> <strong>Trầy xước tay</strong>, <strong>đau nhẹ đầu gối</strong></p>
-                <p><strong>Phương tiện:</strong> Xe <strong>Wave Alpha</strong> bị xe <strong>Toyota Vios 59A-987.65</strong> đâm từ phía sau</p>
-                <p><strong>Hư hỏng xe:</strong> <strong>Vỡ yếm xe</strong>, <strong>gãy gương chiếu hậu</strong> bên trái</p>`,
+                    '17/07': {
+                        values: {
+                            claimReference: 'CL-2026-0717-001',
+                            adjusterName: 'Nguyễn Văn A',
+                            insuredName: 'Anh Hùng',
+                            insuredPhone: '0901 234 567',
+                            vehicleMakeModel: 'Mazda CX-5',
+                            vehiclePlate: '51H-123.45',
+                            accidentTime: '14:32 ngày 18/07/2026',
+                            accidentLocation: 'Ngã tư Nguyễn Văn Linh - Hoàng Diệu, TP.HCM',
+                            accidentDescription: 'Xe ô tô Mazda CX-5 đi hướng Bắc - Nam, khi qua ngã tư bị xe từ hướng tay phải leo lên làn đường.',
+                            vehicleDamage: 'Vỡ đèn pha bên phải\nMóp cản trước 30cm\nRỉ dầu carter\nTrầy xước nắp capô 40cm',
+                            estimatedAmount: '28.500.000 VNĐ',
+                            repairRecommendation: 'Thay đèn pha phải, nắn cản trước, kiểm tra carter, sơn tu bổ nắp capô.',
+                            immediateActions: 'Chụp ảnh hiện trường\nLiên hệ garage\nBáo cáo công an',
+                        }
+                    },
+                    '16/07': {
+                        values: {
+                            claimReference: 'CL-2026-0716-002',
+                            adjusterName: 'Nguyễn Văn A',
+                            insuredName: 'Chị Lan',
+                            insuredPhone: '0902 345 678',
+                            policyNumber: 'BA-987654',
+                            accidentTime: '10:00 ngày 16/07/2026',
+                            accidentLocation: 'Bệnh viện Chợ Rẫy',
+                            accidentDescription: 'Bệnh nhân nhập viện do tai nạn giao thông gây gãy cẳng chân phải.',
+                            injuries: 'Gãy kín 1/3 giữa xương cẳng chân phải, đứt dây chằng chéo trước độ 2.',
+                            repairRecommendation: 'Bó bột đùi bàn 6 tuần, thuốc Celecoxib 200mg, Alpha Choay.',
+                            estimatedAmount: 'Tỷ lệ thương tật tạm tính 22%',
+                        }
+                    },
+                    '15/07': {
+                        values: {
+                            claimReference: 'CL-2026-0715-003',
+                            adjusterName: 'Nguyễn Văn A',
+                            insuredName: 'Anh Khoa',
+                            insuredAddress: 'Số 15 Nguyễn Kiệm, P.3, Gò Vấp',
+                            accidentTime: '16:48 ngày 15/07/2026',
+                            accidentLocation: 'Số 15 Nguyễn Kiệm, P.3, Gò Vấp',
+                            accidentCause: 'Bão số 5 gây tốc mái tôn 30m², mưa tạt gây chập điện.',
+                            vehicleDamage: 'Chập cháy tivi Sony 65 inch\nHư hỏng bộ bàn ghế gỗ do mưa tạt',
+                            estimatedAmount: '45.000.000 VNĐ',
+                            immediateActions: 'Cắt điện tổng\nBáo cơ quan điện lực\nDi chuyển tài sản',
+                        }
+                    },
+                    '14/07': {
+                        values: {
+                            claimReference: 'CL-2026-0714-004',
+                            adjusterName: 'Nguyễn Văn A',
+                            insuredName: 'Anh Tuấn',
+                            vehicleMakeModel: 'Wave Alpha',
+                            vehiclePlate: '—',
+                            accidentTime: '10:05 ngày 14/07/2026',
+                            accidentLocation: 'Đường Cộng Hòa',
+                            accidentDescription: 'Xe Wave Alpha bị xe Toyota Vios 59A-987.65 đâm từ phía sau.',
+                            injuries: 'Trầy xước tay, đau nhẹ đầu gối.',
+                            vehicleDamage: 'Vỡ yếm xe\nGãy gương chiếu hậu bên trái',
+                            immediateActions: 'Khám cấp cứu\nChụp ảnh thiệt hại\nLiên hệ bảo hiểm',
+                        }
+                    },
                 },
                 selectedActions: [],
                 completedActions: [],
@@ -1389,6 +1857,7 @@
                     await this.$nextTick();
                     this.initMQTT();
                     await this.loadIncidents();
+                    this.hydrateClaimForm();
                 },
 
                 initWaveSurfer(container) {
@@ -1491,6 +1960,7 @@
                     this.duration = 0;
                     this.isPlaying = false;
                     this.refreshReport();
+                    this.hydrateClaimForm();
                     this.loadWaveform(id);
                 },
 
@@ -1536,33 +2006,203 @@
                         return { text: a.text, action_type: a.action_type, target: a.target, done: false };
                     });
                 },
-                get reportHtml() {
+                claimFormSchema: [
+                    {
+                        titleKey: 'report.section_insured',
+                        fields: [
+                            { id: 'claimReference', labelKey: 'report.f_claim_reference' },
+                            { id: 'adjusterName', labelKey: 'report.f_adjuster_name' },
+                            { id: 'insuredName', labelKey: 'report.f_insured_name' },
+                            { id: 'insuredPhone', labelKey: 'report.f_insured_phone' },
+                            { id: 'insuredEmail', labelKey: 'report.f_insured_email' },
+                            { id: 'policyNumber', labelKey: 'report.f_policy_number' },
+                            { id: 'insuredAddress', labelKey: 'report.f_insured_address', full: true },
+                        ]
+                    },
+                    {
+                        titleKey: 'report.section_vehicle',
+                        fields: [
+                            { id: 'vehicleMakeModel', labelKey: 'report.f_vehicle_make_model' },
+                            { id: 'vehiclePlate', labelKey: 'report.f_vehicle_plate' },
+                            { id: 'vehicleVin', labelKey: 'report.f_vehicle_vin' },
+                            { id: 'driverName', labelKey: 'report.f_driver_name' },
+                            { id: 'driverPhone', labelKey: 'report.f_driver_phone' },
+                            { id: 'driverLicense', labelKey: 'report.f_driver_license' },
+                        ]
+                    },
+                    {
+                        titleKey: 'report.section_accident',
+                        fields: [
+                            { id: 'accidentTime', labelKey: 'report.f_accident_time' },
+                            { id: 'accidentLocation', labelKey: 'report.f_accident_location' },
+                            { id: 'accidentDescription', labelKey: 'report.f_accident_description', full: true },
+                            { id: 'accidentCause', labelKey: 'report.f_accident_cause', full: true },
+                            { id: 'policeAgency', labelKey: 'report.f_police_agency' },
+                            { id: 'estimatedAmount', labelKey: 'report.f_estimated_amount' },
+                            { id: 'vehicleDamage', labelKey: 'report.f_vehicle_damage', full: true },
+                            { id: 'thirdPartyDamage', labelKey: 'report.f_third_party_damage', full: true },
+                            { id: 'injuries', labelKey: 'report.f_injuries', full: true },
+                            { id: 'repairRecommendation', labelKey: 'report.f_repair_recommendation', full: true },
+                            { id: 'immediateActions', labelKey: 'report.f_immediate_actions', full: true },
+                        ]
+                    },
+                ],
+
+                get claimFormSections() {
+                    return this.claimFormSchema;
+                },
+
+                requiredClaimFieldIds: [
+                    'claimReference', 'adjusterName', 'insuredName', 'policyNumber',
+                    'vehicleMakeModel', 'vehiclePlate',
+                    'accidentTime', 'accidentLocation', 'accidentDescription', 'estimatedAmount',
+                ],
+
+                isClaimFieldMissing(id) {
+                    if (!this.requiredClaimFieldIds.includes(id)) return false;
+                    return (this.claimForm[id] || '').toString().trim() === '';
+                },
+
+                get missingClaimFields() {
                     const t = (k) => window.AlpineI18n ? AlpineI18n.t(k) : k;
+                    const missing = [];
+                    this.requiredClaimFieldIds.forEach(id => {
+                        if ((this.claimForm[id] || '').toString().trim() === '') {
+                            const field = this.claimFormSchema
+                                .flatMap(s => s.fields).find(f => f.id === id);
+                            if (field) missing.push(t(field.labelKey));
+                        }
+                    });
+                    return missing;
+                },
+
+                get hasClaimData() {
+                    return this.claimFormSchema
+                        .flatMap(s => s.fields)
+                        .some(f => (this.claimForm[f.id] || '').toString().trim() !== '');
+                },
+
+                toggleClaimEditMode() {
+                    if (!this.claimEditMode) this.claimFormSnapshot = { ...this.claimForm };
+                    this.claimEditMode = !this.claimEditMode;
+                },
+
+                saveClaimForm() {
+                    this.claimFormSnapshot = { ...this.claimForm };
+                    this.claimEditMode = false;
+                },
+
+                cancelClaimEdit() {
+                    if (this.claimFormSnapshot) this.claimForm = { ...this.claimFormSnapshot };
+                    this.claimEditMode = false;
+                },
+
+                onClaimFieldInput(id, val) {
+                    this.claimForm[id] = val;
+                },
+
+                currentClaimSourceValues() {
                     if (this.activeQuickAccess !== 'current' && this.sampleTemplates[this.activeQuickAccess]) {
-                        return this.sampleTemplates[this.activeQuickAccess];
+                        return this.sampleTemplates[this.activeQuickAccess].values || {};
                     }
                     const rec = this.recordings.find(r => r.id === this.selectedRecordingId);
-                    if (!rec || !rec.transcript) {
-                        return `<p style="color: #a0aec0;">${t('report.no_transcript')}</p>`;
-                    }
+                    if (!rec || !rec.transcript) return {};
                     const s = rec.transcript.structured || {};
                     const txt = rec.transcript.raw_text || '';
-                    const parts = [];
-                    if (s.vehicle_plate) parts.push(`<p><strong>${t('report.plate')}</strong> ${s.vehicle_plate}</p>`);
-                    if (s.location) parts.push(`<p><strong>${t('report.location')}</strong> ${s.location}</p>`);
-                    if (s.damage_description) parts.push(`<p><strong>${t('report.damage')}</strong> ${s.damage_description}</p>`);
-                    if (s.estimate_amount) parts.push(`<p><strong>${t('report.estimate')}</strong> ${s.estimate_amount}</p>`);
-                    if (s.diagnosis) parts.push(`<p><strong>${t('report.diagnosis')}</strong> ${s.diagnosis}</p>`);
-                    if (s.patient_name) parts.push(`<p><strong>${t('report.patient')}</strong> ${s.patient_name}</p>`);
-                    if (parts.length === 0) parts.push(`<p>${txt}</p>`);
-                    if (rec.transcript.quality_score !== undefined) {
-                        parts.push(`<p><strong>${t('report.quality')}</strong> ${rec.transcript.quality_score}/10</p>`);
+                    const values = {};
+                    if (s.vehicle_plate) values.vehiclePlate = s.vehicle_plate;
+                    if (s.location) values.accidentLocation = s.location;
+                    if (s.damage_description) values.vehicleDamage = s.damage_description;
+                    if (s.estimate_amount) values.estimatedAmount = s.estimate_amount;
+                    if (s.diagnosis) values.injuries = s.diagnosis;
+                    if (s.patient_name) values.insuredName = s.patient_name;
+                    if (txt && Object.keys(values).length === 0) values.accidentDescription = txt;
+                    return values;
+                },
+
+                hydrateClaimForm() {
+                    const src = this.currentClaimSourceValues();
+                    const next = {};
+                    this.claimFormSchema.forEach(section => {
+                        section.fields.forEach(f => {
+                            next[f.id] = src[f.id] != null ? src[f.id] : '';
+                        });
+                    });
+                    this.claimForm = next;
+                    this.claimFormBound = this.activeQuickAccess + ':' + this.selectedRecordingId;
+                    this.claimGenerationStatus = '';
+                },
+
+                async downloadClaimPdf() {
+                    this.claimPdfBusy = true;
+                    this.claimGenerationStatus = window.AlpineI18n
+                        ? AlpineI18n.t('report.generating') : 'Generating…';
+                    try {
+                        const payload = this.buildClaimPayload();
+                        const resp = await fetch('/api/claim/pdf', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload),
+                        });
+                        if (!resp.ok) throw new Error('PDF request failed: ' + resp.status);
+                        const blob = await resp.blob();
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `claim-${this.claimForm.claimReference || 'draft'}.pdf`;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        URL.revokeObjectURL(url);
+                        this.claimGenerationStatus = window.AlpineI18n
+                            ? AlpineI18n.t('report.pdf_ready') : 'PDF ready';
+                    } catch (e) {
+                        console.error('downloadClaimPdf failed:', e);
+                        this.claimGenerationStatus = (window.AlpineI18n
+                            ? AlpineI18n.t('report.pdf_error') : 'PDF error') + ': ' + e.message;
+                    } finally {
+                        this.claimPdfBusy = false;
                     }
-                    return parts.join('');
+                },
+
+                async shareClaimPdf() {
+                    this.claimPdfBusy = true;
+                    this.claimGenerationStatus = window.AlpineI18n
+                        ? AlpineI18n.t('report.sharing') : 'Sharing…';
+                    try {
+                        const payload = this.buildClaimPayload();
+                        const resp = await fetch('/api/claim/share', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload),
+                        });
+                        if (!resp.ok) throw new Error('Share request failed: ' + resp.status);
+                        const data = await resp.json().catch(() => ({}));
+                        this.claimGenerationStatus = (window.AlpineI18n
+                            ? AlpineI18n.t('report.shared') : 'Shared')
+                            + (data && data.recipient ? ' → ' + data.recipient : '');
+                    } catch (e) {
+                        console.error('shareClaimPdf failed:', e);
+                        this.claimGenerationStatus = (window.AlpineI18n
+                            ? AlpineI18n.t('report.share_error') : 'Share error') + ': ' + e.message;
+                    } finally {
+                        this.claimPdfBusy = false;
+                    }
+                },
+
+                buildClaimPayload() {
+                    return {
+                        template: this.selectedTemplate,
+                        reference: this.activeQuickAccess,
+                        recording_id: this.selectedRecordingId,
+                        fields: { ...this.claimForm },
+                        missing: this.missingClaimFields,
+                    };
                 },
 
                 selectQuickAccess(key) {
                     this.activeQuickAccess = key;
+                    this.hydrateClaimForm();
                 },
                 annotationStyle(ann) {
                     return `left: ${(ann.x * 100).toFixed(2)}%; top: ${(ann.y * 100).toFixed(2)}%;`;
