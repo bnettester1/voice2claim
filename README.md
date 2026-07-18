@@ -58,10 +58,10 @@
 
 | Vai trò | Thành viên | Chuyên môn |
 |---------|-----------|------------|
-| 🧠 AI/ML Engineer | [Tên] | ASR, NLP, LLM |
-| 🎨 Frontend Developer | [Tên] | UI/UX, React/Vue |
-| ⚙️ Backend Developer | [Tên] | API, Database |
-| 📊 Data Engineer | [Tên] | Data Pipeline |
+| 🧠 AI/ML Engineer | [Tuấn Anh, Long](https://hub.aiforvietnam.org/t/bookworm) | ASR, NLP, LLM |
+| 🎨 Frontend Developer | [M. Stöcklein](https://hub.aiforvietnam.org/t/bookworm)| UI/UX, React/Vue |
+| ⚙️ Backend Developer | [Phương, Tuấn Anh](https://hub.aiforvietnam.org/t/bookworm) | API, Database |
+| 📊 Data Engineer, Documenting | [Tuân, Long](https://hub.aiforvietnam.org/t/bookworm) | Data Pipeline |
 
 ---
 
