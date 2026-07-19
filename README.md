@@ -1,4 +1,4 @@
-# Speech-to-Meaning Pilot — VALSEA Hackathon 2026
+# Voice2Claim — Speech-to-Meaning · VALSEA Hackathon 2026
 
 > **"Từ Giọng Nói Đến Hành Động"** — biến hội thoại tiếng Việt thật (code-switch
 > Việt–Anh, giọng vùng miền, nhiễu nền) thành **Action Form đúng chuẩn ngành +
@@ -21,6 +21,35 @@ Giọng nói ─► VALSEA ASR (batch + realtime, hint_text từ từ điển)
 Pilot chạy 2 vertical: 🛡️ **Bảo hiểm** (giám định tai nạn xe) và 🩺 **Y tế**
 (khám ngoại trú: nghiệp vụ chung + tiêu hóa, chấn thương chỉnh hình, tim mạch)
 — đổi bằng một nút switcher, cùng một engine.
+
+## 🎙️ Voice2Claim — nền tảng vận hành (E12)
+
+Từ pilot giọng nói, hệ đã nâng thành **mini CRM/ERP + workflow platform** cho
+công ty bảo hiểm — mở `http://localhost:8321/` là vào shell sidebar:
+
+- **Tổng quan** — KPI vận hành + **AI Decision Feed** (mọi quyết định của AI
+  Điều hành: định tuyến, chấm rủi ro kèm lý do, giao việc, autocall, email).
+- **CRM** — khách hàng 360 (hợp đồng, claim, tương tác, timeline) trên SQLite
+  `data/app.db` (tự migrate + seed khi khởi động; reset: `python scripts/init_db.py --reset`).
+- **Công việc** — hộp việc theo vai (CSR / thẩm định viên / giám đốc — đổi vai
+  góc dưới sidebar); hoàn tất việc là workflow tự chạy tiếp.
+- **Flows** — workflow lưu & version hoá trong DB, sơ đồ trực quan, editor JSON
+  + bảng chất lượng theo version (flywheel: ★ khách qua email, ★ nhân sự,
+  auto-metrics, Qwen judge async):
+  - 📄 **Mở hợp đồng**: intake (voice-prefill + ảnh xe) → AI thẩm định rule-based
+    → hợp đồng PDF → **ký điện tử qua email** → kích hoạt → **autocall** + mail.
+  - 🚗 **Claim tai nạn**: cuộc gọi E10 tự điền form → mở claim → thẩm định viên
+    đi hiện trường (upload ghi âm/ảnh) → **VALSEA bóc băng → biên bản PDF** →
+    giám đốc duyệt → chi trả/từ chối + autocall + mail.
+- **Kho tri thức** — upload tài liệu nghiệp vụ → Qwen bóc tách thành workflow
+  nháp → promote vào Flows (offline/async, decision 0012/0013 — không chạy
+  trên đường gọi).
+- AI ngoài cuộc gọi: `POST /api/wf/dispatch {"text": "xe tôi bị đâm…"}` — cùng
+  keyword router của tổng đài, trả về workflow được chọn + lý do khớp.
+
+Hồ sơ: [PLAN-E12-insurance-os.md](PLAN-E12-insurance-os.md) ·
+[decision 0013](docs/decisions/0013-platform-db-workflow-engine.md) ·
+[epic E12](docs/stories/epics/E12-insurance-os/).
 
 ## Tài liệu
 
@@ -54,7 +83,7 @@ uv pip install -r requirements-ml.txt --python .venv/bin/python # PyTorch layer 
 (FormScorer + gate gửi) · 🗄️ Core System Console (ticket + webhook log).
 **Replay chips** trong tab Live phát lại bản ghi thật không cần mạng/credits.
 
-## ☎️ Outbound Agent Call (E8) — AI gọi khách bổ sung hợp đồng
+## ☎️ Agent Call — E8 gọi ra bổ sung hợp đồng · E10 tổng đài gọi vào
 
 Trang **`/call`**: tổng đài viên AI **gọi ra**, hỏi các thông tin còn thiếu
 của hợp đồng bảo hiểm theo kịch bản trong pack `insurance_contract`, nghe
@@ -87,8 +116,19 @@ ngrok http 8321                      # hoặc: cloudflared tunnel --url http://l
 Lưu ý Twilio trial: chỉ gọi được số đã verify trong console, có câu thông báo
 trial ở đầu cuộc gọi; Twilio không bán số +84 — gọi đi VN tính cước quốc tế.
 Webhook được validate `X-Twilio-Signature`; số điện thoại mask trong log.
-Test offline: `.venv/bin/python scripts/test_telephony.py` (21 test: codec
-μ-law/resample, TwiML/chữ ký, agent state machine 3 kịch bản).
+Test offline: `.venv/bin/python scripts/test_telephony.py` (49 test: codec
+μ-law/resample, TwiML/chữ ký, agent state machine, parser field-aware,
+intent router + CRM lookup của E10).
+
+**Chiều gọi thật khuyến nghị: INBOUND (E10, decision 0011).** Trial outbound
+bắt người nghe bấm phím trong lúc câu thông báo trial phát — nhà mạng VN
+thường nuốt DTMF nên chiều gọi ra dễ tắc. Khách **gọi vào** số Twilio thì
+không cần keypress: trỏ VoiceUrl của số về
+`{PUBLIC_BASE_URL}/telephony/inbound` — bot tổng đài (pack
+`insurance_callcenter`) xác thực → tra hồ sơ → nhận yêu cầu → ticket + email
++ ghi âm. Tunnel đổi URL thì phải cập nhật **cả VoiceUrl** (không chỉ env).
+Trước demo: chạy `scripts/warm_tts.py` để prewarm giọng (câu tĩnh + filler +
+câu động của kho demo).
 
 ## Kiểm chứng & công cụ
 

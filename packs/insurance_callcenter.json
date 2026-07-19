@@ -13,7 +13,11 @@
             "label": "Họ tên khách hàng",
             "type": "text",
             "required": true,
-            "synonyms": ["tên", "họ tên", "tên đầy đủ"]
+            "synonyms": [
+              "tên",
+              "họ tên",
+              "tên đầy đủ"
+            ]
           },
           {
             "name": "cccd_cuoi",
@@ -21,7 +25,11 @@
             "type": "text",
             "required": true,
             "itn": true,
-            "synonyms": ["căn cước", "số cuối căn cước", "CMND"]
+            "synonyms": [
+              "căn cước",
+              "số cuối căn cước",
+              "CMND"
+            ]
           }
         ]
       },
@@ -33,35 +41,55 @@
             "label": "Yêu cầu của khách",
             "type": "textarea",
             "required": true,
-            "synonyms": ["cần hỗ trợ", "vấn đề"]
+            "synonyms": [
+              "cần hỗ trợ",
+              "vấn đề"
+            ]
           },
           {
             "name": "vi_tri",
             "label": "Vị trí sự cố",
             "type": "text",
             "required": false,
-            "synonyms": ["địa điểm", "hiện trường", "nơi xảy ra", "ở đâu"]
+            "synonyms": [
+              "địa điểm",
+              "hiện trường",
+              "nơi xảy ra",
+              "ở đâu"
+            ]
           },
           {
             "name": "thoi_diem",
             "label": "Thời điểm sự cố",
             "type": "text",
             "required": false,
-            "synonyms": ["lúc", "khi nào", "hồi nào"]
+            "synonyms": [
+              "lúc",
+              "khi nào",
+              "hồi nào"
+            ]
           },
           {
             "name": "mo_ta_thiet_hai",
             "label": "Mô tả thiệt hại",
             "type": "textarea",
             "required": false,
-            "synonyms": ["hư hỏng", "thiệt hại", "hỏng chỗ nào"]
+            "synonyms": [
+              "hư hỏng",
+              "thiệt hại",
+              "hỏng chỗ nào"
+            ]
           },
           {
             "name": "thuong_tich",
             "label": "Thương tích (nếu có)",
             "type": "text",
             "required": false,
-            "synonyms": ["bị thương", "sức khỏe", "có ai bị sao không"]
+            "synonyms": [
+              "bị thương",
+              "sức khỏe",
+              "có ai bị sao không"
+            ]
           }
         ]
       }
@@ -71,9 +99,15 @@
     {
       "id": "SUBMIT_CALLCENTER_CLAIM",
       "label": "Lập hồ sơ sự cố + báo nhân sự xử lý",
-      "triggers": ["gửi hồ sơ tổng đài", "lập hồ sơ sự cố"],
+      "triggers": [
+        "gửi hồ sơ tổng đài",
+        "lập hồ sơ sự cố"
+      ],
       "confirm": "click",
-      "required_fields": ["ho_ten", "yeu_cau"],
+      "required_fields": [
+        "ho_ten",
+        "yeu_cau"
+      ],
       "tts_confirm": "",
       "template": "callcenter_intake"
     }
@@ -107,9 +141,19 @@
         "id": "claim_status",
         "label": "Tra cứu tiến độ hồ sơ",
         "keywords": [
-          "đã gửi hợp đồng", "chưa thấy phản hồi", "chưa phản hồi", "đến đâu rồi",
-          "bao giờ xong", "trạng thái hồ sơ", "tiến độ", "sao chưa", "thanh toán cho anh",
-          "chưa được giải quyết", "kiểm tra hồ sơ", "hồ sơ của anh", "hồ sơ của chị"
+          "đã gửi hợp đồng",
+          "chưa thấy phản hồi",
+          "chưa phản hồi",
+          "đến đâu rồi",
+          "bao giờ xong",
+          "trạng thái hồ sơ",
+          "tiến độ",
+          "sao chưa",
+          "thanh toán cho anh",
+          "chưa được giải quyết",
+          "kiểm tra hồ sơ",
+          "hồ sơ của anh",
+          "hồ sơ của chị"
         ],
         "empathy": "",
         "steps": [],
@@ -121,9 +165,21 @@
         "id": "new_claim",
         "label": "Tiếp nhận sự cố mới",
         "keywords": [
-          "bị đâm xe", "đâm xe", "tai nạn", "va chạm", "bị thương", "ngập nước",
-          "mất cắp", "bị trộm", "sự cố", "bồi thường", "claim", "hư hỏng",
-          "cháy", "giải quyết hợp đồng cho anh", "đến giải quyết"
+          "bị đâm xe",
+          "đâm xe",
+          "tai nạn",
+          "va chạm",
+          "bị thương",
+          "ngập nước",
+          "mất cắp",
+          "bị trộm",
+          "sự cố",
+          "bồi thường",
+          "claim",
+          "hư hỏng",
+          "cháy",
+          "giải quyết hợp đồng cho anh",
+          "đến giải quyết"
         ],
         "empathy": "Ui em rất lấy làm tiếc ạ, hi vọng anh chị không bị ảnh hưởng nhiều đến sức khoẻ. Anh chị cho em xin thêm một vài thông tin để lập hồ sơ ngay ạ.",
         "steps": [
@@ -154,15 +210,30 @@
         ],
         "reply_tpl": "",
         "confirm_tpl": "Em xác nhận lại thông tin cuối ạ: {summary}. Em sẽ gửi thông báo đến bộ phận giám định xử lý ngay và email xác nhận cho mình ạ.",
-        "action": "SUBMIT_CALLCENTER_CLAIM"
+        "action": "SUBMIT_CALLCENTER_CLAIM",
+        "workflow": "wf_claim"
       }
     ]
   },
   "hint_terms": [
-    "căn cước công dân", "sáu số cuối", "hợp đồng bảo hiểm", "bồi thường",
-    "giám định", "hồ sơ", "tai nạn", "va chạm", "đâm xe", "ngập nước",
-    "mất cắp", "thanh toán", "bảo hiểm nhân thọ", "trạng thái hồ sơ",
-    "Nguyễn Tiến Tuấn", "Trần Thị Mai", "đường Cộng Hòa", "quận Gò Vấp"
+    "căn cước công dân",
+    "sáu số cuối",
+    "hợp đồng bảo hiểm",
+    "bồi thường",
+    "giám định",
+    "hồ sơ",
+    "tai nạn",
+    "va chạm",
+    "đâm xe",
+    "ngập nước",
+    "mất cắp",
+    "thanh toán",
+    "bảo hiểm nhân thọ",
+    "trạng thái hồ sơ",
+    "Nguyễn Tiến Tuấn",
+    "Trần Thị Mai",
+    "đường Cộng Hòa",
+    "quận Gò Vấp"
   ],
   "itn_rules": [],
   "few_shots": [],
@@ -170,7 +241,11 @@
   "scoring": {
     "submit_threshold": 60,
     "validators": [
-      { "field": "cccd_cuoi", "rule": "regex", "value": "^\\d{6,9}$" }
+      {
+        "field": "cccd_cuoi",
+        "rule": "regex",
+        "value": "^\\d{6,9}$"
+      }
     ]
   }
 }

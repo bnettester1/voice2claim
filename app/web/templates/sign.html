@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ký hợp đồng điện tử — Voice2Claim</title>
+<link rel="stylesheet" href="/static/css/app.css?v={{ asset_ver }}">
+<link rel="stylesheet" href="/static/css/platform.css?v={{ asset_ver }}">
+<style>
+  .center{min-height:100vh;display:grid;place-items:center;padding:20px}
+  .card{width:min(560px,94vw);background:var(--panel);border:1px solid var(--line);
+    border-radius:16px;padding:26px 28px;
+    transition:opacity 240ms var(--ease-out),transform 240ms var(--ease-out)}
+  @starting-style{.card{opacity:0;transform:translateY(10px) scale(.98)}}
+  .card h1{font-size:19px;margin-bottom:4px}
+  .card .sub{color:var(--dim);font-size:12.5px;margin-bottom:16px}
+  .sig-ok{font-size:44px;text-align:center;padding:14px 0 6px}
+  @media(prefers-reduced-motion:reduce){
+    .card{transition:opacity 200ms ease;transform:none;
+      @starting-style{opacity:0;transform:none}}
+  }
+</style>
+</head>
+<body>
+<div class="center">
+<div class="card" x-data="signApp('{{ token }}', '{{ state }}')" x-cloak>
+  <div class="logo" style="margin-bottom:14px">
+    <div class="dot">🎙️</div>
+    <div>Voice2Claim<small>Ký điện tử — mức demo, dùng một lần</small></div>
+  </div>
+
+  {% if state == 'invalid' or not summary %}
+  <h1>Link không hợp lệ</h1>
+  <p class="sub">Link ký này không tồn tại hoặc hồ sơ đã đóng.</p>
+  {% else %}
+  <template x-if="phase==='ready'">
+    <div>
+      <h1>✍️ Ký hợp đồng bảo hiểm</h1>
+      <p class="sub">Anh/chị xem lại thông tin, mở bản PDF, rồi gõ họ tên để xác nhận ký.</p>
+      <div class="contract-rows" style="margin-bottom:14px">
+        <div class="contract-row"><span class="lb">Bên mua</span><span class="val">{{ summary.name }}</span></div>
+        <div class="contract-row"><span class="lb">Sản phẩm</span><span class="val">{{ summary.product }}</span></div>
+        <div class="contract-row"><span class="lb">Số GCN</span><span class="val">{{ summary.policy_no }}</span></div>
+        {% if summary.xe %}<div class="contract-row"><span class="lb">Xe</span><span class="val">{{ summary.xe }} {{ summary.bien_so }}</span></div>{% endif %}
+      </div>
+      {% if summary.pdf_url %}
+      <p style="margin-bottom:14px"><a class="btn" href="{{ summary.pdf_url }}" target="_blank">📄 Mở bản hợp đồng PDF</a></p>
+      {% endif %}
+      <label class="fin">Gõ họ tên để ký
+        <input x-model="name" placeholder="{{ summary.name }}" @keydown.enter="sign()"></label>
+      <button class="btn big send" style="width:100%;margin-top:12px" @click="sign()"
+              :disabled="busy || !name.trim()">✍️ KÝ XÁC NHẬN HỢP ĐỒNG</button>
+      <p class="sub" style="margin-top:10px" x-show="error" x-text="error" :style="'color:var(--danger)'"></p>
+    </div>
+  </template>
+  <template x-if="phase==='signed'">
+    <div>
+      <div class="sig-ok">🎉</div>
+      <h1 style="text-align:center">Đã ký thành công!</h1>
+      <p class="sub" style="text-align:center">Hợp đồng có hiệu lực ngay. Email xác nhận
+        (kèm PDF) sẽ đến hộp thư của anh/chị trong giây lát.</p>
+    </div>
+  </template>
+  {% endif %}
+</div>
+</div>
+<style>.contract-row{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:13px}.contract-row .lb{color:var(--dim)}.contract-row .val{font-weight:700;text-align:right}</style>
+<script>
+function signApp(token, state){
+  return {
+    phase: state === 'signed' ? 'signed' : 'ready',
+    name: '', busy: false, error: '',
+    async sign(){
+      this.busy = true; this.error = '';
+      try{
+        const r = await fetch('/api/wf/sign/' + token, {
+          method: 'POST', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({signed_name: this.name.trim()})});
+        if(r.ok){ this.phase = 'signed'; }
+        else{ this.error = (await r.json()).error || 'Không ký được'; }
+      }catch{ this.error = 'Lỗi mạng — thử lại giúp anh/chị.'; }
+      this.busy = false;
+    },
+  };
+}
+</script>
+<script defer src="/static/js/vendor/alpine.min.js"></script>
+</body>
+</html>

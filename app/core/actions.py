@@ -32,6 +32,11 @@ _FONT_CANDIDATES = [
     ("/System/Library/Fonts/Supplemental/Arial Unicode.ttf", None),
     ("/System/Library/Fonts/Supplemental/Times New Roman.ttf",
      "/System/Library/Fonts/Supplemental/Times New Roman Bold.ttf"),
+    # Linux (server deploy — Ubuntu fonts-dejavu hỗ trợ tiếng Việt đủ)
+    ("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+     "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"),
+    ("/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf",
+     "/usr/share/fonts/truetype/noto/NotoSans-Bold.ttf"),
 ]
 
 PDF_TITLES = {
@@ -47,6 +52,8 @@ PDF_TITLES = {
     "follow_up": "PHIẾU HẸN TÁI KHÁM",
     "contract_update": "PHIẾU BỔ SUNG THÔNG TIN HỢP ĐỒNG BẢO HIỂM",
     "callcenter_intake": "PHIẾU TIẾP NHẬN YÊU CẦU QUA TỔNG ĐÀI TỰ ĐỘNG",
+    "contract_issue": "HỢP ĐỒNG BẢO HIỂM VẬT CHẤT XE (BẢN KÝ ĐIỆN TỬ)",  # E12
+    "claim_report": "BIÊN BẢN GIÁM ĐỊNH HIỆN TRƯỜNG (AI BÓC BĂNG)",      # E12
     "form_submission": "",  # dùng form.title của pack
 }
 

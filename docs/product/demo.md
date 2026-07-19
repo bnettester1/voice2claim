@@ -106,3 +106,36 @@ Kịch bản demo 60–90s (mode Replay — đã verify end-to-end 66s):
 
 Mode 🎧 Browser để giám khảo tự đóng vai khách (mic thật, VALSEA RTT thật).
 Mode ☎️ Twilio gọi số thật khi có creds + tunnel (runbook trong README).
+
+## 5. Màn phụ: Tổng đài INBOUND (E10) — khách gọi vào số thật
+
+Đường gọi thật khuyến nghị (decision 0011 — outbound trial tắc DTMF): khách
+**gọi vào +14787588373**, bot tổng đài (pack `insurance_callcenter`) tự chạy:
+xác thực tên + đuôi CCCD → tra hồ sơ (panel CRM hiện khớp) → nghe yêu cầu tự
+do → tra cứu tiến độ hoặc mở claim mới → xác nhận → ticket + PDF + 2 email +
+ghi âm nghe lại tại `/rec/{sid}`. **Đã chạy thật 18/07 tối.**
+
+Checklist trước màn này (bắt buộc, làm đúng thứ tự): mở tunnel → cập nhật
+VoiceUrl trên Twilio → chạy server (không `--reload`) → chạy
+`scripts/warm_tts.py` prewarm giọng; câu đệm filler che trễ synth câu động.
+
+## 6. Màn chính mới: Insurance OS (E12) — kịch bản 5 phút
+
+1. **Tổng quan** (`/`): chỉ KPI + Decision Feed — "mọi quyết định AI đều giải
+   thích được, ghi trong DB".
+2. **Claim từ cuộc gọi**: `/call` → Replay tổng đài → xong cuộc gọi mở
+   **CRM** cho thấy claim mới + tương tác; mở **Run** đang chờ thẩm định.
+3. **Hộp công việc**: vai Thẩm định viên → upload ghi âm hiện trường (file wav
+   bất kỳ) → hoàn tất → run tự chạy: VALSEA bóc băng → biên bản PDF → mail;
+   đổi vai Giám đốc → Duyệt (nhập số tiền) → **autocall đọc thông báo** +
+   email kết quả + claim `paid`.
+4. **Mở hợp đồng**: Flow Mở hợp đồng → intake (chọn ghi âm để voice-prefill,
+   tải ảnh xe) → run tự thẩm định → mở link ký từ email (hoặc nút demo) → ký
+   → hợp đồng ACTIVE + autocall chúc mừng.
+5. **Flywheel**: mở email → chấm ★; trang workflow cho thấy bảng chất lượng
+   theo version → sửa ngưỡng risk trong editor → lưu v mới → activate.
+6. **Kho tri thức**: bấm 🧪 trên `KB_tainanxe.txt` → Qwen dựng workflow nháp
+   12 node → Promote → xuất hiện trong danh sách Flows.
+
+Chốt màn: "Bảo hiểm chỉ là vertical đầu — platform tự động hoá workflow cho
+mọi doanh nghiệp: tri thức → quy trình → vận hành → tự cải tiến."

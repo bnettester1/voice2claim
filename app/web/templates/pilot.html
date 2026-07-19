@@ -1,15 +1,8 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Speech-to-Meaning Pilot — VALSEA</title>
-<link rel="stylesheet" href="/static/css/app.css">
-<script defer src="/static/js/app.js"></script>
-<script defer src="/static/js/vendor/alpine.min.js"></script>
-</head>
-<body x-data="s2m()" x-cloak>
-<div class="wrap">
+{% extends "layout.html" %}
+{% block title %}Demo Speech-to-Meaning — Voice2Claim{% endblock %}
+{% block page_js %}<script defer src="/static/js/app.js?v={{ asset_ver }}"></script>{% endblock %}
+{% block content %}
+<div class="wrap" x-data="s2m()" x-cloak>
 
   <!-- ================= HEADER ================= -->
   <header>
@@ -162,7 +155,7 @@
                   <template x-if="fired.includes(a.id)"><span>✅ FIRED</span></template>
                   <template x-if="armed[a.id] && !fired.includes(a.id)">
                     <span x-show="a.confirm==='click'">
-                      <button class="btn" style="border-color:var(--armed);color:var(--armed);background:#241f0c"
+                      <button class="btn" style="border-color:var(--warn-line);color:#b97e0b;background:var(--warn-bg)"
                               @click="fireAction(a.id)">⚡ ARMED — bấm để chạy</button>
                     </span>
                   </template>
@@ -268,7 +261,7 @@
                   @click="submitForm()">📤 GỬI FORM ĐI</button>
           <div class="sendnote" x-show="!submitted">Gửi đi sẽ: render PDF chuẩn ngành · tạo ticket · POST webhook · lưu audit + băng ghi âm · gửi mail khách & người xử lý (kèm PDF + link nghe băng)</div>
           <div class="sendnote" x-show="submitted" style="color:var(--ok)">
-            ✅ Đã gửi — <a :href="submitted?.pdf_url" target="_blank" style="color:#8ef0b9">📄 PDF</a> ·
+            ✅ Đã gửi — <a :href="submitted?.pdf_url" target="_blank" style="color:#178a55">📄 PDF</a> ·
             Ticket <span x-text="submitted?.ticket?.id"></span> ·
             duyệt trong <span x-text="submitted?.review_secs ?? reviewSecs"></span>s
           </div>
@@ -324,7 +317,6 @@
     </div>
   </section>
 
-  <p class="note">Pilot chạy thật: VALSEA transcribe + formatting + TTS · Groq extraction (+whisper đối chứng) · Domain Pack cắm-rút · FormScorer gate. Live Call (RTT streaming) đang xây ở P4.</p>
+  <p class="note">Pilot chạy thật: VALSEA transcribe + formatting + TTS · extraction local + NER PyTorch · Domain Pack cắm-rút · FormScorer gate · ticket bền vào DB Voice2Claim.</p>
 </div>
-</body>
-</html>
+{% endblock %}

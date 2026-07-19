@@ -118,6 +118,40 @@ def test_parser() -> None:
         ok(f"parse.{f}.{text[:18]}", got == want, f"got={got!r} want={want!r}")
 
 
+# ---------------------------------------------------------------- E10 flows
+def test_flows() -> None:
+    from app.telephony import parse_vi as P
+    from app.telephony.flow_agent import route_intent
+    pack = load_pack("insurance_callcenter")
+    intents = pack.call_flows.intents
+
+    r = route_intent(intents, "hôm qua anh mới gửi hợp đồng, sao chưa thấy phản hồi gì")
+    ok("router.status", r is not None and r.id == "claim_status",
+       str(r.id if r else None))
+    r = route_intent(intents, "anh bị đâm xe, em đến giải quyết bồi thường cho anh với")
+    ok("router.claim", r is not None and r.id == "new_claim",
+       str(r.id if r else None))
+    ok("router.none", route_intent(intents, "alo em nghe rõ không") is None)
+
+    ok("parse.ho_ten.hoa",
+       P.parse_person_name("Dạ anh tên là Nguyễn Tiến Tuấn ạ") == "Nguyễn Tiến Tuấn",
+       str(P.parse_person_name("Dạ anh tên là Nguyễn Tiến Tuấn ạ")))
+    ok("parse.ho_ten.thuong",
+       P.parse_person_name("tên tôi là phạm thị mai") == "Phạm Thị Mai",
+       str(P.parse_person_name("tên tôi là phạm thị mai")))
+    ok("parse.cccd_tail.chu",
+       P.parse_digits_tail("ba chín hai bốn chín tám hai ba") == "39249823",
+       str(P.parse_digits_tail("ba chín hai bốn chín tám hai ba")))
+    ok("parse.cccd_tail.so", P.parse_digits_tail("001234") == "001234")
+    ok("parse.cccd_tail.thieu", P.parse_digits_tail("một hai ba") is None)
+
+    from app.telephony import crm
+    cust = crm._local_lookup("Nguyễn Tiến Tuấn")
+    ok("crm.local_lookup", cust is not None and cust["id"] == "KH-0001")
+    ok("crm.verify", crm.verify_identity(cust, "001234") is True)
+    ok("crm.verify_sai", crm.verify_identity(cust, "999999") is False)
+
+
 # ---------------------------------------------------------------- agent
 class StubEngine:
     """Engine giả: collect trả giá trị theo hàng đợi mỗi field, không mạng."""
@@ -252,5 +286,6 @@ if __name__ == "__main__":
     test_codec()
     test_twilio()
     test_parser()
+    test_flows()
     test_agent()
     print(f"\nOK — {len(PASS)} test pass")

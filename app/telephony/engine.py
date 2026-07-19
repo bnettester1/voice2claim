@@ -90,6 +90,7 @@ class CallEngine:
         self.t0 = time.monotonic()
         self.done = asyncio.Event()
         self.result: dict = {}
+        self.direction = "out"                 # "in" = inbound (routes gán)
         self._tasks: list[asyncio.Task] = []
         try:
             from app.core.ml.vad import EndOfSpeechDetector
@@ -207,7 +208,8 @@ class CallEngine:
             if isinstance(msg, (bytes, bytearray)):
                 continue
             ev = json.loads(msg)
-            if ev.get("type") in ("session.ready", "session.started"):
+            if ev.get("type") in ("session.ready", "session.started",
+                                  "session.created"):
                 self.up_ready.set()
                 return
             if ev.get("type") == "error":
@@ -253,18 +255,36 @@ class CallEngine:
         self.agent.feed_final(text)
 
     # ---------------- agent ↔ thế giới ----------------
-    async def say(self, text: str) -> None:
+    async def _play_synth(self, text: str, synth_task=None) -> None:
         self.emit_state("speaking")
         self.emit({"type": "agent.say", "text": text})
         self.dialogue.append(("agent", text))
         if self.transport is None:
             return
         try:
-            data, kind = await tts.synth(text, self.transport.tts_target, self.client)
+            if synth_task is None:
+                data, kind, vendor = await tts.synth(
+                    text, self.transport.tts_target, self.client)
+            else:
+                data, kind, vendor = await synth_task
+            if vendor != "valsea":   # lệch giọng — hiện rõ để soi sau cuộc gọi
+                self.emit({"type": "status", "state": "degraded",
+                           "detail": f"câu dùng giọng dự phòng: {text[:40]}…"})
             await self.transport.play(data, kind, text)
         except Exception as exc:  # noqa: BLE001 — mất giọng vẫn giữ nhịp kịch bản
             self.emit_state("degraded", f"TTS lỗi: {str(exc)[:80]}")
             await asyncio.sleep(min(6.0, 0.5 + 0.055 * len(text)))
+
+    async def say(self, text: str, filler: str = "") -> None:
+        """filler: câu đệm ĐÃ CACHE phát ngay trong lúc synth `text` chạy nền —
+        che khoảng im lặng 5-8s của câu động (xác nhận/tra cứu) trên cuộc gọi."""
+        if filler and self.transport is not None:
+            synth_task = asyncio.create_task(
+                tts.synth(text, self.transport.tts_target, self.client))
+            await self._play_synth(filler)
+            await self._play_synth(text, synth_task=synth_task)
+        else:
+            await self._play_synth(text)
 
     def _dialogue_text(self) -> str:
         return "\n".join(
@@ -346,6 +366,12 @@ class CallEngine:
         except Exception:  # noqa: BLE001
             result = {}
         result.pop("yeu_cau", None)          # đã ghi nguyên văn ở trên
+        # không cho extraction nền ĐÈ giá trị identify/parse đã chắc hơn
+        for name in list(result):
+            cur = self.store.fields.get(name)
+            if cur is not None and not _empty(cur.value) and \
+                    float(result[name].get("confidence") or 0) <= cur.confidence:
+                result.pop(name)
         patch = self.store.merge(result)
         if patch:
             self.emit({"type": "state.patch", "rev": self.store.rev,
@@ -389,6 +415,11 @@ class CallEngine:
             return
         self.result["ticket"] = res["ticket"]
         self.emit({"type": "ticket", **res["ticket"], "pdf_url": res["pdf_url"]})
+        try:                                   # E12: bền hoá CRM (fire-and-forget)
+            from app.db import bridge
+            asyncio.create_task(bridge.after_flow_action(self, intent, res))
+        except Exception:  # noqa: BLE001
+            pass
         try:
             from app.core.mailer import send_ticket_emails
             cust_mail = self.customer_email or str((self.cust or {}).get("email") or "")
@@ -420,6 +451,11 @@ class CallEngine:
         self.result["hungup"] = hungup
         if self.recording_url:
             self.emit({"type": "recording", "url": self.recording_url})
+        try:                                   # E12: 1 row interactions/cuộc gọi
+            from app.db import bridge
+            asyncio.create_task(bridge.record_interaction(self))
+        except Exception:  # noqa: BLE001
+            pass
         self.emit_state("done", detail)
         if self.transport is not None:
             try:

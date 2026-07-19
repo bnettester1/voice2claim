@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+{% block title %}Run #{{ run_id }} — Voice2Claim{% endblock %}
+{% block page_js %}<script defer src="/static/js/wfviz.js?v={{ asset_ver }}"></script>{% endblock %}
+{% block content %}
+<div x-data="runApp({{ run_id }})" x-init="load()" x-cloak>
+  <div class="ptitle stag" style="--d:0">
+    <h1>▶️ Run #{{ run_id }}
+      <small x-text="(run?.def_name||'') + ' · v' + (run?.def_version||'?') + ' · kênh ' + (run?.channel||'')"></small></h1>
+    <div class="right">
+      <span class="stp" :class="'s-'+(run?.status||'')" x-text="stVi(run?.status)"></span>
+      <button class="btn" x-show="run?.status==='failed'" @click="retry()">↻ Chạy lại</button>
+      <a class="btn" :href="'/workflows/'+(run?.def_key||'')">⚙️ Workflow</a>
+    </div>
+  </div>
+
+  <div class="cols" style="grid-template-columns:minmax(0,8fr) minmax(300px,4fr)">
+    <div>
+      <div class="panel stag" style="--d:1">
+        <h3>🗺️ Tiến trình trên sơ đồ
+          <span class="right"><span class="chip" style="font-size:10px"
+            x-text="run?.status?.startsWith('waiting') ? 'đang chờ: '+run.current_node : 'node: '+(run?.current_node||'')"></span></span></h3>
+        <div class="pad"><div x-ref="viz"></div></div>
+      </div>
+
+      <div class="panel stag" style="--d:2" x-show="waitInfo()" x-cloak>
+        <h3>⏳ Đang chờ gì?</h3>
+        <div class="pad" style="font-size:13px" x-html="waitInfo()"></div>
+      </div>
+
+      <div class="panel stag" style="--d:3">
+        <h3>🧾 Nhật ký bước chạy</h3>
+        <div class="steplog">
+          <template x-for="s in (run?.steps||[])" :key="s.id">
+            <div>
+              <span class="dim" x-text="fmtTime(s.started_at)"></span>
+              <span :class="{ok: s.status==='completed', warn: s.status==='waiting', err: s.status==='failed'}"
+                    x-text="' ' + s.node_id + ' [' + s.status + ']'"></span>
+              <span class="dim" x-text="s.error ? ' — '+s.error : ''"></span>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel stag" style="--d:2">
+        <h3>🔗 Hồ sơ liên quan</h3>
+        <div class="mini">
+          <a class="mrow" x-show="run?.customer_id" :href="'/crm'" style="text-decoration:none;color:inherit">
+            <span>🙋</span><div class="grow"><b x-text="ctx()?.customer?.name || run?.customer_id"></b>
+            <small x-text="run?.customer_id"></small></div>→</a>
+          <div class="mrow" x-show="run?.policy_id"><span>📄</span>
+            <div class="grow"><b x-text="ctx()?.policy_no || run?.policy_id"></b>
+            <small>hợp đồng</small></div></div>
+          <div class="mrow" x-show="run?.claim_id"><span>🚗</span>
+            <div class="grow"><b class="mono" x-text="run?.claim_id"></b><small>claim</small></div></div>
+          <a class="mrow" x-show="ctx()?.contract_doc?.url" :href="ctx()?.contract_doc?.url" target="_blank"
+             style="text-decoration:none;color:inherit"><span>📑</span>
+            <div class="grow"><b>PDF hợp đồng</b><small x-text="ctx()?.contract_doc?.name"></small></div>→</a>
+          <a class="mrow" x-show="ctx()?.bien_ban_doc?.url" :href="ctx()?.bien_ban_doc?.url" target="_blank"
+             style="text-decoration:none;color:inherit"><span>📑</span>
+            <div class="grow"><b>Biên bản giám định</b><small x-text="ctx()?.bien_ban_doc?.name"></small></div>→</a>
+          <div class="mrow" x-show="run?.ticket_id"><span>🎫</span>
+            <div class="grow"><b class="mono" x-text="run?.ticket_id"></b><small>ticket hệ lõi</small></div></div>
+        </div>
+        <h3>✉️ Email đã gửi</h3>
+        <div class="mini">
+          <template x-for="(m,i) in (ctx()?.mails||[])" :key="i">
+            <div class="mrow"><span x-text="m.ok ? '📨' : '⚠️'"></span>
+              <div class="grow"><b x-text="m.template"></b>
+                <small x-text="m.to + (m.ok ? '' : ' — '+m.detail)"></small></div></div>
+          </template>
+          <div class="empty" x-show="!(ctx()?.mails||[]).length" style="padding:8px">Chưa gửi email nào.</div>
+        </div>
+      </div>
+
+      <div class="panel stag" style="--d:4">
+        <h3>🧠 Context (dữ liệu run)</h3>
+        <pre class="log" style="max-height:340px" x-text="JSON.stringify(ctxPublic(), null, 2)"></pre>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

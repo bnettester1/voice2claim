@@ -39,24 +39,24 @@ _STATUS_VI = {
 # công khai của notify server (fake data), đủ cho 2 workflow demo.
 _LOCAL_CUSTOMERS: list[dict] = [
     {"id": "KH-0001", "name": "Nguyễn Tiến Tuấn",
-     "email": "khach.demo1@example.com", "phone": "+84900000001",
+     "email": "nguyentientuan2052000@gmail.com", "phone": "+84911961540",
      "national_id": "079095001234", "policy": "bảo hiểm vật chất xe máy",
      "claim": {"id": "CL-XE-2607-001", "type": "motorbike_accident",
                "status": "investigating", "handler": "Lưu Hải Long"}},
     {"id": "KH-0002", "name": "Phạm Thị Mai", "email": "",
-     "phone": "+84900000001", "national_id": "079088002345",
+     "phone": "+84911961540", "national_id": "079088002345",
      "policy": "bảo hiểm vật chất ô tô",
      "claim": {"id": "CL-XE-2607-002", "type": "car_accident",
                "status": "pending_assignment", "handler": ""}},
     {"id": "KH-0004", "name": "Vũ Hoàng Nam", "email": "",
-     "phone": "+84900000001", "national_id": "001092004567",
+     "phone": "+84911961540", "national_id": "001092004567",
      "policy": "bảo hiểm sức khỏe",
      "claim": {"id": "CL-YT-2607-004", "type": "health",
                "status": "approved", "handler": "Trần Kim Phương"}},
 ]
 _LOCAL_HANDLERS = {
     "xe": {"id": "NV-01", "name": "Lưu Hải Long", "email": "hailongluu@gmail.com"},
-    "y_te": {"id": "NV-02", "name": "Trần Kim Phương", "email": "giamdinh.demo@example.com"},
+    "y_te": {"id": "NV-02", "name": "Trần Kim Phương", "email": "tkphuong132@gmail.com"},
     "nhan_tho": {"id": "NV-03", "name": "Lưu Hải Long", "email": "hailongluu@gmail.com"},
 }
 
@@ -124,14 +124,40 @@ def _first(data: Any, *keys: str) -> dict | None:
 
 async def lookup_customer(query: str,
                           client: httpx.AsyncClient) -> dict | None:
-    """→ hồ sơ khách khớp query: REST notify trước, fallback kho local."""
+    """→ hồ sơ khách khớp query: DB (E12) → REST notify → kho local."""
+    try:
+        from app.db.database import run_db
+        from app.db.dal import crm as dal_crm
+        hit = await run_db(dal_crm.search_customer_legacy, query)
+        if hit:
+            return hit
+    except Exception:  # noqa: BLE001 — DB hỏng thì đi tiếp nhánh cũ
+        pass
     data = await _get("/customers", {"query": query}, client)
     cust = _first(data, "customers", "results", "data")
-    return cust if cust else _local_lookup(query)
+    if cust:
+        try:                     # hội tụ về DB để lần gọi sau tra tại chỗ
+            from app.db.database import run_db
+            from app.db.dal import crm as dal_crm
+            await run_db(dal_crm.upsert_customer_legacy, dict(cust),
+                         "notify_import")
+        except Exception:  # noqa: BLE001
+            pass
+        return cust
+    return _local_lookup(query)
 
 
 async def lookup_handler(claim_type: str,
                          client: httpx.AsyncClient) -> dict | None:
+    """→ nhân sự phụ trách nhóm claim: DB (E12) → REST notify → kho local."""
+    try:
+        from app.db.database import run_db
+        from app.db.dal import erp as dal_erp
+        hit = await run_db(dal_erp.handler_for_group, claim_type)
+        if hit:
+            return hit
+    except Exception:  # noqa: BLE001
+        pass
     data = await _get("/handlers", {"claim_type": claim_type}, client)
     h = _first(data, "handlers", "results", "data")
     return h if h else _LOCAL_HANDLERS.get(claim_type)

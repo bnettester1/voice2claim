@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đánh giá trải nghiệm — Voice2Claim</title>
+<link rel="stylesheet" href="/static/css/app.css?v={{ asset_ver }}">
+<link rel="stylesheet" href="/static/css/platform.css?v={{ asset_ver }}">
+<style>
+  .center{min-height:100vh;display:grid;place-items:center;padding:20px}
+  .card{width:min(480px,94vw);background:var(--panel);border:1px solid var(--line);
+    border-radius:16px;padding:26px 28px;text-align:center;
+    transition:opacity 240ms var(--ease-out),transform 240ms var(--ease-out)}
+  @starting-style{.card{opacity:0;transform:translateY(10px) scale(.98)}}
+  .stars{display:flex;gap:6px;justify-content:center;margin:16px 0}
+  .stars button{font-size:34px;background:none;border:0;opacity:.35;
+    transition:transform 140ms var(--ease-out),opacity 130ms var(--ease-out)}
+  .stars button.on{opacity:1}
+  .stars button:active{transform:scale(.9)}
+  @media(hover:hover) and (pointer:fine){.stars button:hover{transform:scale(1.12)}}
+  textarea{width:100%;background:var(--bg);border:1px solid var(--line);
+    color:var(--txt);border-radius:9px;padding:9px 11px;font:inherit;min-height:70px}
+  @media(prefers-reduced-motion:reduce){
+    .stars button:active,.stars button:hover{transform:none}
+    .card{transition:opacity 200ms ease;transform:none;
+      @starting-style{opacity:0;transform:none}}
+  }
+</style>
+</head>
+<body>
+<div class="center">
+<div class="card" x-data="rateApp('{{ token }}', '{{ state }}', {{ stars }})" x-cloak>
+  <div class="logo" style="justify-content:center;margin-bottom:10px">
+    <div class="dot">🎙️</div><div>Voice2Claim</div>
+  </div>
+  <template x-if="phase==='ready'">
+    <div>
+      <h2 style="font-size:17px">Trải nghiệm của anh/chị thế nào?</h2>
+      <p style="color:var(--dim);font-size:12.5px">Đánh giá này gắn thẳng vào quy trình
+        (flywheel) để công ty tự cải tiến từng phiên bản workflow.</p>
+      <div class="stars">
+        <template x-for="s in [1,2,3,4,5]" :key="s">
+          <button :class="{on: s <= stars}" @click="stars = s" x-text="s <= stars ? '⭐' : '☆'"></button>
+        </template>
+      </div>
+      <textarea x-model="comment" placeholder="Góp ý thêm (tuỳ chọn)…"></textarea>
+      <button class="btn big send" style="width:100%;margin-top:12px" @click="send()"
+              :disabled="busy || !stars">GỬI ĐÁNH GIÁ</button>
+      <p x-show="error" x-text="error" style="color:var(--danger);font-size:12px;margin-top:8px"></p>
+    </div>
+  </template>
+  <template x-if="phase==='done'">
+    <div>
+      <div style="font-size:44px;padding:8px 0">🙏</div>
+      <h2 style="font-size:17px">Cảm ơn anh/chị!</h2>
+      <p style="color:var(--dim);font-size:12.5px">Điểm đánh giá đã vào hệ thống
+        và sẽ hiện trong bảng so sánh chất lượng workflow.</p>
+    </div>
+  </template>
+  <template x-if="phase==='invalid'">
+    <div><h2 style="font-size:17px">Link không hợp lệ hoặc đã dùng</h2></div>
+  </template>
+</div>
+</div>
+<script>
+function rateApp(token, state, presetStars){
+  return {
+    phase: state === 'ready' ? 'ready' : (state === 'done' ? 'done' : 'invalid'),
+    stars: presetStars || 0, comment: '', busy: false, error: '',
+    async send(){
+      this.busy = true; this.error = '';
+      try{
+        const r = await fetch('/api/wf/rate/' + token, {
+          method: 'POST', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({stars: this.stars, comment: this.comment})});
+        if(r.ok){ this.phase = 'done'; }
+        else{ this.error = (await r.json()).error || 'Không gửi được'; }
+      }catch{ this.error = 'Lỗi mạng — thử lại giúp anh/chị.'; }
+      this.busy = false;
+    },
+  };
+}
+</script>
+<script defer src="/static/js/vendor/alpine.min.js"></script>
+</body>
+</html>

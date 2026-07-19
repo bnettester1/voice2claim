@@ -1,0 +1,185 @@
+{% extends "layout.html" %}
+{% block title %}Workflows — Voice2Claim{% endblock %}
+{% block page_js %}<script defer src="/static/js/wfviz.js?v={{ asset_ver }}"></script>{% endblock %}
+{% block content %}
+{% if not wf_key %}
+<div x-data="workflowsApp()" x-init="load()" x-cloak>
+  <div class="ptitle stag" style="--d:0">
+    <h1>⚙️ Quản lý workflow<small>Quy trình nghiệp vụ — lưu &amp; cấu hình trong database, version hoá</small></h1>
+    <div class="right"><button class="btn" @click="load()">↻ Làm mới</button></div>
+  </div>
+  <div class="wfcards">
+    <template x-for="(d,i) in defs" :key="d.id">
+      <a class="wfcard stag" :style="'--d:'+(i+1)" :href="'/workflows/'+d.key">
+        <span class="big" x-text="d.icon || '🔀'"></span>
+        <b x-text="d.name"></b>
+        <small x-text="d.description || d.key"></small>
+        <div class="meta">
+          <span class="vchip" x-text="'v'+d.version"></span>
+          <span class="stp" :class="'s-'+d.status" x-text="d.status"></span>
+          <span class="vchip" x-text="d.runs + ' runs'"></span>
+          <span class="vchip" x-text="d.source"></span>
+        </div>
+      </a>
+    </template>
+  </div>
+  <div class="empty" x-show="!defs.length">Chưa có workflow nào trong DB.</div>
+</div>
+
+{% else %}
+<div x-data="wfDetailApp('{{ wf_key }}')" x-init="load()" x-cloak>
+  <div class="ptitle stag" style="--d:0">
+    <h1><span x-text="(def?.trigger?.icon||'🔀') + ' ' + (def?.name || '{{ wf_key }}')"></span>
+      <small x-text="def?.description"></small></h1>
+    <div class="right">
+      <span class="vchip" x-text="'v' + (def?.version||'?') + ' · ' + (def?.status||'')"></span>
+      <a class="btn" href="/workflows">← Danh sách</a>
+      <button class="btn" @click="load()">↻</button>
+    </div>
+  </div>
+
+  <div class="cols" style="grid-template-columns:minmax(0,8fr) minmax(300px,4fr)">
+    <div>
+      <div class="panel stag" style="--d:1">
+        <h3>🗺️ Sơ đồ quy trình <span class="right">
+          <span class="chip" style="font-size:10px">click node để xem cấu hình</span></span></h3>
+        <div class="pad"><div x-ref="viz"></div></div>
+      </div>
+
+      {% if wf_key == 'wf_contract_open' %}
+      <div class="panel stag" style="--d:2" id="intake">
+        <h3>🚀 Mở hợp đồng mới — intake khách hàng</h3>
+        <div class="pad" style="display:flex;flex-direction:column;gap:11px">
+          <div class="drop" style="padding:12px 16px">
+            <div class="big">🎙️</div>
+            <div><b>Prefill bằng giọng nói (VALSEA)</b>
+              <small>chọn file ghi âm khách kể nhu cầu — AI tự điền form dưới</small></div>
+            <div class="btns">
+              <label class="btn">Chọn ghi âm
+                <input type="file" hidden accept="audio/*" @change="voicePrefill($event)"></label>
+            </div>
+          </div>
+          <div x-show="prefilling" style="color:var(--acc2);font-size:12.5px">
+            <span class="spin"></span> Đang bóc thông tin từ giọng nói…</div>
+          <div class="formrow">
+            <label class="fin">Họ tên khách *<input x-model="form.ho_ten" placeholder="Trần Văn Hùng"></label>
+            <label class="fin">Số CCCD *<input x-model="form.so_cccd" placeholder="079090003456"></label>
+            <label class="fin">Email nhận hợp đồng *<input x-model="form.email" placeholder="khach@gmail.com"></label>
+            <label class="fin">Điện thoại<input x-model="form.so_dien_thoai" placeholder="+8490…"></label>
+            <label class="fin">Xe (hãng/mẫu/đời) *<input x-model="form.xe_khach" placeholder="Toyota Vios 2023"></label>
+            <label class="fin">Biển số xe *<input x-model="form.bien_so_xe" placeholder="51F-555.88"></label>
+            <label class="fin" style="grid-column:1/-1">Sản phẩm
+              <input x-model="form.san_pham" placeholder="Bảo hiểm vật chất ô tô"></label>
+          </div>
+          <div class="drop" style="padding:12px 16px">
+            <div class="big">📷</div>
+            <div><b>Ảnh xe (cho AI thẩm định)</b>
+              <small x-text="photos.length ? photos.map(p=>p.name).join(', ') : 'chưa có ảnh — thiếu ảnh sẽ bị cộng điểm rủi ro'"></small></div>
+            <div class="btns"><label class="btn">Tải ảnh
+              <input type="file" hidden accept="image/*" multiple @change="uploadPhotos($event)"></label></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <button class="btn big send" @click="startRun()" :disabled="starting">
+              🚀 Khởi động flow mở hợp đồng</button>
+            <span x-show="startError" style="color:var(--danger);font-size:12px" x-text="startError"></span>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="panel stag" style="--d:3">
+        <h3>📜 Lịch sử runs <span class="right">
+          <span class="chip" style="font-size:10px" x-text="runs.length + ' run'"></span></span></h3>
+        <table>
+          <thead><tr><th>#</th><th>Khách</th><th>Kênh</th><th>Trạng thái</th><th>Node hiện tại</th><th>Kết quả</th><th>Bắt đầu</th></tr></thead>
+          <tbody>
+            <template x-for="r in runs" :key="r.id">
+              <tr class="rowlink" @click="window.location='/runs/'+r.id">
+                <td class="mono" x-text="'#'+r.id"></td>
+                <td x-text="r.customer_name || '—'"></td>
+                <td x-text="r.channel"></td>
+                <td><span class="stp" :class="'s-'+r.status" x-text="stVi(r.status)"></span></td>
+                <td class="mono" x-text="r.current_node"></td>
+                <td x-text="r.outcome || '—'"></td>
+                <td style="font-size:11px;color:var(--dim2)" x-text="fmtTime(r.started_at)"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+        <div class="empty" x-show="!runs.length">Chưa có run nào — khởi động một hồ sơ ở trên.</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel stag" style="--d:2">
+        <h3>🔧 Node <span x-text="selNode ? '— '+(selNode.label||selNode.id) : ''"></h3>
+        <div class="pad" x-show="!selNode" style="color:var(--dim2);font-size:12.5px;font-style:italic">
+          Click một node trên sơ đồ để xem cấu hình của nó (lưu trong DB).</div>
+        <div class="pad" x-show="selNode" x-cloak>
+          <div class="mini" style="padding:0 0 8px">
+            <div class="mrow"><span x-text="selIcon()"></span>
+              <div class="grow"><b x-text="selNode?.label || selNode?.id"></b>
+                <small class="mono" x-text="selNode?.type + ' · id ' + selNode?.id"></small></div></div>
+          </div>
+          <pre class="log" style="max-height:280px" x-text="JSON.stringify(selNode?.config||{}, null, 2)"></pre>
+        </div>
+      </div>
+      <div class="panel stag" style="--d:4">
+        <h3>🗃️ Versions</h3>
+        <div class="mini">
+          <template x-for="v in versions" :key="v.id">
+            <div class="mrow"><span>🗂️</span>
+              <div class="grow"><b x-text="'v'+v.version"></b>
+                <small x-text="(v.note||v.source) + ' · ' + v.runs + ' runs'"></small></div>
+              <span class="stp" :class="'s-'+v.status" x-text="v.status"></span>
+              <button class="btn" style="padding:4px 9px;font-size:10.5px"
+                      x-show="v.status!=='active'" @click="activate(v.version)">bật</button></div>
+          </template>
+        </div>
+      </div>
+
+      <div class="panel stag" style="--d:5">
+        <h3>📊 Flywheel — chất lượng theo version</h3>
+        <table>
+          <thead><tr><th>v</th><th>runs</th><th>xong</th><th>⌀ giây</th><th>★ khách</th><th>★ nhân sự</th><th>Qwen</th></tr></thead>
+          <tbody>
+            <template x-for="m in metrics" :key="m.version">
+              <tr :style="m.def_status==='active' ? 'background:rgba(109,90,232,.07)' : ''">
+                <td class="mono" x-text="'v'+m.version + (m.def_status==='active'?' ●':'')"></td>
+                <td x-text="m.runs"></td>
+                <td x-text="(m.completed||0) + (m.failed ? ' ('+m.failed+' lỗi)' : '')"></td>
+                <td x-text="m.avg_secs ?? '—'"></td>
+                <td x-text="m.avg_customer ? '★'+m.avg_customer : '—'"></td>
+                <td x-text="m.avg_staff ? '★'+m.avg_staff : '—'"></td>
+                <td x-text="m.avg_score ? m.avg_score : '—'"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+        <div class="empty" x-show="!metrics.length" style="padding:12px">Chưa có dữ liệu — chạy vài run và mời đánh giá.</div>
+        <p style="font-size:10.5px;color:var(--dim2);padding:0 14px 12px">
+          Vòng cải tiến: xem điểm → sửa cấu hình bên dưới → lưu v mới → chạy lại → so sánh.</p>
+      </div>
+
+      <div class="panel stag" style="--d:6">
+        <h3>✏️ Sửa cấu hình (JSON graph)
+          <span class="right"><button class="btn" style="padding:4px 10px;font-size:11px"
+            @click="editorOpen = !editorOpen; editorInit()" x-text="editorOpen ? 'Đóng' : 'Mở editor'"></button></span></h3>
+        <div class="pad" x-show="editorOpen" x-cloak style="display:flex;flex-direction:column;gap:9px">
+          <textarea x-model="editorText" spellcheck="false"
+            style="width:100%;min-height:260px;background:var(--bg);border:1px solid var(--line);color:var(--txt);border-radius:9px;padding:10px;font-family:var(--mono);font-size:11px;line-height:1.5"></textarea>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <button class="btn" @click="editorValidate()">✔ Kiểm tra</button>
+            <button class="btn" @click="editorPreview()">👁 Xem trước lên sơ đồ</button>
+            <button class="btn pri" @click="editorSave()" :disabled="editorBusy">💾 Lưu thành v mới</button>
+            <span style="font-size:11.5px" :style="'color:'+(editorMsgOk?'var(--ok)':'var(--danger)')"
+                  x-text="editorMsg"></span>
+          </div>
+          <p style="font-size:10.5px;color:var(--dim2)">Version cũ bất biến — run đang chạy vẫn theo bản đã pin. Lưu xong bấm “bật” ở panel Versions để kích hoạt.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

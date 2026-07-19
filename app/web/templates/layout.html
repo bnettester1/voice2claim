@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Voice2Claim{% endblock %}</title>
+<link rel="stylesheet" href="/static/css/app.css?v={{ asset_ver }}">
+<link rel="stylesheet" href="/static/css/platform.css?v={{ asset_ver }}">
+{% block head %}{% endblock %}
+<script defer src="/static/js/platform.js?v={{ asset_ver }}"></script>
+{% block page_js %}{% endblock %}
+<script defer src="/static/js/vendor/alpine.min.js"></script>
+</head>
+<body>
+{% set path = request.url.path %}
+<header class="topbar">
+  <a class="tb-logo" href="/">
+    <div class="mic">🎙️</div>
+    <div>Voice2Claim<small>Hệ thống giám định thông minh bằng giọng nói</small></div>
+  </a>
+  <button class="tb-video" x-data @click="window.dispatchEvent(new CustomEvent('v2c-intro-open'))"
+          title="Video hướng dẫn">🎬 Video hướng dẫn</button>
+  <div class="tb-right" x-data="roleBox()" x-cloak>
+    <button class="rolebtn" @click="open=!open">
+      <span class="av" x-text="current().icon"></span>
+      <span class="who"><b x-text="current().label"></b>
+        <small x-text="current().name"></small></span>
+      <span class="car" :class="{up: open}">▾</span>
+    </button>
+    <div class="rolepick" x-show="open" x-cloak @click.outside="open=false">
+      <template x-for="r in roles" :key="r.id">
+        <button class="ritem" :class="{on: r.id===role}" @click="pick(r.id)">
+          <span class="av" x-text="r.icon"></span>
+          <span><b x-text="r.label"></b><small x-text="r.name"></small></span>
+        </button>
+      </template>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="side">
+    <nav class="snav">
+      <a class="sitem {{ 'on' if path == '/' else '' }}" href="/">
+        <span class="ic">🏠</span>Tổng quan</a>
+
+      <div class="sgroup">Vận hành</div>
+      {% if nav_tasks %}
+      <a class="sitem {{ 'on' if path == '/tasks' else '' }}" href="/tasks">
+        <span class="ic">📥</span>Công việc</a>
+      {% endif %}
+      <a class="sitem {{ 'on' if path == '/crm' else '' }}" href="/crm">
+        <span class="ic">👥</span>CRM</a>
+      <a class="sitem" href="/pilot#console">
+        <span class="ic">🎫</span>Console</a>
+
+      {% if nav_flows %}
+      <div class="sgroup">Flows</div>
+      {% for f in nav_flows %}
+      <a class="sitem {{ 'on' if path == '/workflows/' + f.key else '' }}"
+         href="/workflows/{{ f.key }}"><span class="ic">{{ f.icon }}</span>{{ f.name }}</a>
+      {% endfor %}
+      <a class="sitem {{ 'on' if path == '/workflows' else '' }}" href="/workflows">
+        <span class="ic">⚙️</span>Quản lý workflow</a>
+      {% endif %}
+
+      <div class="sgroup">Nền tảng</div>
+      {% if nav_kb %}
+      <a class="sitem {{ 'on' if path == '/kb' else '' }}" href="/kb">
+        <span class="ic">📚</span>Kho tri thức</a>
+      {% endif %}
+      <a class="sitem {{ 'on' if path == '/pilot' else '' }}" href="/pilot">
+        <span class="ic">🎙️</span>Demo Speech-to-Meaning</a>
+      <a class="sitem {{ 'on' if path == '/call' else '' }}" href="/call">
+        <span class="ic">📞</span>Demo Cuộc gọi</a>
+    </nav>
+  </aside>
+
+  <main class="main">{% block content %}{% endblock %}</main>
+</div>
+
+<!-- Popup video hướng dẫn — tự hiện lần đầu vào (localStorage v2c_intro_seen) -->
+<div class="intro-ov" x-data="introVideo()" x-show="open" x-cloak
+     @v2c-intro-open.window="show(true)" @keydown.escape.window="close()">
+  <div class="intro-card" @click.outside="close()">
+    <div class="intro-head">
+      <div class="tb-logo" style="font-size:15px"><div class="mic" style="width:30px;height:30px;font-size:14px">🎙️</div>
+        <div x-show="phase==='pick'">Chào mừng đến Voice2Claim · Welcome!<small>Chọn ngôn ngữ video hướng dẫn · Choose your video language</small></div>
+        <div x-show="phase==='play'" x-cloak x-text="lang==='en' ? 'Voice2Claim — product tour' : 'Voice2Claim — video hướng dẫn'"></div></div>
+      <button class="intro-x" x-show="phase==='play'" style="margin-left:0" x-cloak
+              @click="phase='pick'; pause()" title="Đổi ngôn ngữ / Change language">🌐</button>
+      <button class="intro-x" @click="close()" title="Đóng / Close">✕</button>
+    </div>
+
+    <div class="lang-pick" x-show="phase==='pick'">
+      <button class="lang-btn" @click="play('vi')">
+        <span class="flag">🇻🇳</span><b>Tiếng Việt</b>
+        <small>Video 4 phút · thuyết minh giọng VALSEA</small></button>
+      <button class="lang-btn" @click="play('en')">
+        <span class="flag">🇬🇧</span><b>English</b>
+        <small>4-minute tour · narrated with VALSEA TTS</small></button>
+    </div>
+
+    <video x-show="phase==='play'" x-cloak x-ref="vid" controls playsinline
+           preload="metadata" :muted="autoplayMuted"></video>
+    <div class="intro-foot">
+      <label style="display:flex;gap:7px;align-items:center;font-size:12px;color:var(--dim);cursor:pointer">
+        <input type="checkbox" x-model="dontShow"> Không tự hiện lần sau · Don't show again</label>
+      <button class="btn pri big" @click="close()"
+              x-text="lang==='en' ? '🚀 Start exploring' : '🚀 Bắt đầu trải nghiệm'"></button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

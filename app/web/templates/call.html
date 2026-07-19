@@ -1,12 +1,7 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Outbound Agent Call — VALSEA Pilot</title>
-<link rel="stylesheet" href="/static/css/app.css">
-<script defer src="/static/js/call.js"></script>
-<script defer src="/static/js/vendor/alpine.min.js"></script>
+{% extends "layout.html" %}
+{% block title %}Demo Cuộc gọi — Voice2Claim{% endblock %}
+{% block page_js %}<script defer src="/static/js/call.js?v={{ asset_ver }}"></script>{% endblock %}
+{% block head %}
 <style>
   .call-modes{display:flex;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px}
   .call-modes button,.call-modes a{border:0;background:transparent;color:var(--dim);padding:7px 12px;border-radius:8px;font-weight:700;font-size:12.5px;text-decoration:none}
@@ -14,7 +9,7 @@
   .call-modes button:disabled{opacity:.35;cursor:not-allowed}
   .phone-in{background:var(--bg2);border:1px solid var(--line);border-radius:10px;color:var(--txt);padding:9px 12px;font:inherit;width:170px}
   .mail-in{background:var(--bg2);border:1px solid var(--line);border-radius:10px;color:var(--txt);padding:7px 10px;font:inherit;width:225px;font-size:12.5px}
-  .btn-call{border:0;border-radius:11px;padding:10px 22px;font-weight:800;font-size:14px;background:var(--ok);color:#06251a}
+  .btn-call{border:0;border-radius:11px;padding:10px 22px;font-weight:800;font-size:14px;background:var(--ok);color:#fff}
   .btn-call.stop{background:var(--danger);color:#fff}
   .contract-row{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:13px}
   .contract-row .lb{color:var(--dim)}
@@ -24,15 +19,15 @@
   .miss-row .lb{color:var(--dim);flex:1;white-space:nowrap}
   .miss-row .val{font-weight:700;font-family:var(--mono);text-align:right;max-width:62%;word-break:break-word}
   .miss-row.asking{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}
-  .miss-row.filled{border-color:#1d5c3d}
+  .miss-row.filled{border-color:var(--ok-line)}
   .miss-row.low{border-color:var(--warn)}
   .miss-row.skipped{opacity:.55}
   .conv{height:430px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:14px}
   .bubble{max-width:82%;padding:9px 12px;border-radius:13px;font-size:13.5px;line-height:1.5}
   .bubble.agent{align-self:flex-start;background:var(--panel2);border:1px solid var(--line);border-bottom-left-radius:4px}
   .bubble.agent b{color:var(--acc2);font-size:11px;display:block}
-  .bubble.customer{align-self:flex-end;background:#1d2a17;border:1px solid #2f4a24;border-bottom-right-radius:4px}
-  .bubble.customer b{color:#8ef0b9;font-size:11px;display:block}
+  .bubble.customer{align-self:flex-end;background:var(--ok-bg);border:1px solid var(--ok-line);border-bottom-right-radius:4px}
+  .bubble.customer b{color:#178a55;font-size:11px;display:block}
   .bubble.partial{opacity:.6;font-style:italic}
   .state-badge{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:999px;border:1px solid var(--line);background:var(--bg2);font-size:12px;font-weight:700}
   .state-badge .pulse{width:8px;height:8px;border-radius:50%;background:var(--dim2)}
@@ -40,19 +35,19 @@
   .state-badge.warn .pulse{background:var(--warn)}
   .state-badge.err .pulse{background:var(--danger)}
   @keyframes blink{50%{opacity:.35}}
-  .ticket-box{border:1px solid #1d5c3d;background:#0f2a1d;border-radius:12px;padding:12px 14px;margin-top:12px;font-size:13px}
+  .ticket-box{border:1px solid var(--ok-line);background:var(--ok-bg);border-radius:12px;padding:12px 14px;margin-top:12px;font-size:13px}
   .ticket-box b{font-family:var(--mono);font-size:15px}
   .crm-box{border:1px solid var(--line);background:var(--bg2);border-radius:12px;padding:11px 13px;margin-top:12px;font-size:12.5px}
   .crm-box .tag{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;margin-left:6px}
-  .tag.ok{background:#0f2a1d;color:#8ef0b9;border:1px solid #1d5c3d}
-  .tag.warn{background:#2a230f;color:var(--warn);border:1px solid #5c4a1d}
+  .tag.ok{background:var(--ok-bg);color:#178a55;border:1px solid var(--ok-line)}
+  .tag.warn{background:var(--warn-bg);color:#b97e0b;border:1px solid var(--warn-line)}
   .intent-chip{background:var(--acc);color:#fff;padding:3px 10px;border-radius:999px;font-size:11.5px;font-weight:700}
   .hintline{color:var(--dim);font-size:12px;margin-top:8px}
   .mailrow{font-size:12px;font-family:var(--mono);color:var(--dim);margin-top:4px}
 </style>
-</head>
-<body x-data="callApp()" x-cloak>
-<div class="wrap">
+{% endblock %}
+{% block content %}
+<div class="wrap" x-data="callApp()" x-cloak>
 
   <header>
     <div class="logo">
@@ -60,7 +55,7 @@
       <div>Outbound Agent Call<small>{{ pack.name }} · VALSEA ASR + TTS + ITN, không LLM ngoài</small></div>
     </div>
     <div class="chips" style="margin-left:auto">
-      <a class="chip" href="/" style="text-decoration:none">← Pilot chính</a>
+      <a class="chip" href="/" style="text-decoration:none">← Trang chính</a>
       <span class="state-badge" :class="badgeClass">
         <span class="pulse"></span><span x-text="stateLabel"></span>
         <span style="color:var(--dim)" x-show="elapsed" x-text="elapsed"></span>
@@ -189,5 +184,4 @@
     ],
   };
 </script>
-</body>
-</html>
+{% endblock %}

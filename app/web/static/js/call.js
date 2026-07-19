@@ -5,13 +5,31 @@ function callApp() {
   const cfg = window.CALL_CONFIG || {twilioReady: false, missing: []};
   return {
     twilioReady: cfg.twilioReady,
+    isFlows: !!cfg.isFlows,
     mode: 'replay', phone: '', active: false, sid: null,
     state: 'idle', detail: '', elapsed: '',
     msgs: [], logs: [], ticket: null,
+    profile: null, intentLabel: '', mails: [], recUrl: '',
+    customerEmail: 'hailongluu@gmail.com', handlerEmail: 'long@luuhailong.com',
     missing: cfg.missing.map(f => ({...f, status: 'pending', value: '', confidence: 0})),
     stepText: '', totalSteps: cfg.missing.length,
     monWS: null, callWS: null, micCtx: null, micStream: null, playCtx: null,
     sending: true, _timer: null, _t0: 0,
+
+    // ?sid=… → chế độ THEO DÕI cuộc gọi đang chạy (share link / quay demo):
+    // server replay lại toàn bộ history event cho monitor vào trễ.
+    init() {
+      const sid = new URLSearchParams(location.search).get('sid');
+      if (sid) {
+        this.sid = sid; this.active = true; this._t0 = Date.now();
+        // render snapshot qua fetch trước (headless/virtual-time đợi được),
+        // rồi bám WS để xem tiếp live
+        fetch('/call/state/' + sid).then(r => r.json())
+          .then(d => (d.events || []).forEach(ev => this.onEvent(ev)))
+          .catch(() => {});
+        this.openMonitor();
+      }
+    },
 
     get stateLabel() {
       const m = {idle: 'SẴN SÀNG', starting: 'KHỞI TẠO', dialing: 'ĐANG QUAY SỐ',
@@ -32,13 +50,16 @@ function callApp() {
     // ---------------- start / end ----------------
     async startCall() {
       this.msgs = []; this.logs = []; this.ticket = null; this.stepText = '';
+      this.profile = null; this.intentLabel = ''; this.mails = []; this.recUrl = '';
       this.missing.forEach(f => { f.status = 'pending'; f.value = ''; f.confidence = 0; });
       // mở khoá autoplay ngay trong click gesture
       this.playCtx = this.playCtx || new (window.AudioContext || window.webkitAudioContext)();
       this.playCtx.resume().catch(() => {});
       const r = await fetch('/call/start', {
         method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({mode: this.mode, phone: this.phone}),
+        body: JSON.stringify({mode: this.mode, phone: this.phone,
+          pack: cfg.packId,
+          customer_email: this.customerEmail, handler_email: this.handlerEmail}),
       });
       const j = await r.json();
       if (!r.ok) { alert(j.error + (j.hint ? '\n→ ' + j.hint : '')); return; }
@@ -91,10 +112,22 @@ function callApp() {
       } else if (t === 'state.patch') {
         for (const [name, st] of Object.entries(ev.fields || {})) {
           const f = this.missing.find(x => x.name === name);
-          if (f) { f.value = st.value == null ? '' : String(st.value); f.confidence = st.confidence || 0; }
+          if (f) {
+            f.value = st.value == null ? '' : String(st.value);
+            f.confidence = st.confidence || 0;
+            if (f.status === 'pending' && f.value) f.status = 'filled';
+          }
         }
       } else if (t === 'ticket') {
         this.ticket = {id: ev.id, priority: ev.priority, pdf_url: ev.pdf_url || ev.pdf};
+      } else if (t === 'crm.profile') {
+        this.profile = ev;
+      } else if (t === 'intent') {
+        this.intentLabel = ev.label;
+      } else if (t === 'mail.status') {
+        this.mails = ev.statuses || [];
+      } else if (t === 'recording') {
+        this.recUrl = ev.url;
       } else if (t === 'tts.audio') {          // replay mode: giọng agent qua monitor
         this.playAudio(ev.b64, ev.mime);
       } else if (t === 'error') {

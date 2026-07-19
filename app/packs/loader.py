@@ -88,6 +88,7 @@ class IntentSpec(BaseModel):
     reply_tpl: str = ""                 # trả lời từ hồ sơ lookup ({claim_id}…)
     confirm_tpl: str = ""               # đọc xác nhận cuối ({summary})
     action: str = ""                    # action id trong pack.actions để fire
+    workflow: str = ""                  # E12: key workflow_defs khởi động sau action
 
 
 class CallFlowsSpec(BaseModel):

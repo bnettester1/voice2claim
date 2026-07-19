@@ -39,7 +39,8 @@ def speakable(field: str, value: object) -> str:
 
 
 class ScriptedAgent:
-    GRACE = 1.2   # giây gom các final sát nhau thành 1 câu trả lời
+    GRACE = 0.7   # giây gom các final sát nhau thành 1 câu trả lời
+                  # (1.2 → 0.7 ngày 18/07: cắt trễ turn-taking trên cuộc gọi thật)
 
     def __init__(self, engine: "CallEngine"):
         self.e = engine
@@ -137,3 +138,29 @@ class ScriptedAgent:
         except Exception as exc:  # noqa: BLE001 — không để agent chết im lặng
             self.e.emit({"type": "error", "code": "agent", "message": str(exc)[:150]})
             await self.e.finish(False)
+
+
+class NotifyAgent(ScriptedAgent):
+    """E12 auto_call — workflow gọi ra đọc thông báo (không fire action nào):
+    đọc các câu đã render từ context → nghe khách đáp ngắn → cúp máy."""
+
+    def __init__(self, engine, lines: list[str], listen_secs: float = 6.0):
+        super().__init__(engine)
+        self.lines = [ln for ln in lines if str(ln).strip()]
+        self.listen_secs = listen_secs
+
+    async def run(self) -> None:
+        try:
+            for line in self.lines:
+                await self.e.say(line)
+            if self.listen_secs > 0:
+                heard = await self._listen(self.listen_secs)
+                if heard:
+                    await self.e.collect_free(heard)   # ghi lời đáp vào transcript
+            await self.e.hangup_done("autocall hoàn tất")
+        except CallEnded:
+            await self.e.hangup_done("khách cúp máy", hungup=True)
+        except Exception as exc:  # noqa: BLE001
+            self.e.emit({"type": "error", "code": "notify_agent",
+                         "message": str(exc)[:150]})
+            await self.e.hangup_done("lỗi autocall")

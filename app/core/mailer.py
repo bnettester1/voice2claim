@@ -21,7 +21,7 @@ from app.config import settings
 from app.packs.loader import Pack
 
 BREVO_URL = "https://api.brevo.com/v3/smtp/email"
-SENDER = {"name": "Speech-to-Meaning Pilot", "email": "long@luuhailong.com"}
+SENDER = {"name": "Voice2Claim", "email": "long@luuhailong.com"}
 
 OUT_DIR = Path(__file__).resolve().parent.parent.parent / "out"
 

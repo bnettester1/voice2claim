@@ -19,6 +19,7 @@ venv/
 assets/audio/*.wav
 assets/audio/*.mp3
 out/
+data/
 *.pdf
 !docs/**/*.pdf
 
@@ -36,6 +37,6 @@ scripts/bin/harness-cli.exe
 *.bin
 assets/formatting_*.json
 
-# ===== Claude Code local =====
-.claude/worktrees/
-.claude/*.lock
+# Transcript chat gom lại — chứa key thật trong vài phiên, KHÔNG commit (repo public)
+chat_session/
+chat_session.md

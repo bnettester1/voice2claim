@@ -10,9 +10,13 @@
   `docs/product/demo.md` (UI/kịch bản demo).
 - Ràng buộc cứng: VALSEA ASR bắt buộc cho speech-to-text pipeline chính
   (batch `/v1/audio/transcriptions`, live `wss /v1/realtime`). **KHÔNG dùng
-  Groq/LLM ngoài** (Long chốt 18/07, decision 0010) — extraction chạy local
-  (`app/core/extraction_local.py` + `app/telephony/parse_vi.py`), tận dụng
-  semantic_tags/formatting/TTS của VALSEA. Trigger "bấm nút…" phải arm <500ms.
+  Groq/LLM ngoài trên đường demo chính** (Long chốt 18/07, decision 0010) —
+  extraction chạy local (`app/core/extraction_local.py` +
+  `app/telephony/parse_vi.py`), tận dụng semantic_tags/formatting/TTS của
+  VALSEA. Ngoại lệ 0012 (Long chỉ đạo 19/07): Qwen 3.5 open-weight qua chuẩn
+  Anthropic (`app/core/llm_qwen.py`) CHỈ làm lớp đối chứng/thử nghiệm +
+  ứng viên judge — không gọi trong batch/live/call path. Trigger "bấm nút…"
+  phải arm <500ms.
 - Stack: FastAPI + Alpine.js (không build step). PyTorch cho lớp ML local
   (`app/core/ml/`), deps tách `requirements-ml.txt`, thiếu thì degrade sạch.
 - Dữ liệu gold: `KB_tainanxe.txt`, `KB_khambenh.txt` — không sửa 2 file này.

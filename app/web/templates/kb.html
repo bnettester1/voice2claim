@@ -1,0 +1,81 @@
+{% extends "layout.html" %}
+{% block title %}Kho tri thức — Voice2Claim{% endblock %}
+{% block content %}
+<div x-data="kbApp()" x-init="load()" x-cloak>
+  <div class="ptitle stag" style="--d:0">
+    <h1>📚 Kho tri thức doanh nghiệp<small>Upload tài liệu nghiệp vụ → AI bóc tách thành workflow nháp (Qwen — thử nghiệm, không chạy trên đường gọi)</small></h1>
+    <div class="right">
+      <span class="chip" x-show="!qwenReady" style="color:var(--warn)">⚠ Qwen chưa cấu hình — chỉ lưu trữ</span>
+      <button class="btn" @click="load()">↻ Làm mới</button>
+    </div>
+  </div>
+
+  <div class="cols" style="grid-template-columns:minmax(360px,6fr) minmax(380px,6fr)">
+    <div class="stag" style="--d:1">
+      <div class="panel">
+        <h3>📄 Tài liệu (<span x-text="docs.length"></span>)</h3>
+        <div class="pad">
+          <div class="drop" :class="{drag}" @dragover.prevent="drag=true"
+               @dragleave="drag=false" @drop.prevent="onDrop($event)">
+            <div class="big">📚</div>
+            <div><b>Kéo thả tài liệu nghiệp vụ</b>
+              <small>txt · md · pdf · ảnh · ghi âm · hoá đơn — tối đa 10MB, sha1 dedupe</small></div>
+            <div class="btns"><label class="btn pri">Chọn file
+              <input type="file" hidden multiple @change="upload($event.target.files); $event.target.value=''"></label></div>
+          </div>
+          <div x-show="uploading" style="margin-top:8px;color:var(--acc2);font-size:12px">
+            <span class="spin"></span> Đang tải lên…</div>
+        </div>
+        <div class="mini">
+          <template x-for="d in docs" :key="d.id">
+            <div class="mrow">
+              <span x-text="kindIcon(d.kind)"></span>
+              <div class="grow"><b x-text="d.filename"></b>
+                <small x-text="d.summary || (d.kind + ' · ' + Math.round((d.size_bytes||0)/1024) + 'KB')"></small></div>
+              <span class="stp" :class="'s-'+(d.status==='extracted'?'done':(d.status==='failed'?'failed':'open'))"
+                    x-text="stLabel(d.status)"></span>
+              <button class="btn" style="padding:5px 10px;font-size:11px"
+                      x-show="qwenReady && d.kind==='text' && d.status!=='extracting'"
+                      @click="extract(d)" :disabled="busyDoc===d.id">
+                <span x-show="busyDoc!==d.id">🧪 Bóc tách</span>
+                <span x-show="busyDoc===d.id"><span class="spin"></span></span>
+              </button>
+            </div>
+          </template>
+          <div class="empty" x-show="!docs.length">Chưa có tài liệu nào.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel stag" style="--d:2">
+      <h3>🧪 Workflow bóc tách được (<span x-text="extractions.length"></span>)</h3>
+      <div class="mini">
+        <template x-for="e in extractions" :key="e.id">
+          <div style="background:var(--bg2);border:1px solid var(--line);border-radius:11px;padding:11px 13px">
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <b x-text="e.extracted.name || ('Bản #'+e.id)"></b>
+              <span class="vchip" x-text="'từ ' + e.filename"></span>
+              <span class="stp" :class="e.status==='promoted' ? 's-done' : 's-draft'"
+                    x-text="e.status === 'promoted' ? 'đã promote' : 'nháp'"></span>
+              <span style="margin-left:auto"></span>
+              <a class="btn" style="padding:5px 10px;font-size:11px"
+                 x-show="e.status==='promoted'"
+                 :href="'/workflows'">⚙️ Xem trong workflows</a>
+              <button class="btn pri" style="padding:5px 10px;font-size:11px"
+                      x-show="e.status!=='promoted'" @click="promote(e)"
+                      :disabled="busyExt===e.id">🚀 Promote thành workflow</button>
+            </div>
+            <p style="font-size:12.5px;color:var(--dim);margin-top:7px"
+               x-text="e.extracted.summary || e.notes"></p>
+            <div style="font-size:11px;color:var(--dim2);font-family:var(--mono);margin-top:4px"
+                 x-text="(e.extracted.graph?.nodes?.length || 0) + ' nodes · ' + (e.extracted.graph?.edges?.length || 0) + ' edges · ' + e.notes"></div>
+            <span x-show="errors[e.id]" style="color:var(--danger);font-size:11.5px" x-text="errors[e.id]"></span>
+          </div>
+        </template>
+        <div class="empty" x-show="!extractions.length">
+          Chưa có bản bóc tách — bấm 🧪 trên một tài liệu text (2 file KB gold đã seed sẵn).</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

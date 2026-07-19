@@ -53,9 +53,10 @@ class FlowAgent(ScriptedAgent):
         e.emit({"type": "intent", "id": intent.id, "label": intent.label})
 
         if intent.reply_tpl:                      # tra cứu từ hồ sơ
-            from app.telephony import crm
+            from app.telephony import crm, tts
             if e.cust:
-                await e.say(crm.status_reply(intent.reply_tpl, e.cust, e.handler))
+                await e.say(crm.status_reply(intent.reply_tpl, e.cust, e.handler),
+                            filler=tts.FILLER_CHECKED)
             else:
                 await e.say("Dạ em chưa tìm thấy hồ sơ để tra cứu ngay, em sẽ "
                             "chuyển bộ phận nghiệp vụ kiểm tra và gọi lại "
@@ -72,8 +73,10 @@ class FlowAgent(ScriptedAgent):
             await self._do_step(idx, step, fl.reask_after_secs)
 
         if intent.confirm_tpl:
+            from app.telephony import tts
             await e.say(intent.confirm_tpl.replace("{summary}",
-                                                   e.fields_summary()))
+                                                   e.fields_summary()),
+                        filler=tts.FILLER_NOTED)
             heard = await self._listen(6)
             if heard is not None and self._is_no_more(heard) is False:
                 await e.collect_free(heard)       # khách bổ sung phút chót
@@ -91,9 +94,10 @@ class FlowAgent(ScriptedAgent):
                 await self.e.say(fl.lookup_wait)
             found = await self.e.crm_lookup()
             if found:
-                from app.telephony import crm
+                from app.telephony import crm, tts
                 await self.e.say(fl.lookup_found_tpl.replace(
-                    "{summary}", crm.profile_summary(self.e.cust)))
+                    "{summary}", crm.profile_summary(self.e.cust)),
+                    filler=tts.FILLER_FOUND)
             else:
                 await self.e.say(fl.lookup_miss or fl.menu_prompt)
 

@@ -1,0 +1,107 @@
+{% extends "layout.html" %}
+{% block title %}Công việc — Voice2Claim{% endblock %}
+{% block content %}
+<div x-data="tasksApp()" x-init="load()" x-cloak>
+  <div class="ptitle stag" style="--d:0">
+    <h1>📥 Hộp công việc<small>Việc do AI Điều hành giao theo vai — hoàn tất là workflow tự chạy tiếp</small></h1>
+    <div class="right">
+      <span class="chip">👤 <span x-text="roleLabel()"></span></span>
+      <button class="btn" @click="load()">↻ Làm mới</button>
+    </div>
+  </div>
+
+  <div class="cols" style="grid-template-columns:minmax(380px,6fr) minmax(380px,6fr)">
+    <div class="stag" style="--d:1">
+      <div class="panel">
+        <h3>Việc đang mở (<span x-text="tasks.length"></span>)
+          <span class="right"><label style="font-size:11px;color:var(--dim);display:flex;gap:5px;align-items:center">
+            <input type="checkbox" x-model="showAll" @change="load()"> xem mọi vai</label></span></h3>
+        <div class="mini" style="padding-top:10px">
+          <template x-for="t in tasks" :key="t.id">
+            <div class="mrow rowlink" :class="{sel: sel?.id===t.id}" @click="pick(t)"
+                 style="cursor:pointer">
+              <span x-text="ticon(t)"></span>
+              <div class="grow"><b x-text="t.title"></b>
+                <small x-text="(t.customer_name ? t.customer_name + ' · ' : '') + (t.claim_id || '') + ' · giao cho ' + (t.assignee_name || roleVi(t.assignee_role))"></small></div>
+              <span class="pr" :class="prClass(t.priority)" x-text="t.priority"></span>
+            </div>
+          </template>
+          <div class="empty" x-show="!tasks.length">
+            Không có việc nào cho vai này — đổi vai ở góc dưới sidebar, hoặc chạy một flow để AI giao việc.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel d360 detail-swap stag" style="--d:2" :class="{loading}">
+      <h3>🛠️ Xử lý việc <span x-text="sel ? '— #'+sel.id : ''"></span></h3>
+      <template x-if="!sel">
+        <div class="empty">Chọn một việc bên trái để xử lý.</div>
+      </template>
+      <template x-if="sel">
+        <div class="pad" style="display:flex;flex-direction:column;gap:11px">
+          <div class="mini" style="padding:0">
+            <div class="mrow"><span>📌</span>
+              <div class="grow"><b x-text="sel.title"></b>
+                <small x-text="'Tạo lúc ' + fmtTime(sel.created_at) + (sel.run_id ? ' · từ run #'+sel.run_id : '')"></small></div>
+              <a x-show="sel.run_id" :href="'/runs/'+sel.run_id" class="btn"
+                 style="padding:5px 10px;font-size:11px">▶️ Run</a></div>
+          </div>
+
+          <div x-show="excerpt()" style="background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:12.5px">
+            <div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);margin-bottom:6px">Hồ sơ AI đã thu thập</div>
+            <template x-for="(v,k) in excerpt()" :key="k">
+              <div class="contract-row" style="display:flex;justify-content:space-between;gap:10px;padding:4px 0;border-bottom:1px dashed var(--line)">
+                <span style="color:var(--dim)" x-text="k"></span>
+                <span style="font-weight:600;text-align:right" x-text="v"></span>
+              </div>
+            </template>
+          </div>
+
+          <template x-for="f in formFields()" :key="f.name">
+            <label class="fin">
+              <span x-text="f.label"></span>
+              <textarea x-show="f.type==='textarea'" x-model="values[f.name]" rows="2"></textarea>
+              <input x-show="f.type!=='textarea'" :type="f.type==='number' ? 'number' : 'text'"
+                     x-model="values[f.name]">
+            </label>
+          </template>
+
+          <div x-show="wantsUploads()" class="drop" style="padding:11px 14px">
+            <div class="big">🎙️📷</div>
+            <div><b>Ghi âm + ảnh hiện trường</b>
+              <small x-text="files.length ? files.map(f=>f.name).join(', ') : 'wav/m4a/mp3 (băng ghi âm — AI sẽ bóc), jpg/png (ảnh)'"></small></div>
+            <div class="btns"><label class="btn">Tải file
+              <input type="file" hidden multiple accept="audio/*,image/*,.pdf" @change="upload($event)"></label></div>
+          </div>
+          <div x-show="uploading" style="color:var(--acc2);font-size:12px">
+            <span class="spin"></span> Đang tải file…</div>
+
+          <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center">
+            <template x-if="hasDecision()">
+              <div style="display:flex;gap:9px">
+                <button class="btn big send" @click="complete('approved')" :disabled="busy">✅ Duyệt</button>
+                <button class="btn big" style="background:var(--dan-bg);border-color:var(--dan-line);color:#c74560"
+                        @click="complete('rejected')" :disabled="busy">✖ Từ chối</button>
+              </div>
+            </template>
+            <template x-if="!hasDecision()">
+              <button class="btn big send" @click="complete('completed')" :disabled="busy">
+                ✅ Hoàn tất — workflow chạy tiếp</button>
+            </template>
+            <span x-show="error" style="color:var(--danger);font-size:12px" x-text="error"></span>
+          </div>
+          <label class="fin"><span>Ghi chú xử lý</span>
+            <textarea x-model="note" rows="2" placeholder="lý do duyệt/từ chối, ghi chú…"></textarea></label>
+          <div style="display:flex;gap:8px;align-items:center;font-size:12px;color:var(--dim)">
+            <span>Chấm chất lượng quy trình (flywheel):</span>
+            <template x-for="s in [1,2,3,4,5]" :key="s">
+              <button class="starbtn" :style="s <= stars ? '' : 'opacity:.3'"
+                      @click="stars = (stars===s ? 0 : s)" x-text="'⭐'"></button>
+            </template>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+</div>
+{% endblock %}

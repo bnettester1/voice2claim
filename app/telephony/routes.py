@@ -26,7 +26,7 @@ def _script_texts(pack) -> list[str]:
                 + [s.ask for s in sc.steps] + [s.reask for s in sc.steps])
     fl = pack.call_flows
     out = [fl.greeting, fl.lookup_wait, fl.lookup_miss, fl.menu_prompt,
-           fl.unknown_intent, fl.ask_more, fl.closing]
+           fl.unknown_intent, fl.ask_more, fl.closing] + list(tts.FILLERS)
     for s in fl.identify:
         out += [s.ask, s.reask]
     for it in fl.intents:
@@ -116,6 +116,35 @@ async def telephony_twiml(request: Request):
                     media_type="text/xml")
 
 
+@router.api_route("/telephony/inbound", methods=["GET", "POST"])
+async def telephony_inbound(request: Request):
+    """Chiều GỌI VÀO số Twilio (trial: phát thông báo xong chạy TwiML luôn,
+    KHÔNG cần keypress — né gotcha DTMF chiều gọi ra). Mỗi cuộc inbound dựng
+    một CallEngine on-the-fly, stream media như outbound."""
+    form = dict((await request.form()).items()) if request.method == "POST" else {}
+    path_qs = request.url.path + ("?" + request.url.query if request.url.query else "")
+    if not twilio_client.valid_signature(
+            path_qs, form, request.headers.get("X-Twilio-Signature")):
+        return Response(status_code=403)
+    pack = (PACKS.get(request.query_params.get("pack", "insurance_callcenter"))
+            or PACKS.get(_DEFAULT_PACK))
+    if pack is None or (pack.call_script is None and pack.call_flows is None):
+        return Response(status_code=500)
+    sid = secrets.token_hex(8)
+    engine = CallEngine(sid, pack, "twilio")
+    engine.direction = "in"                    # E12: interactions ghi call_in
+    engine.call_sid = str(form.get("CallSid", ""))
+    CALLS[sid] = engine
+    engine._tasks.append(asyncio.create_task(engine.broadcast_loop()))
+    asyncio.create_task(_janitor(engine))
+    asyncio.create_task(tts.prewarm(_script_texts(pack), "twilio"))
+    engine.emit_state(
+        "in-progress",
+        f"inbound từ {twilio_client.mask_phone(str(form.get('From', '')))}")
+    return Response(twilio_client.twiml_connect_stream(sid),
+                    media_type="text/xml")
+
+
 _STATUS_MAP = {"initiated": "dialing", "ringing": "ringing",
                "answered": "in-progress", "in-progress": "in-progress",
                "completed": "ended", "busy": "failed", "failed": "failed",
@@ -158,6 +187,16 @@ async def ws_browser(ws: WebSocket, sid: str):
         await ws.close(code=4404)
         return
     await transports.BrowserTransport(ws, engine).run()
+
+
+@router.get("/call/state/{sid}")
+async def call_state(sid: str):
+    """Snapshot history event của cuộc gọi (share link / quay demo — E12).
+    Trang /call?sid=… render qua fetch này rồi mới bám WS monitor."""
+    engine = CALLS.get(sid)
+    if engine is None:
+        return JSONResponse({"error": "không có phiên"}, status_code=404)
+    return {"sid": sid, "events": list(engine.history)}
 
 
 @router.websocket("/ws/callmon/{sid}")

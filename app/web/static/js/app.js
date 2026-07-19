@@ -24,6 +24,10 @@ function s2m() {
 
     // ---------- init ----------
     async init() {
+      // deep-link tab từ sidebar Voice2Claim: /pilot#console, /pilot#live…
+      const h = (location.hash || '').replace('#', '');
+      if (['batch', 'live', 'console'].includes(h)) this.tab = h;
+      if (this.tab === 'console') this.loadTickets();
       this.packs = await (await fetch('/api/packs')).json();
       this.demoAudios = await (await fetch('/api/demo-audios')).json();
       await this.loadReplays();
@@ -336,7 +340,7 @@ function s2m() {
     ringStyle() {
       const t = this.score?.total ?? 0;
       const col = t >= 85 ? 'var(--ok)' : (t >= 60 ? 'var(--warn)' : 'var(--danger)');
-      return `background:conic-gradient(${col} ${t}%, #222c55 0)`;
+      return `background:conic-gradient(${col} ${t}%, #e8eaf5 0)`;
     },
     prClass(p) { return p === 'CAO' ? 'CAO' : (p === 'TRUNG BÌNH' ? 'TB' : 'THUONG'); },
     filledCount() {

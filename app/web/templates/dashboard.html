@@ -1,0 +1,79 @@
+{% extends "layout.html" %}
+{% block title %}Tổng quan — Voice2Claim{% endblock %}
+{% block content %}
+<div x-data="dashboardApp()" x-init="load()" x-cloak>
+  <div class="ptitle stag" style="--d:0">
+    <h1>🏠 Tổng quan<small>Nhịp vận hành công ty + AI Điều hành đứng sau mọi quyết định</small></h1>
+    <div class="right">
+      <span class="chip"><span class="st"></span> <span x-text="'DB ' + (counts.db_ok ? 'sẵn sàng' : 'lỗi')"></span></span>
+      <button class="btn" @click="load()">↻ Làm mới</button>
+    </div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi stag accent" style="--d:1"><b x-text="counts.customers ?? '—'"></b>
+      <label>Khách hàng</label><small>hồ sơ CRM</small></div>
+    <div class="kpi stag ok" style="--d:2"><b x-text="counts.policies_active ?? '—'"></b>
+      <label>Hợp đồng hiệu lực</label><small x-text="(counts.policies_pending||0)+' chờ xử lý'"></small></div>
+    <div class="kpi stag warn" style="--d:3"><b x-text="counts.claims_open ?? '—'"></b>
+      <label>Claim đang xử lý</label><small x-text="(counts.claims_paid||0)+' đã chi trả'"></small></div>
+    <div class="kpi stag" style="--d:4"><b x-text="counts.tasks_open ?? '—'"></b>
+      <label>Công việc mở</label><small>hộp việc nhân sự</small></div>
+    <div class="kpi stag" style="--d:5"><b x-text="counts.tickets ?? '—'"></b>
+      <label>Ticket hệ lõi</label><small>bền qua restart</small></div>
+    <div class="kpi stag" style="--d:6"><b x-text="counts.calls ?? '—'"></b>
+      <label>Cuộc gọi</label><small x-text="(counts.calls_today||0)+' hôm nay'"></small></div>
+    <div class="kpi stag accent" style="--d:7"><b x-text="counts.runs_active ?? '—'"></b>
+      <label>Workflow đang chạy</label><small>chờ sự kiện / nhân sự</small></div>
+  </div>
+
+  <div class="cols" style="grid-template-columns:minmax(430px,7fr) minmax(360px,5fr)">
+    <div class="panel stag" style="--d:7">
+      <h3>🤖 AI Điều hành — Decision Feed
+        <span class="right"><span class="chip" style="font-size:10px">status_history · actor ai/system</span></span></h3>
+      <div class="feed">
+        <template x-for="f in feed" :key="f.id">
+          <div class="fitem" :class="{ai: f.actor_kind==='ai'}">
+            <div class="fav" x-text="f.actor_kind==='ai' ? '🤖' : (f.actor_kind==='employee' ? '👤' : (f.actor_kind==='customer' ? '🙋' : '⚙️'))"></div>
+            <div class="ft" x-text="fmtTime(f.created_at)"></div>
+            <div class="fmsg">
+              <b x-text="feedTag(f)"></b>
+              <span x-text="f.note || (f.entity_kind + ' → ' + f.to_status)"></span>
+            </div>
+          </div>
+        </template>
+        <div class="empty" x-show="!feed.length">Chưa có quyết định nào — chạy một cuộc gọi demo hoặc một flow để xem AI điều phối.</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel stag" style="--d:8">
+        <h3>🧠 Bộ não AI — năng lực từng tầng</h3>
+        <div class="mini">
+          <div class="mrow"><span>🎙️</span><div class="grow"><b>Nghe & hiểu</b>
+            <small>VALSEA ASR batch + realtime, correction + semantic_tags</small></div></div>
+          <div class="mrow"><span>📝</span><div class="grow"><b>Tự điền form</b>
+            <small>extraction_local + NER PyTorch — không LLM ngoài trên đường nói</small></div></div>
+          <div class="mrow"><span>🔀</span><div class="grow"><b>Định tuyến yêu cầu</b>
+            <small>keyword router &lt;1ms trong cuộc gọi · dispatch API ngoài cuộc gọi</small></div></div>
+          <div class="mrow"><span>⚖️</span><div class="grow"><b>Thẩm định rủi ro</b>
+            <small>rule-based minh bạch + Qwen second-opinion async (thử nghiệm)</small></div></div>
+          <div class="mrow"><span>🔊</span><div class="grow"><b>Nói & thông báo</b>
+            <small>VALSEA TTS · email · autocall theo workflow</small></div></div>
+        </div>
+      </div>
+      <div class="panel stag" style="--d:9">
+        <h3>🚀 Đi nhanh</h3>
+        <div class="mini">
+          <a class="mrow" href="/crm" style="text-decoration:none;color:inherit"><span>👥</span>
+            <div class="grow"><b>CRM — Khách hàng 360</b><small>khách · hợp đồng · claim · tương tác</small></div>→</a>
+          <a class="mrow" href="/pilot" style="text-decoration:none;color:inherit"><span>🎙️</span>
+            <div class="grow"><b>Demo Speech-to-Meaning</b><small>batch · live mic · duyệt & gửi</small></div>→</a>
+          <a class="mrow" href="/call" style="text-decoration:none;color:inherit"><span>📞</span>
+            <div class="grow"><b>Demo Cuộc gọi tổng đài</b><small>autobot E10 — replay / browser / Twilio</small></div>→</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -229,3 +229,33 @@ silero-vad`.
   (kể chuyện "máy ~40s + người ~10s vs 15 phút ghi tay").
 - `field_accuracy`: eval scorecard vs gold labels (10 test case).
 - Chi phí/độ trễ từng call VALSEA (console log có cấu trúc, không log key).
+
+## 9. Insurance OS — lớp nền tảng E12 (bổ sung 19/07)
+
+Pilot nâng thành mini CRM/ERP + workflow platform (plan: `PLAN-E12-insurance-os.md`,
+decision 0013). Nguyên tắc: **đường nói giữ nguyên** (VALSEA-only, extraction
+local, TriggerMatcher <500ms untouched) — nền tảng bám vào các seam có sẵn.
+
+```
+Kênh vào ──► AI Điều hành ──► Workflow Runner ──► SQLite data/app.db ──► Web shell
+ (call E10,   route_intent      graph JSON DB,      22 bảng: CRM/ERP/     sidebar: Tổng quan/
+  web form,   + /api/wf/        14 node types,      workflow/flywheel/    CRM/Công việc/Flows/
+  dispatch)   dispatch          wait↔resume CAS     KB/tickets            Kho tri thức/demo cũ
+```
+
+- `app/db/` — stdlib sqlite3, WAL, migration `PRAGMA user_version`
+  (`schema/001-init.sql`); DAL per domain; `bridge.py` là điểm nối DUY NHẤT với
+  core cũ (listener ticket_store, hook sau fire_flow_action, interactions mỗi
+  cuộc gọi) — mọi ghi fire-and-forget, lỗi DB không chặn demo.
+- `app/workflow/` — engine: `expr.py` (điều kiện không eval), `defs.py`
+  (GraphSpec + validate), `nodes.py` (collect_form, crm_lookup, ai_assess
+  rule-based + Qwen judge async, gen_pdf, send_email + token 1 lần, wait_event,
+  human_task, transcribe_media VALSEA, auto_call NotifyAgent, fire_action,
+  update_record, end), `runner.py` (per-run lock, WAIT thoát coroutine, resume
+  CAS idempotent, recover khi boot), version hoá def (run pin version).
+- Flywheel: `evaluations` (customer/handler/director/auto/qwen_judge) +
+  `v_workflow_metrics` so sánh per version ngay trên trang workflow.
+- KB: upload sha1-dedupe → Qwen (chuẩn Anthropic, 0012) bóc tách graph → draft
+  def `source=kb_extraction` → promote/activate qua editor.
+- Twilio outbound trial vẫn tắc DTMF (0011) → `auto_call` mặc định replay,
+  sẵn config `allow_twilio` khi account nâng cấp.

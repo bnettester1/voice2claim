@@ -177,9 +177,9 @@ def _pass_anchor(pack: Pack, sents: list[Sent], cands: Cands) -> None:
     validators = {v.field: str(v.value) for v in pack.scoring.validators
                   if v.rule == "regex"}
     for f in pack.all_fields():
-        if f.name.startswith("ten_"):
-            continue    # tên người: synonyms kiểu "anh/chị" match bừa — dùng
-                        # chiến lược _first_name/NER, không anchor
+        if f.name.startswith("ten_") or f.name in ("ho_ten",):
+            continue    # tên người: synonyms kiểu "anh/chị/tên" match cả câu
+                        # HỎI của bot — dùng chiến lược _first_name/NER, không anchor
         phrases = [p for p in ([f.label] + list(f.synonyms)) if len(p) >= 2]
         phrase_norms = [[t for t in normalize_vi(p).split() if t]
                         for p in phrases]
