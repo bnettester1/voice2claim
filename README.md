@@ -140,7 +140,7 @@ I --> J
 
 ---
 
-## 🏗️ Kiến Trúc Hệ Thống
+## 🏗 Kiến Trúc Hệ Thống
 
 ### 4-Layer Pipeline (Explainable AI)
 
@@ -159,7 +159,7 @@ graph TD
     style B fill:#667eea,stroke:#764ba2,stroke-width:3px
     style D fill:#f093fb,stroke:#f5576c,stroke-width:3px
 ```
-## Cài Đặt & Chạy Demo
+## 🚀 Cài Đặt & Chạy Demo
 ```
 // Chuẩn bị certificate cho domain web, phục vụ gateway, các file
 /etc/nginx/ssl/voice2claim.crt;
