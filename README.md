@@ -159,6 +159,23 @@ graph TD
     style B fill:#667eea,stroke:#764ba2,stroke-width:3px
     style D fill:#f093fb,stroke:#f5576c,stroke-width:3px
 ```
+
+## 🧰 Công Nghệ Sử Dụng
+
+| Lớp | Vai trò | Công nghệ |
+|-----|---------|-----------|
+| **Layer 1 — ASR** | Nhận dạng giọng nói hiện trường | [VALSEA ASR API](https://valsea.ai/docs) |
+| **Layer 2 — Speech Understanding** | Semantic + LLM | [Qwen](https://www.alibabacloud.com/en/campaign/qwen-ai-landing-page) (`qwen-plus`) + tìm kiếm vector [FAISS](https://github.com/facebookresearch/faiss) với embedding [multilingual-e5-base](https://huggingface.co/intfloat/multilingual-e5-base) qua [HF Text Embeddings Inference](https://github.com/huggingface/text-embeddings-inference) |
+| **Layer 4 — Action Executor** | Thực thi hành động | MCP Gateway |
+| **Backend** | API service | [Go 1.25](https://go.dev) + [Gin](https://gin-gonic.com) |
+| **Microservices** | LLM Proxy & Vector Search | [Python](https://www.python.org) + [FastAPI](https://fastapi.tiangolo.com) + [FAISS](https://github.com/facebookresearch/faiss) |
+| **Database** | Lưu trữ dữ liệu claim | [PostgreSQL 16](https://www.postgresql.org) |
+| **Cache** | In-memory store | [Redis Stack 7.2](https://redis.io) |
+| **Message Broker** | Hàng đợi & MQTT | [RabbitMQ 3](https://www.rabbitmq.com) + [EMQX 5.8](https://www.emqx.io) |
+| **Gateway** | Reverse proxy / SSL | [Nginx](https://nginx.org) |
+| **Frontend** | Web client | [AlpineJS](https://alpinejs.dev) + [alpinejs-i18n](https://github.com/rehhouari/alpinejs-i18n) + [wavesurfer.js](https://wavesurfer.xyz) |
+| **Orchestration** | Triển khai container | [Docker Compose](https://docs.docker.com/compose/) |
+
 ## 🚀 Cài Đặt & Chạy Demo
 ```
 // Chuẩn bị certificate cho domain web, phục vụ gateway, các file
